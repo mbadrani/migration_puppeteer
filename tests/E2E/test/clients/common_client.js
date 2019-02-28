@@ -1,819 +1,331 @@
-const {getClient} = require('../common.webdriverio.js');
 const {languageFO} = require('../selectors/FO/index');
+const exec = require('child_process').exec;
+const puppeteer = require('puppeteer');
 let path = require('path');
 let fs = require('fs');
 let pdfUtil = require('pdf-to-text');
-const exec = require('child_process').exec;
+
+let options = {
+  timeout: 30000,
+  headless: false,
+  defaultViewport: {
+    width: 0,
+    height: 0
+  },
+  args: [`--window-size=${1280},${1024}`]
+};
 
 global.tab = [];
 global.isOpen = false;
 global.param = [];
 
 class CommonClient {
-  constructor() {
-    this.client = getClient();
+
+  async open() {
+    global.browser = await puppeteer.launch(options);
+    global.page = await this.getPage(0)
   }
 
-  signInBO(selector, link, login, password) {
-    return this.client.signInBO(selector, link, login, password);
+  async getPage(id) {
+    const pages = await browser.pages();
+    return await pages[id];
   }
 
-  signOutBO() {
-    return this.client.signOutBO();
+  async stopTracing() {
+    await page.tracing.stop();
   }
 
-  signInFO(selector, link) {
-    return this.client.signInFO(selector, link);
+  async close() {
+    await browser.close();
   }
 
-  signOutFO(selector) {
-    return this.client.signOutFO(selector);
+  async startTracing(testName = 'test') {
+    await page.tracing.start({
+      path: 'test/tracing/' + testName + '.json',
+      categories: ['devtools.timeline']
+    });
   }
 
-  localhost(link) {
-    return this.client.localhost(link);
+  async signInBO(selector, link = global.URL, login = global.adminEmail, password = global.adminPassword) {
+    await page.goto(link + '/admin-dev');
+    await this.waitAndSetValue(selector.login_input, login);
+    await this.waitAndSetValue(selector.password_inputBO, password);
+    await this.waitForExistAndClick(selector.login_buttonBO);
+    await page.waitFor(selector.menuBO, {timeout: 120000});
   }
 
-  linkAccess(link) {
-    return this.client.linkAccess(link);
+  async waitAndSetValue(selector, value, wait = 0, options = {}) {
+    await page.waitFor(wait);
+    await page.waitFor(selector, options);
+    await page.click(selector);
+    await page.keyboard.down('Control');
+    await page.keyboard.down('A');
+    await page.keyboard.up('A');
+    await page.keyboard.up('Control');
+    await page.keyboard.press('Backspace');
+    await page.type(selector, value);
   }
 
-  waitForVisibleElement(selector, timeout) {
-    return this.client.waitForVisibleElement(selector, timeout);
+  async pause(timeoutOrSelectorOrFunction, options = {}) {
+    await page.waitFor(timeoutOrSelectorOrFunction, options);
   }
 
-  waitForExist(selector, timeout = 90000) {
-    return this.client
-      .waitForExist(selector, timeout);
+  async waitForExistAndClick(selector, wait = 0, options = {}) {
+    await page.waitFor(wait);
+    await page.waitFor(selector);
+    await page.click(selector, options);
   }
 
-  goToSubtabMenuPage(menuSelector, selector) {
-    return this.client
-      .isOpen(menuSelector)
-      .then(() => {
-        if (global.isOpen) {
-          this.client
-            .execute(function (selector) {
-              let element = document.querySelector(selector);
-              element.scrollIntoView();
-            }, selector)
-            .waitForVisibleAndClick(selector, 2000);
-        } else {
-          this.client
-            .waitForExistAndClick(menuSelector, 2000)
-            .pause(2000)
-            .execute(function (selector) {
-              let element = document.querySelector(selector);
-              element.scrollIntoView();
-            }, selector)
-            .waitForVisibleAndClick(selector);
-        }
-      })
-      .then(() => this.client.pause(4000));
+  async isVisible(selector, wait = 0, options = {}) {
+    await page.waitFor(wait, options);
+    global.isVisible = await page.$(selector) !== null;
   }
 
-  closeBoarding(selector) {
+  async closeBoarding(selector) {
     if (global.isVisible) {
-      return this.client
-        .click(selector)
-        .pause(2000);
+      await page.click(selector);
+      await page.waitFor(2000);
     } else {
-      return this.client.pause(1000);
+      await page.waitFor(1000);
     }
   }
 
-  isVisible(selector, pause = 0) {
-    return this.client
-      .pause(pause)
-      .isVisible(selector)
-      .then((isVisible) => {
-        global.isVisible = isVisible;
-      });
+  async screenshot(fileName = 'screenshot') {
+    await page.screenshot({path: 'test/screenshots/' + fileName + global.dateTime + '.png'});
   }
 
-  isVisibleWithinViewport(selector) {
-    return this.client
-      .isVisibleWithinViewport(selector);
+  async goToSubtabMenuPage(menuSelector, selector) {
+    let isOpen = false;
+    let result = await page.evaluate((menuSelector) => {
+      isOpen = document.querySelector(menuSelector).matches('open');
+      return isOpen;
+    }, menuSelector);
+    if (result === false) {
+      await this.waitForExistAndClick(menuSelector);
+    }
+    await this.waitForExistAndClick(selector, 2000);
   }
 
-  takeScreenshot() {
-    return this.client.saveScreenshot(`test/screenshots/${this.client.desiredCapabilities.browserName}_exception_${new Date().getTime()}.png`);
+  async scrollWaitForVisibleAndClick(selector, pause = 0, timeout = 40000) {
+    await page.waitFor(selector);
+    await page.evaluate((selector) => {
+      document.querySelector(selector).scrollIntoView();
+    }, selector);
+    await this.waitForVisibleAndClick(selector, pause, timeout)
   }
 
-  changeLanguage(language = 'en') {
-    return this.client
-      .waitForExistAndClick(languageFO.language_selector, 2000)
-      .pause(2000)
-      .isVisible(languageFO.language_option.replace('%LANG', language))
-      .then((isVisible) => {
-        expect(isVisible, "This language is not existing").to.be.true;
-        if (isVisible) {
-          this.client.waitForVisibleAndClick(languageFO.language_option.replace('%LANG', language));
-        }
-      })
-      .then(() => this.client.pause(3000));
+  async isExisting(selector, wait = 0) {
+    await page.waitFor(wait);
+    const exists = await page.$(selector) !== null;
+    expect(exists).to.be.true;
   }
 
-  selectLanguage(selector, option, language, id) {
-    return this.client
-      .waitForExistAndClick(selector)
-      .waitForExistAndClick(option.replace('%LANG', language).replace('%ID', id))
+  async waitForVisibleAndClick(selector, wait = 0) {
+    await page.waitFor(wait);
+    await page.waitFor(selector, {visible: true});
+    await page.click(selector);
   }
 
-  open() {
-    if (headless !== 'undefined' && headless) {
-      return this.client.init().windowHandleSize({width: 1280, height: 899});
-    } else {
-      return this.client.init().windowHandleSize({width: 1280, height: 1024});
+  async checkTextValue(selector, textToCheckWith, parameter = 'equal', wait = 0) {
+    switch (parameter) {
+      case "equal":
+        await page.waitFor(wait);
+        await page.waitFor(selector);
+        await page.$eval(selector, el => el.innerText).then((text) => {
+          if (text.indexOf('\t') != -1) {
+            text = text.replace("\t", "");
+          }
+          expect(text.trim()).to.equal(textToCheckWith)
+        });
+        break;
+      case "contain":
+        await page.waitFor(wait);
+        await page.waitFor(selector);
+        await page.$eval(selector, el => el.innerText).then((text) => expect(text).to.contain(textToCheckWith));
+        break;
+      case "deepequal":
+        await page.waitFor(wait);
+        await page.waitFor(selector);
+        await page.$eval(selector, el => el.innerText).then((text) => expect(text).to.deep.equal(textToCheckWith));
+        break;
+      case "notequal":
+        await page.waitFor(wait);
+        await page.waitFor(selector);
+        await page.$eval(selector, el => el.innerText).then((text) => expect(text).to.not.equal(textToCheckWith));
+        break;
+      case "greaterThan":
+        await page.waitFor(wait);
+        await page.waitFor(selector);
+        await page.$eval(selector, el => el.innerText).then((text) => expect(parseInt(text)).to.be.gt(textToCheckWith));
+        break;
     }
   }
 
-  close() {
-    return this.client.end();
+  async waitForSymfonyToolbar(AddProductPage, pause = 4000) {
+    await page.waitFor(pause);
+    let exist = await page.$(AddProductPage.symfony_toolbar_block) !== null;
+    if (exist) {
+      await this.waitForExistAndClick(AddProductPage.symfony_toolbar);
+    }
   }
 
-  closeWindow(id) {
-    return this.client.closeWindow(id);
-  }
-
-  waitForExistAndClick(selector, pause = 0, timeout = 90000) {
-    return this.client
-      .pause(pause)
-      .waitForExistAndClick(selector, timeout);
-  }
-
-  waitAndSetValue(selector, value, pause = 0, timeout = 90000) {
-    return this.client
-      .pause(pause)
-      .waitAndSetValue(selector, value, timeout);
-  }
-
-  scrollTo(selector, margin) {
-    return this.client.scrollTo(selector, margin);
-  }
-
-  scrollWaitForExistAndClick(selector, margin, pause = 0, timeout = 90000) {
-    return this.client
-      .pause(pause)
-      .scrollWaitForExistAndClick(selector, margin, timeout);
-  }
-
-  waitForVisibleAndClick(selector, pause = 0, timeout = 90000) {
-    return this.client
-      .pause(pause)
-      .waitForVisibleAndClick(selector, timeout);
-  }
-
-  scrollWaitForVisibleAndClick(selector, pause = 0, timeout = 90000) {
-    return this.client
-      .pause(pause)
-      .scrollTo(selector)
-      .waitForVisibleAndClick(selector, timeout);
-  }
-
-  moveToObject(selector, pause = 0) {
-    return this.client
-      .pause(pause)
-      .moveToObject(selector);
-  }
-
-  waitAndSelectByValue(selector, value, timeout = 90000) {
-    return this.client.waitAndSelectByValue(selector, value, timeout);
-  }
-
-  waitAndSelectByVisibleText(selector, value, timeout = 90000) {
-    return this.client.waitAndSelectByVisibleText(selector, value, timeout);
-  }
-
-  addFile(selector, picture, value = 150) {
-    return this.client
-      .scrollTo(selector, value)
-      .waitForExist(selector, 90000)
-      .chooseFile(selector, path.join(__dirname, '..', 'datas', picture));
-  }
-
-  getTextInVar(selector, globalVar, split = false, timeout = 90000) {
-    if (split) {
-      return this.client
-        .waitForExist(selector, timeout)
-        .then(() => this.client.getText(selector))
-        .then((variable) => global.tab[globalVar] = variable.split(': ')[1]);
-    } else {
-      return this.client
-        .waitForExist(selector, timeout)
-        .then(() => this.client.getText(selector))
-        .then((variable) => {
-          global.tab[globalVar] = variable
+  async alertAccept(action = 'accept') {
+    switch (action) {
+      case "accept":
+        await page.on("dialog", (dialog) => {
+          dialog.accept();
+        });
+        break;
+      default :
+        await page.on("dialog", (dialog) => {
+          dialog.dismiss();
         });
     }
   }
 
-  getAttributeInVar(selector, attribute, globalVar, timeout = 90000) {
-    return this.client
-      .waitForExist(selector, timeout)
-      .then(() => this.client.getAttribute(selector, attribute))
-      .then((variable) => global.tab[globalVar] = variable);
+  async scrollTo(selector) {
+    await page.waitFor(selector);
+    await page.evaluate((selector) => {
+      document.querySelector(selector).scrollIntoView();
+    }, selector);
   }
 
-  checkTextValue(selector, textToCheckWith, parameter = 'equal', pause = 0, type = "") {
-    switch (parameter) {
-      case "contain":
-        return this.client
-          .pause(pause)
-          .waitForExist(selector, 9000)
-          .then(() => this.client.getText(selector))
-          .then((text) => expect(text).to.contain(textToCheckWith));
-        break;
-      case "equal":
-        return this.client
-          .pause(pause)
-          .waitForExist(selector, 9000)
-          .then(() => this.client.getText(selector))
-          .then((text) => {
-            if (type === "int") {
-              let textValue = parseInt(text);
-              expect(textValue).to.equal(textToCheckWith);
-            } else {
-              expect(text).to.equal(textToCheckWith)
-            }
-          });
-        break;
-      case "deepequal":
-        return this.client
-          .pause(pause)
-          .waitForExist(selector, 9000)
-          .then(() => this.client.getText(selector))
-          .then((text) => expect(text).to.deep.equal(textToCheckWith));
-        break;
-      case "notequal":
-        return this.client
-          .pause(pause)
-          .waitForExist(selector, 9000)
-          .then(() => this.client.getText(selector))
-          .then((text) => expect(text).to.not.equal(textToCheckWith));
-        break;
-      case "greaterThan":
-        return this.client
-          .pause(pause)
-          .waitForExist(selector, 9000)
-          .then(() => this.client.getText(selector))
-          .then((text) => expect(parseInt(text)).to.be.gt(textToCheckWith));
-        break;
-    }
+  async uploadPicture(fileName, selector) {
+    const inputFile = await page.$(selector);
+    await inputFile.uploadFile(path.join(__dirname, '..', 'datas', fileName));
   }
 
-  checkAttributeValue(selector, attribute, value, parameter = 'equal', pause = 0) {
-    switch (parameter) {
-      case "contain":
-        return this.client
-          .pause(pause)
-          .waitForExist(selector, 90000)
-          .then(() => this.client.getAttribute(selector, attribute))
-          .then((text) => expect(text).to.be.contain(value));
-      case "equal":
-        return this.client
-          .pause(pause)
-          .waitForExist(selector, 90000)
-          .then(() => this.client.getAttribute(selector, attribute))
-          .then((text) => expect(text).to.be.equal(value));
-      case "notequal":
-        return this.client
-          .pause(pause)
-          .waitForExist(selector, 90000)
-          .then(() => this.client.getAttribute(selector, attribute))
-          .then((text) => expect(text).to.not.equal(value));
-    }
+  async checkIsNotVisible(selector) {
+    await page.waitFor(2000);
+    await this.isVisible(selector);
+    await expect(isVisible).to.be.false;
   }
 
-  checkCssPropertyValue(selector, property, value, parameter = 'equal', pause = 0) {
-    switch (parameter) {
-      case "contain":
-        return this.client
-          .pause(pause)
-          .waitForExist(selector, 90000)
-          .then(() => this.client.getCssProperty(selector, property))
-          .then((property) => expect(property.value).to.be.contain(value));
-      case "equal":
-        return this.client
-          .pause(pause)
-          .waitForExist(selector, 90000)
-          .then(() => this.client.getCssProperty(selector, property))
-          .then((property) => expect(property.value).to.be.equal(value));
-    }
+  async isNotExisting(selector, wait = 0) {
+    await page.waitFor(wait);
+    const exists = await page.$(selector) === null;
+    expect(exists).to.be.true;
   }
 
-  uploadPicture(picture, selector, className = "dz-hidden-input") {
-    return this.client
-      .execute(function (className) {
-        document.getElementsByClassName(className).style = '';
-      })
-      .chooseFile(selector, path.join(__dirname, '..', 'datas', picture));
+  async waitForExist(selector, option = {}) {
+    await page.waitFor(selector, option);
   }
 
-  /**
-   * This function allows to search a data by value
-   * @param search_input
-   * @param search_button
-   * @param value
-   * @returns {*}
-   */
-  searchByValue(search_input, search_button, value) {
-    return this.client
-      .pause(2000)
-      .waitAndSetValue(search_input, value)
-      .waitForExistAndClick(search_button);
+  async signOutBO() {
+    await this.pause(2000);
+    await this.deleteCookie();
   }
 
-  /**
-   * This function allows to download a pdf document and check the existence of string in it
-   * @param folderPath
-   * @param fileName
-   * @param text
-   * @returns {*}
-   */
-  async checkDocument(folderPath, fileName, text) {
-    await pdfUtil.pdfToText(folderPath + fileName + '.pdf', function (err, data) {
-      global.indexText = data.indexOf(text);
-      global.data = global.data + data;
-    });
-
-    return this.client
-      .pause(2000)
-      .then(() => expect(global.indexText, text + "does not exist in the PDF document").to.not.equal(-1));
+  async deleteCookie() {
+    let cookiesTable = await page.cookies();
+    await page.deleteCookie({name: cookiesTable[1].name});
+    await this.refresh();
   }
 
-  /**
-   * This function allows to check the existence of file after downloading
-   * @param folderPath
-   * @param fileName
-   * @returns {*}
-   */
-  async checkFile(folderPath, fileName, pause = 2000) {
-    await fs.stat(folderPath + fileName, function (err, stats) {
-      err === null && stats.isFile() ? global.existingFile = true : global.existingFile = false;
-    });
-
-    return this.client
-      .pause(pause)
-      .then(() => expect(global.existingFile, "Expected File was not find in the folder " + folderPath).to.be.true)
+  async refresh() {
+    await page.reload();
   }
 
-  waitForVisible(selector, timeout = 90000) {
-    return this.client
-      .waitForVisible(selector, timeout);
+  async localhost(link) {
+    await page.goto(link + '/install-dev');
   }
 
-  accessToBO(selector) {
-    return this.client.accessToBO(selector);
+  async signInFO(selector, link = global.URL) {
+    await page.goto(link);
+    await page._client.send('Emulation.clearDeviceMetricsOverride');
+    await this.waitForExistAndClick(selector.sign_in_button, 1000);
+    await this.waitAndSetValue(selector.login_input, 'pub@prestashop.com');
+    await this.waitAndSetValue(selector.password_inputFO, '123456789');
+    await this.waitForExistAndClick(selector.login_button);
+    await this.waitForExistAndClick(selector.logo_home_page);
   }
 
-  accessToFO(selector) {
-    return this.client.accessToFO(selector);
+  async waitForVisible(selector, options = {visible: true}) {
+    await page.waitFor(selector, options);
   }
 
-  waitAndSelectByAttribute(selector, attribute, value, pause = 0, timeout = 90000) {
-    return this.client.waitAndSelectByAttribute(selector, attribute, value, pause, timeout);
+  async waitAndSelectByValue(selector, value, wait = 0) {
+    await page.waitFor(wait);
+    await page.waitFor(selector);
+    await page.select(selector, value);
   }
 
-  switchWindow(id, pause = 0) {
-    return this.client.switchWindow(id, pause);
+  async signOutBO() {
+    await this.pause(2000);
+    await this.deleteCookie();
   }
 
-  switchTab(id) {
-    return this.client
-      .then(() => this.client.getTabIds())
-      .then((ids) => this.client.switchTab(ids[id]));
+  async deleteCookie() {
+    let cookiesTable = await page.cookies();
+    await page.deleteCookie({name: cookiesTable[1].name});
+    await this.refresh();
   }
 
-  isExisting(selector, pause = 0) {
-    return this.client
-      .pause(pause)
-      .isExisting(selector)
-      .then((isExisting) => expect(isExisting).to.be.true);
+  async refresh() {
+    await page.reload();
   }
 
-  isSelected(selector, pause = 0) {
-    return this.client
-      .pause(pause)
-      .scrollTo(selector)
-      .isSelected(selector)
-      .then((isExisting) => expect(isExisting).to.be.true);
+  async changeLanguage(language = 'en') {
+    await this.waitForExistAndClick(languageFO.language_selector);
+    await this.pause(1000);
+    await this.waitForVisibleAndClick(languageFO.language_option.replace('%LANG', language));
   }
 
-  isNotSelected(selector, pause = 0) {
-    return this.client
-      .pause(pause)
-      .scrollTo(selector)
-      .isSelected(selector)
-      .then((isExisting) => expect(isExisting).to.be.false);
+  async searchByValue(nameSelector, buttonSelector, value) {
+    await this.pause(nameSelector);
+    await this.waitAndSetValue(nameSelector, value, 2000);
+    await this.waitForExistAndClick(buttonSelector);
   }
 
-  isNotExisting(selector, pause = 0) {
-    return this.client
-      .pause(pause)
-      .isExisting(selector)
-      .then((isExisting) => expect(isExisting).to.be.false);
-  }
-
-  clickOnResumeButton(selector) {
-    if (!global.isVisible) {
-      return this.client
-        .click(selector);
-    } else {
-      return this.client.pause(1000);
-    }
-  }
-
-  pause(timeout) {
-    return this.client.pause(timeout);
-  }
-
-  keys(button) {
-    return this.client.keys(button);
-  }
-
-  alertAccept() {
-    return this.client.alertAccept();
-  }
-
-  alertDismiss() {
-    return this.client.alertDismiss();
-  }
-
-  getText(selector) {
-    return this.client.getText(selector);
-  }
-
-  alertText() {
-    return this.client.alertText();
-  }
-
-  showElement(className, order) {
-    return this.client
-      .execute(function (className, order) {
-        document.querySelectorAll(className)[order].style.display = 'inherit';
-      }, className, order);
-  }
-
-  checkIsNotVisible(selector) {
-    return this.client
-      .pause(2000)
-      .isVisible(selector)
-      .then((isVisible) => expect(isVisible).to.be.false);
-  }
-
-  checkParamFromURL(param, value, pause = 0) {
-    return this.client
-      .pause(pause)
-      .url()
-      .then((res) => {
-        let current_url = res.value;
-        expect(current_url).to.contain(param);
-        global.param = current_url.split(param + '=')[1].split("&")[0];
-        expect(global.param).to.equal(value);
-      });
-  }
-
-  /**
-   * This function checks the search result
-   * @param selector editor body selector
-   * @param content
-   * @returns {*}
-   */
-  setEditorText(selector, content) {
-    return this.client
-      .pause(1000)
-      .click(selector)
-      .execute(function (content) {
-        return (tinyMCE.activeEditor.setContent(content));
-      }, content);
-  }
-
-  checkTextEditor(selector, content, pause = 0) {
-    return this.client
-      .pause(pause)
-      .scrollTo(selector)
-      .waitForExistAndClick(selector)
-      .execute(function () {
-        return (tinyMCE.activeEditor.getContent());
-      })
-      .then((values) => expect(values.value.indexOf(content) >= 0).to.equal(true));
-  }
-
-  editObjectData(object, type = '') {
-    for (let key in object) {
-      if (object.hasOwnProperty(key) && key !== 'type') {
-        if (typeof object[key] === 'string') {
-          parseInt(object[key]) ? object[key] = (parseInt(object[key]) + 10).toString() : object[key] += 'update';
-        } else if (typeof object[key] === 'number') {
-          object[key] += 10;
-        } else if (typeof object[key] === 'object') {
-          this.editObjectData(object[key]);
+  async checkAttributeValue(selector, attribute, textToCheckWith, parameter = 'equal', wait = 0) {
+    await page.waitFor(wait);
+    await page.$eval(selector, (el, attribute) => el.getAttribute(attribute), attribute).then((value) => {
+      switch (parameter) {
+        case 'contain': {
+          expect(value).to.be.contain(textToCheckWith);
+          break;
+        }
+        case 'equal': {
+          expect(value).to.be.equal(textToCheckWith);
+          break;
+        }
+        case 'notequal': {
+          expect(value).to.not.equal(textToCheckWith);
+          break;
         }
       }
-      if (type !== '') {
-        object['type'] = type;
-      }
-    }
-  }
-
-  deleteObjectElement(object, pos) {
-    delete object[pos];
-  }
-
-  setAttributeById(selector) {
-    return this.client
-      .execute(function (selector) {
-        document.getElementById(selector).style.display = 'none';
-      }, selector);
-  }
-
-  stringifyNumber(number) {
-    let special = ['zeroth', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth'];
-    let deca = ['twent', 'thirt', 'fort', 'fift', 'sixt', 'sevent', 'eight', 'ninet'];
-    if (number < 20) return special[number];
-    if (number % 10 === 0) return deca[Math.floor(number / 10) - 2] + 'ieth';
-    return deca[Math.floor(number / 10) - 2] + 'y-' + special[number % 10];
-  }
-
-  /**
-   * This function searches the data in the table in case a filter input exists
-   * @param selector
-   * @param data
-   * @returns {*}
-   */
-  search(selector, data) {
-    if (global.isVisible) {
-      return this.client
-        .waitAndSetValue(selector, data)
-        .keys('Enter');
-    }
-  }
-
-  /**
-   * This function checks the search result
-   * @param selector
-   * @param data
-   * @param pos
-   * @returns {*}
-   */
-  checkExistence(selector, data, pos) {
-    if (global.isVisible) {
-      return this.client.getText(selector.replace('%ID', pos)).then(function (text) {
-        expect(text).to.be.equal(data);
-      });
-    } else {
-      return this.client.getText(selector.replace('%ID', pos - 1)).then(function (text) {
-        expect(text).to.be.equal(data);
-      });
-    }
-  }
-
-  refresh() {
-    return this.client
-      .refresh();
-  }
-
-  deleteCookie() {
-    return this.client
-      .deleteCookie()
-      .refresh();
-  }
-
-  middleClick(selector, globalVisibility = true, pause = 2000) {
-    if (globalVisibility) {
-      return this.client
-        .moveToObject(selector)
-        .pause(pause)
-        .middleClick(selector);
-    } else {
-      return this.client.pause(1000);
-    }
-  }
-
-  getParamFromURL(param, pause = 0) {
-    return this.client
-      .pause(pause)
-      .url()
-      .then((res) => {
-        let current_url = res.value;
-        expect(current_url).to.contain(param);
-        global.param[param] = current_url.split(param + '=')[1].split("&")[0];
-      });
-  }
-
-  dragAndDrop(sourceElement, destinationElement) {
-    return this.client
-      .pause(2000)
-      .moveToObject(sourceElement)
-      .buttonDown()
-      .moveToObject(destinationElement)
-      .buttonUp()
-      .pause(2000);
-  }
-
-  selectByVisibleText(selector, text, timeout = 90000) {
-    return this.client
-      .waitForExist(selector, timeout)
-      .selectByVisibleText(selector, text)
-  }
-
-  middleClickWhenVisible(selector) {
-    if (global.isVisible) {
-      return this.client
-        .middleClick(selector)
-    }
-  }
-
-  checkList(selector) {
-    this.client
-      .element(selector)
-      .then(function (elements) {
-        expect(elements).to.have.lengthOf.above(0);
-      })
-  }
-
-  /**
-   * These functions are used to sort table then check the sorted table
-   * elementsTable, elementsSortedTable are two global variables that must be initialized in the sort table function
-   * "normalize('NFKD').replace(/[\u0300-\u036F]/g, '')" is used to replace special characters example ô to o
-   * * "normalize('NFKD').replace(/[\u0300-\u036F]/g, '')" is used to replace special characters example € to o
-   */
-  getTableField(element_list, i, sorted = false, priceWithCurrency = false) {
-    return this.client
-      .getText(element_list.replace("%ID", i + 1)).then(function (name) {
-        if (sorted) {
-          if (priceWithCurrency === true) {
-            elementsSortedTable[i] = name.normalize('NFKD').replace(/[^\x00-\x7F]/g, '').toLowerCase();
-          } else {
-            elementsSortedTable[i] = name.normalize('NFKD').replace(/[\u0300-\u036F]/g, '').toLowerCase();
-          }
-        }
-        else {
-          if (priceWithCurrency === true) {
-            elementsTable[i] = name.normalize('NFKD').replace(/[^\x00-\x7F]/g, '').toLowerCase();
-          } else {
-            elementsTable[i] = name.normalize('NFKD').replace(/[\u0300-\u036F]/g, '').toLowerCase();
-          }
-        }
-      });
-  }
-
-  /**
-   * This function checks the sort of a table
-   * @param isNumber= true if we sort by a number, isNumber= false if we sort by a string
-   * @param sortWay equal to 'ASC' or 'DESC'
-   */
-  async checkSortTable(isNumber = false, sortWay = 'ASC') {
-    return await this.client
-      .pause(2000)
-      .then(async () => {
-        if (isNumber) {
-          if (sortWay === 'ASC') {
-            await expect(elementsTable.sort(function (a, b) {
-              return a - b;
-            })).to.deep.equal(elementsSortedTable);
-          } else {
-            await expect(elementsTable.sort(function (a, b) {
-              return a - b
-            }).reverse()).to.deep.equal(elementsSortedTable);
-          }
-        } else {
-          if (sortWay === 'ASC') {
-            await expect(elementsTable.sort()).to.deep.equal(elementsSortedTable);
-          } else {
-            await expect(elementsTable.sort().reverse()).to.deep.equal(elementsSortedTable);
-          }
-        }
-      });
-  }
-
-  displayHiddenBlock(selector) {
-    return this.client
-      .execute(function (selector) {
-        document.getElementsByClassName(selector).style = '';
-      })
-  }
-
-  changeOrderState(selector, state) {
-    return this.client
-      .waitForExist(selector.order_state_select, 90000)
-      .execute(function () {
-        document.querySelector('#id_order_state').style = "";
-      })
-      .selectByVisibleText(selector.order_state_select, state)
-      .waitForExistAndClick(selector.update_status_button)
-  }
-
-  getDocumentName(selector) {
-    return this.client
-      .then(() => this.client.getText(selector))
-      .then((name) => {
-        global.invoiceFileName = name.replace('#', '')
-      });
-  }
-
-  deleteFile(folderPath, fileName, extension = "", pause = 0) {
-    fs.unlinkSync(folderPath + fileName + extension);
-    return this.client
-      .pause(pause)
-  }
-
-  checkAutoUpgrade() {
-    fs.readFile(rcTarget + 'admin-dev/autoupgrade/tmp/log.txt', 'utf8', (err, content) => {
-      global.upgradeError = content.indexOf("upgradeDbError");
     });
-    return this.client
-      .pause(2000)
-      .then(() => {
-        expect(global.upgradeError, "Upgrade process done, but some warnings/errors have been found").to.equal(-1)
+  }
+
+  async signOutFO(selector) {
+    await this.waitForExistAndClick(selector.sign_out_button);
+    await this.waitForExist(selector.sign_in_button, 90000);
+    let cookiesTable = await page.cookies();
+    await page.deleteCookie({name: cookiesTable[1].name});
+  }
+
+  async accessToFO(selector) {
+    await page.goto(global.URL);
+    await this.waitForExistAndClick(selector.logo_home_page);
+  }
+
+  async scrollWaitForExistAndClick(selector, pause = 0, timeout = 90000) {
+    await this.scrollTo(selector);
+    await this.waitForExistAndClick(selector, pause, options = {timeout: timeout})
+  }
+
+  async getTextInVar(selector, globalVar, split = false, timeout = 90000) {
+    await this.waitForExist(selector, timeout);
+    if (split) {
+      await page.$eval(selector, el => el.innerText).then((text) => {
+        global.tab[globalVar] = text.split(': ')[1];
       });
-  }
-
-  signOutWithoutCookiesFO(selector) {
-    return this.client.signOutWithoutCookiesFO(selector);
-  }
-
-  waitForSymfonyToolbar(AddProductPage, pause = 0) {
-    return this.client
-      .pause(pause)
-      .isVisible(AddProductPage.symfony_toolbar, 4000)
-      .then((isVisible) => {
-        if (global.ps_mode_dev && isVisible) {
-          this.client.waitForExistAndClick(AddProductPage.symfony_toolbar)
-        }
-      })
-  }
-
-  goToFrame(id) {
-    return this.client.frame(id);
-  }
-
-  closeFrame() {
-    return this.client.frameParent();
-  }
-
-  checkStockColumn(selector, textToCheckWith) {
-    return this.client
-      .waitForExist(selector, 9000)
-      .then(() => this.client.getText(selector))
-      .then((text) => expect(text.split(' trending_flat ')[0]).to.equal(textToCheckWith));
-  }
-
-  checkElementValidation(selector, validationText, parameter = 'equal') {
-    return this.client
-      .pause(3000)
-      .execute(function (selector) {
-        let message = document.querySelector(selector).validationMessage;
-        return message;
-      }, selector)
-      .then((message) => {
-        switch (parameter) {
-          case "equal":
-            expect(message.value).to.be.equal(validationText);
-            break;
-          case "contain":
-            expect(message.value).to.contain(validationText);
-            break;
-          default:
-            break;
-        }
+    } else {
+      await page.$eval(selector, el => el.innerText).then((text) => {
+        global.tab[globalVar] = text;
       });
+    }
   }
-
-  closeOtherWindow(id) {
-    return this.client.close(id);
-  }
-
-  checkIsVisible(selector) {
-    return this.client
-      .pause(2000)
-      .isVisible(selector)
-      .then((isVisible) => expect(isVisible).to.be.true);
-  }
-
-  checkCheckboxStatus(selector, checkedValue) {
-    return this.client
-      .pause(2000)
-      .execute(function (selector) {
-        return (document.querySelector(selector).checked);
-      }, selector)
-      .then((status) => {
-        expect(status.value).to.equal(checkedValue)
-      });
-  }
-
-  getOptionNumber(selector, attribute, value, wait = 0) {
-    return this.client
-      .pause(wait)
-      .execute(function (selector, attribute) {
-        return document.getElementById(selector).getElementsByTagName(attribute).length;
-      }, selector, attribute)
-      .then((count) => {
-        global.tab[value] = count.value;
-      });
-  }
-
 }
 
 module.exports = CommonClient;

@@ -1,5 +1,4 @@
 'use strict';
-var common = require('./common.webdriverio.js');
 var path = require('path');
 var should = require('should');
 var argv = require('minimist')(process.argv.slice(2));
@@ -12,7 +11,7 @@ if (!/^https?:\/\//i.test(siteUrl)) {
   siteUrl = 'http://' + siteUrl;
 }
 global.URL = siteUrl;
-
+global.dateTime = new Date().getTime();
 global.install_language = argv.LANGUAGE || 'en';
 global.install_country = argv.COUNTRY || 'france';
 global.country_currency = argv.CURRENCY || 'EUR';

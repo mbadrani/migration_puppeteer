@@ -3,7 +3,7 @@ module.exports = {
     dashboard_menu: '//*[@id="tab-AdminDashboard"]/a',
     Sell: {
       Orders: {
-        orders_menu: '//*[@id="subtab-AdminParentOrders"]/a',
+        orders_menu: '#subtab-AdminParentOrders',
         orders_submenu: '#subtab-AdminOrders',
         invoices_submenu: '#subtab-AdminInvoices',
         credit_slips_submenu: '#subtab-AdminSlip a',
@@ -11,7 +11,7 @@ module.exports = {
         shopping_carts_submenu: '#subtab-AdminCarts'
       },
       Catalog: {
-        catalog_menu: '//*[@id="subtab-AdminCatalog"]/a',
+        catalog_menu: '#subtab-AdminCatalog',
         products_submenu: '#subtab-AdminProducts',
         category_submenu: '#subtab-AdminCategories',
         monitoring_submenu: '#subtab-AdminTracking',
@@ -43,10 +43,10 @@ module.exports = {
     },
     Improve: {
       Modules: {
-        modules_menu: '//*[@id="subtab-AdminParentModulesSf"]/a',
+        modules_menu: '#subtab-AdminParentModulesSf',
         modules_manager_submenu: '#subtab-AdminModulesSf > a',
         modules_catalog_submenu: '#subtab-AdminParentModulesCatalog > a',
-        installed_modules_tabs: '//*[@id="subtab-AdminModulesManage"]',
+        installed_modules_tabs: '#subtab-AdminModulesManage',
         catalog_tab: '//*[@id="subtab-AdminModulesCatalog"] | //*[@id="subtab-AdminPsMboModule"]',
         modules_selections_submenu: '#subtab-AdminAddonsCatalog',
         selection_tab: '#subtab-AdminAddonsCatalog',

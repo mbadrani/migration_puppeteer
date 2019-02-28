@@ -13,7 +13,7 @@ const {OnBoarding} = require('../../../selectors/BO/onboarding');
 const {AddProductPage} = require('../../../selectors/BO/add_product_page');
 const {AccessPageFO} = require('../../../selectors/FO/access_page');
 const welcomeScenarios = require('../../common_scenarios/welcome');
-require('../../../globals.webdriverio.js');
+require('../../../globals.js');
 require('../../install_upgrade/01_install.js');
 
 /**

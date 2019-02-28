@@ -8,7 +8,10 @@ let promise = Promise.resolve();
 
 scenario('Create order in the Front Office', () => {
   scenario('Open the browser and connect to the Front Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('regularCreateOrderFO1');
+    });
     test('should login successfully in the Front Office', () => client.signInFO(AccessPageFO));
   }, 'order');
   scenario('Create order in the Front Office', () => {
@@ -52,7 +55,10 @@ scenario('Create order in the Front Office', () => {
 
 scenario('Check the created order in the Back Office', () => {
   scenario('Open the browser and connect to the Back Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('regularCreateOrderFO2');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
   }, 'order');
 
