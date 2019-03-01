@@ -22,7 +22,6 @@ global.productCategories = {HOME: {}};
 global.categories = {HOME: {}};
 const dateFormat = require('dateformat');
 global.dateNow = new Date();
-let common = require('../../common.webdriverio');
 
 /**** Example of product data ****
  * var productData = {
@@ -72,7 +71,7 @@ module.exports = {
       test('should click on "New Product" button', () => {
         return promise
           .then(() => client.waitForExistAndClick(AddProductPage.new_product_button))
-          .then(() => client.waitForSymfonyToolbar(AddProductPage, 2000))
+          .then(() => client.waitForSymfonyToolbar(AddProductPage))
       });
       test('should set the "Name" input', () => client.waitAndSetValue(AddProductPage.product_name_input, productData["name"] + date_time));
       test('should set the "Reference" input', () => client.waitAndSetValue(AddProductPage.product_reference, productData["reference"]));
@@ -229,7 +228,7 @@ module.exports = {
       }
 
       scenario('Save the created product', client => {
-        test('should check then close symfony toolbar', () => client.waitForSymfonyToolbar(AddProductPage, 1000));
+        test('should check then close symfony toolbar', () => client.waitForSymfonyToolbar(AddProductPage));
         test('should switch the product online and verify the appearance of the green validation', () => {
           return promise
             .then(() => client.waitForExistAndClick(AddProductPage.product_online_toggle, 3000))
@@ -255,7 +254,7 @@ module.exports = {
       test('should check the existence of product price TE', () => client.checkProductPriceTE(productData.price));
       test('should check the existence of product quantity', () => client.checkTextValue(AddProductPage.catalog_product_quantity, productData.quantity));
       test('should check the existence of product status', () => client.checkTextValue(AddProductPage.catalog_product_online, 'check'));
-      test('should click on "Reset button"', () => client.waitForExistAndClick(AddProductPage.catalog_reset_filter));
+      test('should click on "Reset button"',async () => await client.waitForExistAndClick(AddProductPage.catalog_reset_filter));
     }, 'product/check_product');
   },
   sortProduct: async function (selector, sortBy, isNumber = false, priceWithCurrency = false) {

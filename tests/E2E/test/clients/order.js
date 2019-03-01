@@ -5,7 +5,6 @@ let pdfUtil = require('pdf-to-text');
 global.tab = [];
 global.orders = [];
 global.lineFile = [];
-let common = require('../common.webdriverio');
 let fs = require('fs');
 const exec = require('child_process').exec;
 

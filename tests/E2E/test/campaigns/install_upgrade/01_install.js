@@ -1,11 +1,14 @@
 const {Installation} = require('../../selectors/BO/installation');
 const {AccessPageFO} = require('../../selectors/FO/access_page');
 const commonInstallation = require('../common_scenarios/common_installation');
-require('../../globals.webdriverio.js');
+require('../../globals.js');
 
 scenario('The shop installation', () => {
   scenario('Open the browser and connect installation interface', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('installShop');
+    });
     test('should go to install page ', () => client.localhost(URL));
   }, 'installation');
 

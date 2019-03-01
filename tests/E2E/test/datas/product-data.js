@@ -1,7 +1,7 @@
 'use strict';
-var common = require('../common.webdriverio');
 var path = require('path');
 var should = require('should');
+var common = require('../common_data');
 
 module.exports = {
   standard: {

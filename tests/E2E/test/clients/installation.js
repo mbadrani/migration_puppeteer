@@ -4,24 +4,10 @@ var path = require('path');
 
 class Installation extends CommonClient {
 
-  setNameInput(selector, data) {
-    return this.client
-      .waitForVisible(selector, 90000)
-      .pause(2000)
-      .setValue(selector, data)
-  }
-
-  goToTheNextPage(selector) {
-    return this.client
-      .pause(2000)
-      .waitForVisibleAndClick(selector, 90000)
-  }
-
-  dataBaseCreation(selector) {
-    return this.client
-      .waitForVisible(selector, 90000)
-      .pause(2000)
-      .click(selector)
+  async dataBaseCreation(selector) {
+    await page.waitFor(selector, 90000);
+    await this.pause(2000);
+    await page.click(selector);
   }
 
   WaitForDownload(selector) {

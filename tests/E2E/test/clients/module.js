@@ -57,45 +57,42 @@ class Module extends CommonClient {
       });
   }
 
-  getModuleButtonName(ModulePage, moduleTechName, selector = ModulePage.module_action_href) {
-    return this.client.getText(selector.split('%moduleTechName').join(moduleTechName)).then(function (text) {
-      buttonText = text.toUpperCase();
+  async getModuleButtonName(ModulePage, moduleTechName) {
+    let selector = await ModulePage.module_action_href.split('%moduleTechName').join(moduleTechName);
+    await page.$eval(selector, (el) => el.innerText).then((buttonText) => {
+      global.buttonText = buttonText;
     });
   }
 
-  clickOnConfigureModuleButton(ModulePage, moduleTechName) {
-    if (buttonText === "CONFIGURE")
-      return this.client
-        .waitForExistAndClick(ModulePage.configure_link.replace('%moduleTechName', moduleTechName));
-    else return this.client
-      .waitForExistAndClick(ModulePage.action_dropdown.replace('%moduleTechName', moduleTechName))
-      .waitForExistAndClick(ModulePage.configure_link.replace('%moduleTechName', moduleTechName))
-  }
-
-  clickOnEnableModuleButton(ModulePage, moduleTechName) {
-    if (buttonText === "ENABLE") {
-      return this.client
-        .waitForExistAndClick(ModulePage.enable_module.split('%moduleTechName').join(moduleTechName), 2000)
-    } else if (buttonText === "DISABLE" || buttonText === "CONFIGURE")
-      return this.client.pause(1000);
+  async clickOnConfigureModuleButton(ModulePage, moduleTechName) {
+    if (global.buttonText === "Configure")
+      return await this.waitForExistAndClick(ModulePage.configure_link.replace('%moduleTechName', moduleTechName));
     else {
-      return this.client
-        .waitForExistAndClick(ModulePage.action_dropdown.replace('%moduleTechName', moduleTechName), 2000)
-        .waitForExistAndClick(ModulePage.enable_module.split('%moduleTechName').join(moduleTechName), 3000)
+      await this.waitForExistAndClick(ModulePage.action_dropdown.replace('%moduleTechName', moduleTechName));
+      await this.waitForExistAndClick(ModulePage.configure_link.replace('%moduleTechName', moduleTechName));
     }
   }
 
-  clickOnDisableModuleButton(ModulePage, moduleTechName) {
-    if (buttonText === "DISABLE") {
-      return this.client
-        .waitForExistAndClick(ModulePage.disable_module.split('%moduleTechName').join(moduleTechName))
-    }
-    else if (buttonText === "ENABLE")
-      return this.client.pause(1000);
+  async clickOnEnableModuleButton(ModulePage, moduleTechName) {
+    if (global.buttonText === "ENABLE") {
+      await this.waitForExistAndClick(ModulePage.enable_module.split('%moduleTechName').join(moduleTechName), 2000)
+    } else if (global.buttonText === "DISABLE" || global.buttonText === "CONFIGURE")
+      await this.waitFor(1000);
     else {
-      return this.client
-        .waitForExistAndClick(ModulePage.action_dropdown.replace('%moduleTechName', moduleTechName))
-        .waitForExistAndClick(ModulePage.disable_module.split('%moduleTechName').join(moduleTechName), 3000)
+      await this.waitForExistAndClick(ModulePage.action_dropdown.replace('%moduleTechName', moduleTechName), 2000)
+      await this.waitForExistAndClick(ModulePage.enable_module.split('%moduleTechName').join(moduleTechName), 3000)
+    }
+  }
+
+  async clickOnDisableModuleButton(ModulePage, moduleTechName) {
+    if (global.buttonText === "DISABLE") {
+      await this.waitForExistAndClick(ModulePage.disable_module.split('%moduleTechName').join(moduleTechName))
+    }
+    else if (global.buttonText === "ENABLE")
+      await this.waitFor(1000);
+    else {
+      await this.waitForExistAndClick(ModulePage.action_dropdown.replace('%moduleTechName', moduleTechName));
+      await this.waitForExistAndClick(ModulePage.disable_module.split('%moduleTechName').join(moduleTechName), 3000)
     }
   }
 
