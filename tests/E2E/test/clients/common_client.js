@@ -4,6 +4,7 @@ const puppeteer = require('puppeteer');
 let path = require('path');
 let fs = require('fs');
 let pdfUtil = require('pdf-to-text');
+const {AccessPageBO} = require('../selectors/BO/access_page');
 
 let options = {
   timeout: 30000,
@@ -211,15 +212,9 @@ class CommonClient {
     await page.waitFor(selector, option);
   }
 
-  async signOutBO() {
-    await this.pause(2000);
-    await this.deleteCookie();
-  }
-
   async deleteCookie() {
     let cookiesTable = await page.cookies();
     await page.deleteCookie({name: cookiesTable[1].name});
-    await this.refresh();
   }
 
   async refresh() {
@@ -300,8 +295,7 @@ class CommonClient {
   async signOutFO(selector) {
     await this.waitForExistAndClick(selector.sign_out_button);
     await this.waitForExist(selector.sign_in_button, 90000);
-    let cookiesTable = await page.cookies();
-    await page.deleteCookie({name: cookiesTable[1].name});
+    await this.deleteCookie();
   }
 
   async accessToFO(selector) {
@@ -324,6 +318,37 @@ class CommonClient {
       await page.$eval(selector, el => el.innerText).then((text) => {
         global.tab[globalVar] = text;
       });
+    }
+  }
+
+  async moveToObject(selector, wait = 0) {
+    await page.waitFor(wait);
+    await page.hover(selector);
+  }
+
+  async getAttributeInVar(selector, attribute, globalVar, timeout = 90000) {
+    await this.waitForExist(selector, timeout);
+    let variable = await page.$eval(selector, (el, attribute) => {
+      return el.getAttribute(attribute);
+    }, attribute);
+    global.tab[globalVar] = await variable;
+  }
+
+  /**
+   * This function searches the data in the table in case a filter input exists
+   * @param selector
+   * @param data
+   * @returns {*}
+   */
+  async search(selector, data) {
+    await this.waitAndSetValue(selector, data);
+    await page.keyboard.press('Enter');
+  }
+
+  async closePsAddonsAlert() {
+    await this.isVisible(AccessPageBO.psAddons_alert_close_button);
+    if (global.isVisible) {
+      await this.waitForExistAndClick(AccessPageBO.psAddons_alert_close_button);
     }
   }
 }

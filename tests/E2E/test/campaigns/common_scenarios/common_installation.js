@@ -3,7 +3,7 @@ let promise = Promise.resolve();
 module.exports = {
   prestaShopInstall: function (selector, language, country) {
     scenario('Step 1 : Choosing language', client => {
-      test('should choose "' + language + '" language', () => client.waitAndSelectByValue(selector.language_select, language));
+      test('should choose "' + language + '" language', () => client.waitAndSelectByValue(selector.language_select, language, 2000));
       test('should click on "Next" button', () => client.waitForVisibleAndClick(selector.next_step_button));
     }, 'installation');
     scenario('Step 2 : Agreeing license agreements', client => {

@@ -180,7 +180,7 @@ module.exports = {
         test('should check the "Total spent since registration" ', () => client.checkTextValue(OrderPage.total_registration, global.tab['total_amount'].split('€')[1], 'contain'));
       }
 
-      //Check shipping and invoice address
+      // Check shipping and invoice address
       test('should check the "Shipping Address"', () => client.checkTextValue(OrderPage.shipping_address, 'John DOE', 'contain'));
       test('should click on "Invoice Address" subtab', () => client.waitForVisibleAndClick(OrderPage.tab_invoice, 1000));
       test('should check "Invoice Address"', () => client.checkTextValue(OrderPage.invoice_address, 'John DOE', 'contain'));
