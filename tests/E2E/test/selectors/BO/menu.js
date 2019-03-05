@@ -27,7 +27,7 @@ module.exports = {
         movement_tab: '//*[@id="head_tabs"]//a[text()="Movements"]'
       },
       Customers: {
-        customers_menu: '//*[@id="subtab-AdminParentCustomer"]/a',
+        customers_menu: '#subtab-AdminParentCustomer',
         customers_submenu: '#subtab-AdminCustomers',
         addresses_submenu: '#subtab-AdminAddresses'
       },
@@ -90,7 +90,7 @@ module.exports = {
     },
     Configure: {
       ShopParameters: {
-        shop_parameters_menu: '//*[@id="subtab-ShopParameters"]/a',
+        shop_parameters_menu: '#subtab-ShopParameters',
         general_submenu: '#subtab-AdminParentPreferences',
         maintenance_tab: '//*[@id="subtab-AdminMaintenance"]',
         order_settings_submenu: '#subtab-AdminParentOrderPreferences',

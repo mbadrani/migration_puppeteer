@@ -20,7 +20,7 @@ scenario('BOOM-4847: Check that the pagination works fine on the product page in
       return promise
         .then(() => client.waitForSymfonyToolbar(AddProductPage, 2000))
     });
-    test('should click on "Save" button', () => client.scrollWaitForExistAndClick(ProductSettings.save_button.replace("%POS", 4)));
+    test('should click on "Save" button', () => client.scrollWaitForExistAndClick(ProductSettings.save_pagination_button));
     test('should verify the appearance of the green validation', () => client.checkTextValue(ShopParameters.success_box, "Update successful"));
   }, 'common_client');
 
