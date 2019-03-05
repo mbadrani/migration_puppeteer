@@ -2,8 +2,6 @@
 
 var fs = require('fs');
 
-var optionsBrowser17 = require('../test/common.webdriverio');
-
 // create reusable transporter object using the default SMTP transport
 var nodeMailer = require('nodemailer');
 var dateFormat = require('dateformat');
@@ -34,7 +32,7 @@ if ((fs.existsSync("email_sender/test_report_" + prestaVersion[0] + ".html")) &&
         subject: '[QA][Test] Bilan des tests - ' + day, // Subject line
         html: "Bonjour,</br>" +
         "</br>" +
-        "<br>Les résultats de l'exécution des tests automatisés <b>(Node.js)</b> sur le(s) navigateur(s) <b>" + optionsBrowser16.browser() + "</b> et <b>" + optionsBrowser17.browser() + "</b> sont en pièce jointe.</br> " +
+        "<br>Les résultats de l'exécution des tests automatisés <b>(Node.js)</b> sur le(s) navigateur(s) <b>" + optionsBrowser16.browser() + "</b> sont en pièce jointe.</br> " +
         "</br>" +
         "<br>Bien à vous,</br>" +
         "<br><i>Equipe QA</i></br>", // html body
@@ -71,7 +69,7 @@ if ((fs.existsSync("email_sender/test_report_" + prestaVersion[0] + ".html")) &&
         subject: "[QA][Test] Bilan des tests " + prestaVersion[1] + " - " + day, // Subject line
         html: "Bonjour,</br>" +
         "</br>" +
-        "<br>Les résultats de l'exécution des tests automatisés <b>(Node.js)</b> sur le navigateur <b>" + optionsBrowser17.browser() + "</b> sont en pièce jointe.</br> " +
+        "<br>Les résultats de l'exécution des tests automatisés <b>(Node.js)</b> sur le navigateur <b>" + "</b> sont en pièce jointe.</br> " +
         "</br>" +
         "<br>Bien à vous,</br>" +
         "<br><i>Equipe QA</i></br>", // html body

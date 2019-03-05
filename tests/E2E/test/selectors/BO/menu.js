@@ -75,10 +75,10 @@ module.exports = {
         preferences_submenu: '#subtab-AdminPaymentPreferences'
       },
       International: {
-        international_menu: '//*[@id="subtab-AdminInternational"]/a',
+        international_menu: '#subtab-AdminInternational',
         localization_submenu: '#subtab-AdminParentLocalization',
         languages_tab: '//*[@id="subtab-AdminLanguages"]',
-        currencies_tab: '//*[@id="subtab-AdminCurrencies"]',
+        currencies_tab: '#subtab-AdminCurrencies',
         geolocation_tab: '//*[@id="subtab-AdminGeolocation"]',
         locations_submenu: '#subtab-AdminParentCountries',
         countries_tab: '//*[@id="subtab-AdminCountries"]',

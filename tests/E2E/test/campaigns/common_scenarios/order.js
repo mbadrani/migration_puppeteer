@@ -149,19 +149,18 @@ module.exports = {
       test('should search for a product by name', () => client.waitAndSetValue(CreateOrder.product_search_input, productData.name + global.date_time));
       test('should set the product combination', () => client.waitAndSelectByValue(CreateOrder.product_combination, global.combinationId));
       test('should set the product quantity', () => client.waitAndSetValue(CreateOrder.quantity_input.replace('%NUMBER', 1), '4'));
-      test('should click on "Add to cart" button', () => client.scrollWaitForExistAndClick(CreateOrder.add_to_cart_button));
+      test('should click on "Add to cart" button', () => client.waitForExistAndClick(CreateOrder.add_to_cart_button, 2000));
       test('should get the basic product price', () => client.getTextInVar(CreateOrder.basic_price_value, global.basic_price));
-      test('should set the delivery option ', () => {
-        return promise
-          .then(() => client.waitAndSelectByValue(CreateOrder.delivery_option, '2,'))
-          .then(() => client.pause(1000));
+      test('should set the delivery option ', async () => {
+        await client.scrollTo(CreateOrder.delivery_option);
+        await client.waitAndSelectByValue(CreateOrder.delivery_option, '2,', 2000);
       });
       test('should get the  shipping price', () => client.getTextInVar(CreateOrder.shipping_price, 'price'));
       test('should get the total with taxes', () => client.getTextInVar(CreateOrder.total_with_tax, 'total_tax'));
       test('should add an order message ', () => client.addOrderMessage('Order message test'));
-      test('should set the payment type ', () => client.waitAndSelectByValue(CreateOrder.payment, 'ps_checkpayment'));
-      test('should set the order status ', () => client.waitAndSelectByValue(OrderPage.order_state_select, '1'));
-      test('should click on "Create the order"', () => client.waitForExistAndClick(CreateOrder.create_order_button));
+      test('should set the payment type ', () => client.waitAndSelectByValue(CreateOrder.payment, 'ps_checkpayment', 2000));
+      test('should set the order status ', () => client.waitAndSelectByValue(OrderPage.order_state_select, '1', 2000));
+      test('should click on "Create the order"', () => client.waitForExistAndClick(CreateOrder.create_order_button, 3000));
     }, 'order');
   },
   checkOrderInBO: function (clientType = "client", checkCustomer = false) {
@@ -481,25 +480,27 @@ module.exports = {
 
   createCustomerFromOrder: function (customerData) {
     scenario('Create customer through order in the Back Office', client => {
-      test('should go to "Orders" page', () => client.goToSubtabMenuPage(Menu.Sell.Orders.orders_menu, Menu.Sell.Orders.orders_submenu));
+      test('should go to "Orders" page', async () => {
+        await client.pause(2000);
+        await client.goToSubtabMenuPage(Menu.Sell.Orders.orders_menu, Menu.Sell.Orders.orders_submenu);
+      });
       test('should click on "Add new order" button', () => client.waitForExistAndClick(CreateOrder.new_order_button, 1000));
-      test('should click on "Add new customer" button', () => {
-        return promise
-          .then(() => client.waitForExistAndClick(CreateOrder.new_customer_button, 1000))
-          .then(() => client.goToFrame(1));
+      test('should click on "Add new customer" button', async () => {
+        await client.waitForExistAndClick(CreateOrder.new_customer_button, 1000);
+        await client.pause(3000);
+        await client.goToFrame('fancybox-frame');
       });
-      test('should click on "Mr" in the "Social title" radio button', () => client.waitForExistAndClick(Customer.social_title_button, 1000));
-      test('should set the "First name" input', () => client.waitAndSetValue(Customer.first_name_input, customerData.first_name));
-      test('should set the "Last name" input', () => client.waitAndSetValue(Customer.last_name_input, customerData.last_name));
-      test('should set the "Email address" input', () => client.waitAndSetValue(Customer.email_address_input, date_time + customerData.email_address));
-      test('should set the "Password" input', () => client.waitAndSetValue(Customer.password_input, customerData.password));
-      test('should set the customer "Birthday"', () => {
-        return promise
-          .then(() => client.waitAndSelectByValue(Customer.days_select, customerData.birthday.day))
-          .then(() => client.waitAndSelectByValue(Customer.month_select, customerData.birthday.month))
-          .then(() => client.waitAndSelectByValue(Customer.years_select, customerData.birthday.year));
+      test('should click on "Mr" in the "Social title" radio button', () => client.waitForExistAndClick(Customer.social_title_button, 1000, {}, true));
+      test('should set the "First name" input', () => client.waitAndSetValue(Customer.first_name_input, customerData.first_name, 1000, {}, true));
+      test('should set the "Last name" input', () => client.waitAndSetValue(Customer.last_name_input, customerData.last_name, 1000, {}, true));
+      test('should set the "Email address" input', () => client.waitAndSetValue(Customer.email_address_input, date_time + customerData.email_address, 1000, {}, true));
+      test('should set the "Password" input', () => client.waitAndSetValue(Customer.password_input, customerData.password, 1000, {}, true));
+      test('should set the customer "Birthday"', async () => {
+        await client.waitAndSelectByValue(Customer.days_select, customerData.birthday.day, 1000, true);
+        await client.waitAndSelectByValue(Customer.month_select, customerData.birthday.month, 1000, true);
+        await client.waitAndSelectByValue(Customer.years_select, customerData.birthday.year, 1000, true);
       });
-      test('should click on "Save" button', () => client.waitForExistAndClick(Customer.save_button));
+      test('should click on "Save" button', () => client.waitForExistAndClick(Customer.save_button, 1000, {}, true));
     }, 'order');
   },
 };

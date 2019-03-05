@@ -10,12 +10,12 @@ const exec = require('child_process').exec;
 
 class Order extends CommonClient {
 
-  addOrderMessage(orderMessage) {
-    return this.client
-      .scroll(0.900)
-      .waitForExist(CreateOrder.order_message_textarea, 90000)
-      .pause(2000)
-      .setValue(CreateOrder.order_message_textarea, orderMessage)
+  async addOrderMessage(orderMessage) {
+    await this.scrollTo(CreateOrder.order_message_textarea);
+    await this.waitForExist(CreateOrder.order_message_textarea, 90000);
+    await this.pause(2000);
+    await this.waitAndSetValue(CreateOrder.order_message_textarea, orderMessage, 2000);
+    await this.waitForExistAndClick(CreateOrder.order_message_div, 1000);
   }
 
   updateStatus(value) {
