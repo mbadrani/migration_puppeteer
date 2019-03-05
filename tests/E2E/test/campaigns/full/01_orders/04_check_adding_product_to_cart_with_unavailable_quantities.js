@@ -22,7 +22,10 @@ let productData = {
 scenario('Check adding a product to the cart with unavailable quantities', () => {
 
   scenario('Login in the Back Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async() => {
+     await client.open();
+     await client.startTracing('checkAddProductToCart');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
   }, 'order');
 
@@ -39,7 +42,7 @@ scenario('Check adding a product to the cart with unavailable quantities', () =>
       test('should go to the product page', () => client.waitForExistAndClick(SearchProductPage.product_result_name));
       test('should click on the "Add to cart" button', () => client.waitForExistAndClick(CheckoutOrderPage.add_to_cart_button));
       test('should click on proceed to checkout button 1', () => client.waitForVisibleAndClick(CheckoutOrderPage.proceed_to_checkout_modal_button));
-      test('should set the product quantity to 6', () => client.waitAndSetValue(CheckoutOrderPage.quantity_input.replace('%NUMBER', 1), 6));
+      test('should set the product quantity to 6', () => client.waitAndSetValue(CheckoutOrderPage.quantity_input.replace('%NUMBER', 1), '6'));
       test('should click on "PROCEED TO CHECKOUT" button', () => client.waitForExistAndClick(CheckoutOrderPage.proceed_to_checkout_button));
       test('should check that the "PROCEED TO CHECKOUT" button is disabled ', () => client.checkAttributeValue(CheckoutOrderPage.proceed_to_checkout_button, 'class', 'disabled', 'contain'));
       test('should click on the product link button', () => client.waitForExistAndClick(CheckoutOrderPage.product_cart_link));
