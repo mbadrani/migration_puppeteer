@@ -33,8 +33,8 @@ module.exports = {
     //---------------------- create account from checkout -------------------------//
     new_customer_btn: '[data-link-action="register-new-customer"]',
     new_address_btn: '[name="confirm-addresses"]',
-    new_email_input: '//*[@id="customer-form"]//input[@name="email"]',
-    password_account_input: '//*[@id="customer-form"]//input[@name="password"]',
+    new_email_input: '#customer-form input[name=email]',
+    password_account_input: '#customer-form input[name=password]',
     new_password_input: '//*[@id="customer-form"]//input[@name="new_password"]',
     customer_form: '//*[@id="customer-form"]',
     shipping_continue_btn: '//*[@id="js-delivery"]/button[@name="confirmDeliveryOption"]',

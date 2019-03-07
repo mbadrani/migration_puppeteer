@@ -31,7 +31,7 @@ module.exports = {
     success_product_add_to_cart_modal: '#myModalLabel',
     product_discount_details: '//*[@id="main"]//span[contains(@class, "discount")]',
     alert: '//*[@id="notifications"]//article[contains(@class, "alert-danger")]',
-    product_cart_link: '//div[@class="product-line-info"]/a',
+    product_cart_link: 'div.product-line-info > a',
     cart_product_discount: '//*[@id="main"]//span[contains(@class,"discount-percentage")]',
     total_cart: '//*[@id="main"]//div[contains(@class, "cart-total")]/span[@class="value"]',
     product_name: '//*[@id="main"]//li[%NUMBER]//div[@class="product-line-info"]/a',
