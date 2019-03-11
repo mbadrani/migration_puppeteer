@@ -13,6 +13,6 @@ module.exports = {
     quick_view_first_product: '#js-product-list a[class*=quick-view]',
     empty_result_section: '//section[contains(@class,"page-not-found")]',
     first_product_name_link: '(//h2[contains(@class,"product-title")]/a)[1]',
-    search_product_name:'//*[@id="js-product-list"]//a[text()="%PRODUCT"]'
+    search_product_name:'#js-product-list h2[class*=title] > a[href*="%PRODUCTNAME"]'
   }
 };

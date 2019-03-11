@@ -155,13 +155,11 @@ class Product extends CommonClient {
    * @param selector
    * @returns {*}
    */
-  getProductsNumber(selector) {
+  async getProductsNumber(selector) {
     if (global.isVisible) {
-      return this.client
-        .getText(selector)
-        .then((count) => {
-          global.productsNumber = count.match(/[0-9]+/g)[2];
-        });
+      await page.$eval(selector, el => el.innerText).then((text) => {
+        global.productsNumber = text.match(/[0-9]+/g)[2];
+      });
     } else {
       this.getProductPageNumber('product_catalog_list');
     }
@@ -190,10 +188,9 @@ class Product extends CommonClient {
       })
   }
 
-  clickPageNext(selector, pause = 0) {
-    return this.client
-      .pause(pause)
-      .scrollWaitForExistAndClick(selector);
+  async clickPageNext(selector, pause = 0) {
+    await this.pause(pause);
+    await this.scrollWaitForExistAndClick(selector);
   }
 
   getProductName(selector, i) {

@@ -156,10 +156,9 @@ scenario('Create order in the Back Office', () => {
   commonScenariosDiscount.createCartRule(cartRuleData[0], 'firstCartRuleCode');
   scenario('Click on "Stop the OnBoarding" button', client => {
     test('should check and click on "Stop the OnBoarding" button', async () => {
-      return promise
-        .then(() => client.isVisible(OnBoarding.stop_button))
-        .then(() => client.stopOnBoarding(OnBoarding.stop_button))
-        .then(() => client.pause(1000));
+      await client.isVisible(OnBoarding.stop_button);
+      await client.stopOnBoarding(OnBoarding.stop_button);
+      await client.pause(1000);
     });
   }, 'onboarding');
   commonCurrency.accessToCurrencies();
@@ -301,19 +300,10 @@ scenario('Create order in the Back Office', () => {
     test('should set "Address alias" input', () => client.waitAndSetValue(Addresses.address_alias_input, 'Address xxx ' + global.date_time, 1000, {}, true));
     test('should set the "First Name" ', () => client.waitAndSetValue(Addresses.first_name_input, 'NewAddress', 2000, {}, true));
     test('should set the "Last Name" ', () => client.waitAndSetValue(Addresses.last_name_input, 'NewAddress', 2000, {}, true));
-    test('should set "Address" input', async () => {
-      await client.waitForExistAndClick(Addresses.address_form, 1000, {}, true);
-      await client.waitAndSetValue(Addresses.address_input, "12 rue test " + date_time, 1000, {}, true)
-    });
+    test('should set "Address" input', () => client.waitAndSetValue(Addresses.address_input, "12 rue test " + date_time, 1000, {}, true));
     test('should set "Postal code" input', () => client.waitAndSetValue(Addresses.zip_code_input, '75009', 1000, {}, true));
-    test('should set "City" input', async () => {
-      await client.waitForExistAndClick(Addresses.address_form, 1000, {}, true);
-      await client.waitAndSetValue(Addresses.city_input, 'Paris', 1000, {}, true);
-    });
-    test('should set "Country" input', async () => {
-      await client.waitAndSelectByValue(Addresses.country_input, '8', 1000, {}, true);
-      await client.waitForExistAndClick(Addresses.address_form, 1000, {}, true);
-    });
+    test('should set "City" input', () => client.waitAndSetValue(Addresses.city_input, 'Paris', 1000, {}, true));
+    test('should set "Country" input', () =>client.waitAndSelectByValue(Addresses.country_input, '8', 1000, {}, true));
     test('should click on "Save" button', () => client.waitForExistAndClick(Addresses.save_button, 2000, {}, true));
     test('should set the delivery address ', () => client.waitAndSelectByVisibleText(CreateOrder.delivery_address_select, 'Address xxx ' + global.date_time, 1000));
     test('should set the invoice address ', () => client.waitAndSelectByVisibleText(CreateOrder.invoice_address_select, 'Address xxx ' + global.date_time, 1000));

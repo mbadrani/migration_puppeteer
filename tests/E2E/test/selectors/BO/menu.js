@@ -12,6 +12,7 @@ module.exports = {
       },
       Catalog: {
         catalog_menu: '#subtab-AdminCatalog',
+        catalog_menu_href: '#subtab-AdminCatalog a',
         products_submenu: '#subtab-AdminProducts',
         category_submenu: '#subtab-AdminCategories',
         monitoring_submenu: '#subtab-AdminTracking',
@@ -23,8 +24,8 @@ module.exports = {
         discounts_submenu: '#subtab-AdminParentCartRules',
         catalog_price_rules_tab: '#subtab-AdminSpecificPriceRule',
         stocks_submenu: '#subtab-AdminStockManagement',
-        stock_tab: '//*[@id="head_tabs"]//a[text()="Stock"]',
-        movement_tab: '//*[@id="head_tabs"]//a[text()="Movements"]'
+        stock_tab: '#head_tabs ul li:nth-child(1)  a[role="tab"]',
+        movement_tab: '#head_tabs ul  a[href*="movement"]'
       },
       Customers: {
         customers_menu: '#subtab-AdminParentCustomer',
@@ -109,7 +110,7 @@ module.exports = {
         traffic_seo_submenu: '#subtab-AdminParentMeta',
       },
       AdvancedParameters: {
-        advanced_parameters_menu: '//*[@id="subtab-AdminAdvancedParameters"]/a',
+        advanced_parameters_menu: '#subtab-AdminAdvancedParameters',
         information_submenu: '#subtab-AdminInformation',
         performance_submenu: '#subtab-AdminPerformance',
         administration_submenu: '#subtab-AdminAdminPreferences',

@@ -105,7 +105,7 @@ module.exports = {
           await client.pause(4000);
         }
       });
-    }
+     }
 
     test('should check movement history', async () => {
       let employee = await "";
@@ -130,7 +130,7 @@ module.exports = {
     test('should go to "Stocks" page', async () => {
       await client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.stocks_submenu);
       if (searchProduct) {
-        await client.isVisible(Stock.search_input, 2000)
+        await client.isVisible(Stock.search_input, 2000);
         if (global.isVisible) {
           await client.waitAndSetValue(Stock.search_input, "ProductQuantity" + global.date_time, 2000);
           await client.waitForExistAndClick(Stock.search_button, 3000);
