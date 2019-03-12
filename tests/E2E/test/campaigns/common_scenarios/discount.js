@@ -6,7 +6,7 @@ let promise = Promise.resolve();
 module.exports = {
   createCatalogPriceRules(name, type, reduction, quantity = 1) {
     scenario('Create catalog price rules', client => {
-      test('should go to "Discounts" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu , Menu.Sell.Catalog.discounts_submenu));
+      test('should go to "Discounts" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.discounts_submenu));
       test('should go to "Catalog Price Rules" page', () => client.waitForExistAndClick(Menu.Sell.Catalog.catalog_price_rules_tab));
       test('should click on "Add new catalog price rule"', () => client.waitForExistAndClick(DiscountSubMenu.catalogPriceRules.new_catalog_price_rules_button));
       test('should set the "Name" input', () => client.waitAndSetValue(DiscountSubMenu.catalogPriceRules.name_input, name));
@@ -16,9 +16,9 @@ module.exports = {
       test('should click on "save" button', () => client.waitForExistAndClick(DiscountSubMenu.catalogPriceRules.save_button));
     }, 'common_client');
   },
-  deleteCatalogPriceRules(name){
-    scenario('Delete catalog price rules "'+ name +'', client => {
-      test('should go to "Discounts" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu , Menu.Sell.Catalog.discounts_submenu));
+  deleteCatalogPriceRules(name) {
+    scenario('Delete catalog price rules "' + name + '', client => {
+      test('should go to "Discounts" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.discounts_submenu));
       test('should go to "Catalog Price Rules" page', () => {
         return promise
           .then(() => client.waitForExistAndClick(Menu.Sell.Catalog.catalog_price_rules_tab))
@@ -50,18 +50,18 @@ module.exports = {
       test('should go to "Cart Rules" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.discounts_submenu));
       test('should click on "Add new cart rule" button', () => client.waitForExistAndClick(DiscountSubMenu.cartRules.new_cart_rule_button));
       test('should set the "Name" input', () => client.waitAndSetValue(DiscountSubMenu.cartRules.name_input, cartRuleData.name));
-      test('should click on "Generate" button', () => {
-        return promise
-          .then(() => client.waitForExistAndClick(DiscountSubMenu.cartRules.generate_button))
-          .then(() => client.getAttributeInVar(DiscountSubMenu.cartRules.code_input, 'value', promoCode));
+      test('should click on "Generate" button', async () => {
+        await client.waitForExistAndClick(DiscountSubMenu.cartRules.generate_button);
+        await client.pause(2000);
+        await client.getAttributeInVar(DiscountSubMenu.cartRules.code_input, 'value', promoCode);
       });
       test('should click on "CONDITIONS" tab', () => client.waitForExistAndClick(DiscountSubMenu.cartRules.conditions_tab));
       test('should choose the customer "John Doe"', () => client.chooseCustomer(DiscountSubMenu.cartRules.single_customer_input, DiscountSubMenu.cartRules.first_result_option, cartRuleData.customer_email));
-      test('should set the "Minimum amount" input', () => client.waitAndSetValue(DiscountSubMenu.cartRules.minimum_amount_input, cartRuleData.minimum_amount));
+      test('should set the "Minimum amount" input', () => client.waitAndSetValue(DiscountSubMenu.cartRules.minimum_amount_input, cartRuleData.minimum_amount.toString()));
       test('should click on "ACTIONS" tab', () => client.waitForExistAndClick(DiscountSubMenu.cartRules.actions_tab));
       test('should switch the "Free shipping" to "Yes"', () => client.waitForExistAndClick(DiscountSubMenu.cartRules.free_shipping));
       test('should click on "' + cartRuleData.type + '" radio', () => client.waitForExistAndClick(DiscountSubMenu.cartRules.apply_discount_radio.replace("%T", cartRuleData.type), 2000));
-      test('should set the "reduction" ' + cartRuleData.type + ' value', () => client.waitAndSetValue(DiscountSubMenu.cartRules.reduction_input.replace("%T", cartRuleData.type), cartRuleData.reduction, 2000));
+      test('should set the "reduction" ' + cartRuleData.type + ' value', () => client.waitAndSetValue(DiscountSubMenu.cartRules.reduction_input.replace("%T", cartRuleData.type), cartRuleData.reduction.toString(), 2000));
       test('should click on "Save" button', () => client.waitForExistAndClick(DiscountSubMenu.cartRules.save_button, 2000));
       test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.success_panel, '×\nSuccessful creation.'));
     }, 'discount');

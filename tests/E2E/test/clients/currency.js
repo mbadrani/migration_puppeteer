@@ -3,23 +3,21 @@ global.checkCurrencyName = [];
 
 class Currency extends CommonClient {
 
-  clickOnAction(actionSelector, groupActionSelector = '', action = 'edit', confirmDelete = true) {
+  async clickOnAction(actionSelector, groupActionSelector = '', action = 'edit', confirmDelete = true) {
     if (action === 'delete') {
       if (confirmDelete) {
-        return this.client
-          .waitForExistAndClick(groupActionSelector)
-          .waitForExistAndClick(actionSelector)
-          .alertAccept();
+        await this.waitForExistAndClick(groupActionSelector);
+        await this.alertAccept();
+
+        await this.waitForExistAndClick(actionSelector);
       } else {
-        return this.client
-          .waitForExistAndClick(groupActionSelector)
-          .waitForExistAndClick(actionSelector)
-          .alertDismiss();
+        await this.waitForExistAndClick(groupActionSelector);
+        await this.alertAccept('dismiss');
+        await this.waitForExistAndClick(actionSelector);
       }
     } else {
-      return this.client
-        .pause(2000)
-        .waitForExistAndClick(actionSelector);
+      await this.pause(2000);
+      await this.waitForExistAndClick(actionSelector);
     }
   }
 

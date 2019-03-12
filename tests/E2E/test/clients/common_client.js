@@ -55,26 +55,42 @@ class CommonClient {
     await page.waitFor(selector.menuBO, {timeout: 120000});
   }
 
-  async waitAndSetValue(selector, value, wait = 0, options = {}) {
+  async waitAndSetValue(selector, value, wait = 0, options = {}, isFrame = false) {
+
     await page.waitFor(wait);
-    await page.waitFor(selector, options);
-    await page.click(selector);
+    if (isFrame) {
+      await frame.waitFor(selector, options);
+      await frame.click(selector);
+    } else {
+      await page.waitFor(selector, options);
+      await page.click(selector);
+    }
     await page.keyboard.down('Control');
     await page.keyboard.down('A');
     await page.keyboard.up('A');
     await page.keyboard.up('Control');
     await page.keyboard.press('Backspace');
-    await page.type(selector, value);
+    if (isFrame) {
+      await frame.type(selector, value);
+    } else {
+      await page.type(selector, value);
+    }
   }
 
   async pause(timeoutOrSelectorOrFunction, options = {}) {
     await page.waitFor(timeoutOrSelectorOrFunction, options);
   }
 
-  async waitForExistAndClick(selector, wait = 0, options = {}) {
+  async waitForExistAndClick(selector, wait = 0, options = {}, isFrame = false) {
     await page.waitFor(wait);
-    await page.waitFor(selector);
-    await page.click(selector, options);
+    if (isFrame) {
+      await frame.waitFor(selector);
+      await frame.click(selector, options);
+    } else {
+      await page.waitFor(selector);
+      await page.click(selector, options);
+    }
+
   }
 
   async isVisible(selector, wait = 0, options = {}) {
@@ -127,12 +143,18 @@ class CommonClient {
     await page.click(selector);
   }
 
-  async checkTextValue(selector, textToCheckWith, parameter = 'equal', wait = 0) {
+  async checkTextValue(selector, textToCheckWith, parameter = 'equal', wait = 0, isFrame = false) {
+    let content = {};
+    if (isFrame) {
+      content = global.frame;
+    } else {
+      content = global.page;
+    }
     switch (parameter) {
       case "equal":
-        await page.waitFor(wait);
-        await page.waitFor(selector);
-        await page.$eval(selector, el => el.innerText).then((text) => {
+        await content.waitFor(wait);
+        await content.waitFor(selector);
+        await content.$eval(selector, el => el.innerText).then((text) => {
           if (text.indexOf('\t') != -1) {
             text = text.replace("\t", "");
           }
@@ -140,24 +162,24 @@ class CommonClient {
         });
         break;
       case "contain":
-        await page.waitFor(wait);
-        await page.waitFor(selector);
-        await page.$eval(selector, el => el.innerText).then((text) => expect(text).to.contain(textToCheckWith));
+        await content.waitFor(wait);
+        await content.waitFor(selector);
+        await content.$eval(selector, el => el.innerText).then((text) => expect(text).to.contain(textToCheckWith));
         break;
       case "deepequal":
-        await page.waitFor(wait);
-        await page.waitFor(selector);
-        await page.$eval(selector, el => el.innerText).then((text) => expect(text).to.deep.equal(textToCheckWith));
+        await content.waitFor(wait);
+        await content.waitFor(selector);
+        await content.$eval(selector, el => el.innerText).then((text) => expect(text).to.deep.equal(textToCheckWith));
         break;
       case "notequal":
-        await page.waitFor(wait);
-        await page.waitFor(selector);
-        await page.$eval(selector, el => el.innerText).then((text) => expect(text).to.not.equal(textToCheckWith));
+        await content.waitFor(wait);
+        await content.waitFor(selector);
+        await content.$eval(selector, el => el.innerText).then((text) => expect(text).to.not.equal(textToCheckWith));
         break;
       case "greaterThan":
-        await page.waitFor(wait);
-        await page.waitFor(selector);
-        await page.$eval(selector, el => el.innerText).then((text) => expect(parseInt(text)).to.be.gt(textToCheckWith));
+        await content.waitFor(wait);
+        await content.waitFor(selector);
+        await content.$eval(selector, el => el.innerText).then((text) => expect(parseInt(text)).to.be.gt(textToCheckWith));
         break;
     }
   }
@@ -239,10 +261,16 @@ class CommonClient {
     await page.waitFor(selector, options);
   }
 
-  async waitAndSelectByValue(selector, value, wait = 0) {
+  async waitAndSelectByValue(selector, value, wait = 0, isFrame = false) {
     await page.waitFor(wait);
-    await page.waitFor(selector);
-    await page.select(selector, value);
+    if (isFrame) {
+      await frame.waitFor(selector);
+      await frame.select(selector, value);
+    } else {
+      await page.waitFor(selector);
+      await page.select(selector, value);
+    }
+
   }
 
   async signOutBO() {
@@ -274,22 +302,26 @@ class CommonClient {
 
   async checkAttributeValue(selector, attribute, textToCheckWith, parameter = 'equal', wait = 0) {
     await page.waitFor(wait);
-    await page.$eval(selector, (el, attribute) => el.getAttribute(attribute), attribute).then((value) => {
-      switch (parameter) {
-        case 'contain': {
-          expect(value).to.be.contain(textToCheckWith);
-          break;
-        }
-        case 'equal': {
-          expect(value).to.be.equal(textToCheckWith);
-          break;
-        }
-        case 'notequal': {
-          expect(value).to.not.equal(textToCheckWith);
-          break;
-        }
+    await page.waitFor(selector);
+
+    let value = await page.evaluate((selector, attribute) => {
+      let elem = document.querySelector(selector);
+      return elem.getAttribute(attribute);
+    }, selector, attribute);
+    switch (parameter) {
+      case 'contain': {
+        expect(value).to.be.contain(textToCheckWith);
+        break;
       }
-    });
+      case 'equal': {
+        expect(value).to.be.equal(textToCheckWith);
+        break;
+      }
+      case 'notequal': {
+        expect(value).to.not.equal(textToCheckWith);
+        break;
+      }
+    }
   }
 
   async signOutFO(selector) {
@@ -309,6 +341,7 @@ class CommonClient {
   }
 
   async getTextInVar(selector, globalVar, split = false, timeout = 90000) {
+    await page.waitFor(2000);
     await this.waitForExist(selector, timeout);
     if (split) {
       await page.$eval(selector, el => el.innerText).then((text) => {
@@ -329,7 +362,11 @@ class CommonClient {
   async getAttributeInVar(selector, attribute, globalVar, timeout = 90000) {
     await this.waitForExist(selector, timeout);
     let variable = await page.$eval(selector, (el, attribute) => {
-      return el.getAttribute(attribute);
+      if (el.getAttribute(attribute) !== '') {
+        return el.getAttribute(attribute);
+      } else {
+        return el[attribute];
+      }
     }, attribute);
     global.tab[globalVar] = await variable;
   }
@@ -351,6 +388,76 @@ class CommonClient {
       await this.waitForExistAndClick(AccessPageBO.psAddons_alert_close_button);
     }
   }
+
+  async switchWindow(id, wait = 0) {
+    await page.waitFor(5000, {waituntil: 'networkidle2'});
+    await page.waitFor(wait);
+    page = await this.getPage(id);
+    await page.bringToFront();
+    await page._client.send('Emulation.clearDeviceMetricsOverride');
+  }
+
+  async goToFrame(frameName) {
+    page.waitFor(4000);
+    let frame = await page.frames().find(frame => frame.name().includes(frameName));
+    global.frame = frame;
+  }
+
+  async keys(button) {
+    await page.keyboard.press(button);
+  }
+
+  async waitAndSelectByVisibleText(selector, value, wait = 0, isFrame = false) {
+    let content = {};
+    let textValue = '';
+    if (isFrame) {
+      content = global.frame;
+    } else {
+      content = global.page;
+    }
+    await content.waitFor(wait);
+    await content.waitFor(selector);
+    let result = await page.evaluate((selector, value) => {
+      let options = document.querySelector(selector).options;
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].innerText.includes(value)) {
+          textValue = options[i].value;
+          return textValue;
+        }
+      }
+    }, selector, value);
+    await content.select(selector, result);
+  }
+
+  async checkExistence(selector, data) {
+    if (global.visible) {
+      await this.waitFor(selector);
+      await page.$eval(selector, el => el.innerText).then((text) => expect(text.trim).to.equal(data.trim));
+    }
+  }
+
+  async checkTextElementValue(selector, textToCheckWith, parameter = 'equal', wait = 0) {
+    switch (parameter) {
+      case "equal":
+        await this.waitFor(wait);
+        await this.waitFor(selector);
+        await page.$eval(selector, el => el.value).then((text) => expect(text).to.equal(textToCheckWith));
+        break;
+      case "contain":
+        await this.waitFor(wait);
+        await this.waitFor(selector);
+        await page.$eval(selector, el => el.value).then((text) => expect(text).to.contain(textToCheckWith));
+        break;
+    }
+  }
+
+  checkList(selector) {
+    page.$$(selector)
+      .then(function (elements) {
+        expect(elements).to.have.lengthOf.above(0);
+      }, selector)
+  }
+
 }
 
 module.exports = CommonClient;

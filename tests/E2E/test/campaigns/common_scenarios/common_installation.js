@@ -15,7 +15,7 @@ module.exports = {
       test('should check the test compatibility green box', async () => {
         if (global.isVisible) {
           await client.isExisting(selector.compatibility_green_box);
-          await client.waitForVisibleAndClick(selector.next_step_button);
+          await client.waitForVisibleAndClick(selector.next_step_button, 2000);
         } else {
           await client.pause(0);
         }

@@ -88,7 +88,7 @@ module.exports = {
 
       if (productData.hasOwnProperty('attribute')) {
         scenario('Add Attribute', client => {
-          test('should select the "Product with combination" radio button', () => client.scrollWaitForExistAndClick(AddProductPage.variations_type_button));
+          test('should select the "Product with combination" radio button', () => client.waitForExistAndClick(AddProductPage.variations_type_button));
           test('should go to "Combinations" tab', () => client.scrollWaitForExistAndClick(AddProductPage.variations_tab));
           test('should select the variation', () => {
             if (productData.type === 'combination') {
@@ -124,7 +124,7 @@ module.exports = {
             return promise
               .then(() => client.isVisible(AddProductPage.var_selected))
               .then(() => {
-                if (global.ps_mode_dev && !global.isVisible) {
+                if (!global.isVisible) {
                   client.refresh();
                 } else {
                   client.pause(0);
@@ -254,7 +254,7 @@ module.exports = {
       test('should check the existence of product price TE', () => client.checkProductPriceTE(productData.price));
       test('should check the existence of product quantity', () => client.checkTextValue(AddProductPage.catalog_product_quantity, productData.quantity));
       test('should check the existence of product status', () => client.checkTextValue(AddProductPage.catalog_product_online, 'check'));
-      test('should click on "Reset button"',async () => await client.waitForExistAndClick(AddProductPage.catalog_reset_filter));
+      test('should click on "Reset button"', async () => await client.waitForExistAndClick(AddProductPage.catalog_reset_filter));
     }, 'product/check_product');
   },
   sortProduct: async function (selector, sortBy, isNumber = false, priceWithCurrency = false) {
