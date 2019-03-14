@@ -21,11 +21,11 @@ const stockCommonScenarios = require('../../common_scenarios/stock');
 let dateFormat = require('dateformat');
 let dateSystem = dateFormat(new Date(), 'yyyy-mm-dd');
 let data = require('../../../datas/customer_and_address_data');
-let promise = Promise.resolve();
 const {ProductSettings} = require('../../../selectors/BO/shopParameters/product_settings');
 const {ProductList} = require('../../../selectors/BO/add_product_page');
 const {CatalogPage} = require('../../../selectors/BO/catalogpage/index');
 const {Employee} = require('../../../selectors/BO/employee_page');
+const {OnBoarding} = require('../../../selectors/BO/onboarding');
 
 let productData = [{
   name: 'ProductA',
@@ -51,26 +51,37 @@ let productData = [{
 
 scenario('Create order by a guest from the Front Office', client => {
   scenario('Open the browser and connect to the Back Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('create_order_without_account');
+    });
     test('should log in successfully in the Back Office', () => client.signInBO(AccessPageBO));
   }, 'common_client');
+  scenario('Click on "Stop the OnBoarding" button', client => {
+    test('should check and click on "Stop the OnBoarding" button', async () => {
+      await client.isVisible(OnBoarding.stop_button);
+      await client.stopOnBoarding(OnBoarding.stop_button);
+      await client.pause(1000);
+    });
+  }, 'onboarding');
+
   for (let m = 0; m < productData.length; m++) {
     commonProductScenarios.createProduct(AddProductPage, productData[m]);
   }
   scenario('Check the "' + productData[0].name + date_time + '" in the Front Office', client => {
     test('should go to the Front Office', async () => {
-      await client.waitForVisibleAndClick(AccessPageBO.shopname, 1000);
+      await client.waitForVisibleAndClick(AccessPageBO.shopname, 3000);
       await client.switchWindow(1);
     });
     test('should set the shop language to "English"', () => client.changeLanguage());
     test('should search for the product "' + productData[0].name + date_time + '"', () => client.searchByValue(SearchProductPage.search_input, SearchProductPage.search_button, productData[0].name + date_time));
-    test('should go to the product page', () => client.waitForExistAndClick(SearchProductPage.search_product_name.replace("%PRODUCT", productData[0].name + date_time)));
+    test('should go to the product page', () => client.waitForExistAndClick(SearchProductPage.search_product_name.replace("%PRODUCTNAME", (productData[0].name + date_time).toLowerCase())));
     test('should check that the price is equal to ' + productData[0].priceTTC, () => client.checkTextValue(productPage.product_price, productData[0].priceTTC, 'equal', 1000));
     test('should change quantity to "300" using the keyboard and push "Enter"', () => client.waitAndSetValue(productPage.first_product_quantity, '300'));
     test('should click on "ADD TO CART" button', () => client.waitForExistAndClick(CheckoutOrderPage.add_to_cart_button));
     test('should check that the message is equal to "Product successfully added to your shopping cart"', () => client.checkTextValue(CheckoutOrderPage.success_product_add_to_cart_modal, 'Product successfully added to your shopping cart', 'contain', 3000));
     test('should check the existence of the product picture', () => client.isExisting(CheckoutOrderPage.modal_product_picture));
-    test('should check that the product name is equal to ' + productData[0].name + date_time, () => client.isExisting(CheckoutOrderPage.modal_product_name, productData[0].name + date_time));
+    test('should check that the product name is equal to ' + productData[0].name + date_time, () => client.checkTextValue(CheckoutOrderPage.modal_product_name, productData[0].name + date_time));
     test('should check that the product price is equal to ' + productData[0].priceTTC, () => client.checkTextValue(CheckoutOrderPage.modal_product_unit_price, productData[0].priceTTC));
     test('should check that the product quantity is equal to "300"', () => client.checkTextValue(CheckoutOrderPage.modal_product_quantity, '300', 'contain'));
     test('should check that the message is equal to "There are 300 items in your cart."', () => client.checkTextValue(CheckoutOrderPage.modal_cart_product_count, 'There are 300 items in your cart.'));
@@ -89,17 +100,15 @@ scenario('Create order by a guest from the Front Office', client => {
         await client.waitForVisibleAndClick(CatalogPage.reset_button, 2000);
       }
     });
-    test('should get the products number', () => {
-      return promise
-        .then(() => client.isVisible(ProductList.pagination_products))
-        .then(() => client.getProductsNumber(ProductList.pagination_products))
-        .then(() => client.waitForSymfonyToolbar(AddProductPage, 2000));
+    test('should get the products number', async () => {
+      await client.isVisible(ProductList.pagination_products);
+      await client.getProductsNumber(ProductList.pagination_products);
+      await client.waitForSymfonyToolbar(AddProductPage, 2000);
     });
-    test('should close "catalog" menu', () => client.waitForVisibleAndClick(Menu.Sell.Catalog.catalog_menu));
-    test('should go to "Shop Parameters - Product Settings" page', () => {
-      return promise
-        .then(() => client.pause(3000))
-        .then(() => client.goToSubtabMenuPage(Menu.Configure.ShopParameters.shop_parameters_menu, Menu.Configure.ShopParameters.product_settings_submenu));
+    test('should close "catalog" menu', () => client.waitForVisibleAndClick(Menu.Sell.Catalog.catalog_menu_href, 2000));
+    test('should go to "Shop Parameters - Product Settings" page', async () => {
+      await client.pause(3000);
+      await client.goToSubtabMenuPage(Menu.Configure.ShopParameters.shop_parameters_menu, Menu.Configure.ShopParameters.product_settings_submenu);
     });
     test('should check the created product ' + productData[1].name + date_time + ' in the Front Office', async () => {
       await client.getAttributeInVar(ProductSettings.Pagination.products_per_page_input, "value", "pagination");
@@ -118,9 +127,9 @@ scenario('Create order by a guest from the Front Office', client => {
           }
         }
       }
-      await client.isVisible(productPage.productLink.replace('%PRODUCTNAME', productData[1].name + date_time), 2000);
+      await client.isVisible(productPage.productLink.replace('%PRODUCTNAME', (productData[1].name + date_time).toLowerCase()), 2000);
       if (global.isVisible) {
-        await client.scrollWaitForExistAndClick(productPage.productLink.replace('%PRODUCTNAME', productData[1].name + date_time), 2000);
+        await client.scrollWaitForExistAndClick(productPage.productLink.replace('%PRODUCTNAME', (productData[1].name + date_time).toLowerCase()), 2000);
       }
     });
     test('should check that the price is equal to ' + productData[1].priceTTC, () => client.checkTextValue(productPage.product_price, productData[1].priceTTC, 'equal', 1000));
@@ -128,7 +137,7 @@ scenario('Create order by a guest from the Front Office', client => {
     test('should click on "ADD TO CART" button', () => client.waitForExistAndClick(CheckoutOrderPage.add_to_cart_button));
     test('should check that the message is equal to "Product successfully added to your shopping cart"', () => client.checkTextValue(CheckoutOrderPage.success_product_add_to_cart_modal, 'Product successfully added to your shopping cart', 'contain', 1000));
     test('should check the existence of the product picture', () => client.isExisting(CheckoutOrderPage.modal_product_picture));
-    test('should check that the product name is equal to ' + productData[1].name + date_time, () => client.isExisting(CheckoutOrderPage.modal_product_name, productData[1].name + date_time));
+    test('should check that the product name is equal to ' + productData[1].name + date_time, () => client.checkTextValue(CheckoutOrderPage.modal_product_name, productData[1].name + date_time));
     test('should check that the product price is equal to ' + productData[1].priceTTC, () => client.checkTextValue(CheckoutOrderPage.modal_product_unit_price, productData[1].priceTTC));
     test('should check that the product quantity is equal to "300"', () => client.checkTextValue(CheckoutOrderPage.modal_product_quantity, '300', 'contain'));
     test('should check that the message is equal to "There are 600 items in your cart."', () => client.checkTextValue(CheckoutOrderPage.modal_cart_product_count, 'There are 600 items in your cart.'));
@@ -177,7 +186,6 @@ scenario('Create order by a guest from the Front Office', client => {
     test('should check the "First name" of the created customer', () => client.checkTextValue(Customer.first_name_value.replace('%ID', 1), data.customer.firstname));
     test('should check the "Last name" of the created customer', () => client.checkTextValue(Customer.last_name_value.replace('%ID', 1), data.customer.lastname));
   }, 'common_client');
-
   scenario('Go back to the Front Office  and create the address', () => {
     test('should go back to the Front Office', () => client.switchWindow(1));
     test('should set the "Address" input', () => client.waitAndSetValue(accountPage.adr_address, data.address.address + " " + date_time));
@@ -272,7 +280,7 @@ scenario('Create order by a guest from the Front Office', client => {
     test('should check the shipping price', () => client.checkTextValue(OrderPage.shipping_cost_price, global.tab['shippingPrice']));
     test('should check that the sub total is equal to "10,584.00€ (tax incl.)"', () => client.checkTextValue(OrderPage.total_price, global.tab['subTotal']));
     test('should check that the total is equal to "10,592.40€ (tax incl.)"', () => client.checkTextValue(OrderPage.total_order, global.tab['totalPrice']));
-    test('should Check if the status is "Awaiting bank wire payment" payment method name', () => client.checkTextValue(OrderPage.status.replace("%STATUS", "bank wire"), "Awaiting bank wire payment"));
+    test('should Check if the status is "Awaiting bank wire payment" payment method name', () => client.isExisting(OrderPage.status.replace("%STATUS", "bank wire"), 2000));
   }, 'common_client');
   stockCommonScenarios.checkStockProduct(client, productData[0].name + date_time, Menu, Stock, '50', '300', '350');
   stockCommonScenarios.checkStockProduct(client, productData[1].name + date_time, Menu, Stock, '50', '300', '350');
@@ -286,8 +294,14 @@ scenario('Create order by a guest from the Front Office', client => {
       await client.updateStatus('Payment accepted');
     });
     test('should click on "UPDATE STATUS" button', () => client.waitForExistAndClick(OrderPage.update_status_button));
-    test('should set order status to Delivered ', () => client.updateStatus('Delivered'));
-    test('should click on "UPDATE STATUS" button', () => client.waitForExistAndClick(OrderPage.update_status_button));
+    test('should set order status to Delivered ', async () => {
+      await client.pause(2000);
+      await client.updateStatus('Delivered')
+    });
+    test('should click on "UPDATE STATUS" button', async () => {
+      await client.waitForExistAndClick(OrderPage.update_status_button, 2000);
+      await client.pause(3000);
+    });
   }, 'order');
   commonProductScenarios.checkProductQuantity(Menu, AddProductPage, productData[0].name + date_time, '50');
   commonProductScenarios.checkProductQuantity(Menu, AddProductPage, productData[1].name + date_time, '50');
@@ -303,16 +317,20 @@ scenario('Create order by a guest from the Front Office', client => {
     stockCommonScenarios.checkMovementHistory(client, Menu, Movement, 1, '300', '-', 'Customer Order', productData[0].reference, dateSystem, productData[0].name + date_time, true);
   }, 'stocks');
   scenario('Check the movement of the "' + productData[1].name + date_time + '"', client => {
-    stockCommonScenarios.checkMovementHistory(client, Menu, Movement, 1, '300', '-', 'Customer Order', productData[1].reference, dateSystem,  productData[1].name + date_time, true);
+    stockCommonScenarios.checkMovementHistory(client, Menu, Movement, 1, '300', '-', 'Customer Order', productData[1].reference, dateSystem, productData[1].name + date_time, true);
   }, 'stocks');
   scenario('Check that the created order is opened in a new window', client => {
-    test('should click on "Customer Order" link  ', () => client.waitForExistAndClick(Movement.type_value.replace('%P', 1)));
+    test('should click on "Customer Order" link', async () => {
+      await client.pause(15000);
+      await client.waitForExistAndClick(Movement.type_value_href.replace('%P', 1), 2000)
+    });
     test('should check that the created order is opened in a new window', async () => {
       await client.switchWindow(2);
-      await client.checkTextValue(OrderPage.page_title, global.tab['orderReference'].split(" ")[2], 'contain');
+      await client.checkTextValue(OrderPage.page_title, global.tab['orderReference'].split(" ")[2], 'contain', 2000);
     });
   }, 'common_client');
   scenario('Logout from the Back Office', client => {
+    test('should go back to the Back Office', () => client.switchWindow(0));
     test('should logout successfully from the Back Office', () => client.signOutBO());
   }, 'common_client');
 }, 'common_client', true);

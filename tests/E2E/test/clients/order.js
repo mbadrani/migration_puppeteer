@@ -5,6 +5,7 @@ let pdfUtil = require('pdf-to-text');
 global.tab = [];
 global.orders = [];
 global.lineFile = [];
+global.order_status = '';
 let fs = require('fs');
 const exec = require('child_process').exec;
 
@@ -18,14 +19,14 @@ class Order extends CommonClient {
     await this.waitForExistAndClick(CreateOrder.order_message_div, 1000);
   }
 
-  updateStatus(value) {
-    return this.client
-      .execute(function () {
-        document.querySelector('#id_order_state').style = "";
-      })
-      .selectByVisibleText(OrderPage.order_state_select, value)
-      .then(() => this.client.getValue(OrderPage.order_state_select))
-      .then((order) => global.order_status = order)
+  async updateStatus(value) {
+    await page.waitFor(3000);
+    await page.evaluate(() => {
+      let element = document.querySelector('#id_order_state');
+      element.style = "";
+    });
+    await this.waitAndSelectByVisibleText(OrderPage.order_state_select, value);
+    global.order_status = await global.selectValue;
   }
 
   downloadDocument(selector) {

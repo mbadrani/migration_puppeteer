@@ -5,18 +5,15 @@ let dateFormat = require('dateformat');
 
 class ModifyQuantity extends CommonClient {
 
-  goToStockMovements(Menu, Movement) {
-    return this.client
-      .waitForExistAndClick(Menu.Sell.Catalog.movement_tab)
-      .waitForExist(Movement.variation, 90000)
-      .pause(1000)
-      .isVisible(Movement.sort_data_time_icon, 2000)
-      .then((isVisible) => {
-        if (isVisible) {
-          this.client.waitForVisibleAndClick(Movement.sort_data_time_icon);
-        }
-        this.client.pause(1000);
-      });
+  async goToStockMovements(Menu, Movement) {
+    await this.waitForExistAndClick(Menu.Sell.Catalog.movement_tab);
+    await page.waitFor(Movement.variation, {timeout: 90000});
+    await this.pause(1000);
+    global.isVisible = await this.isVisible(Movement.sort_data_time_icon, 2000);
+    if (isVisible) {
+      await this.waitForVisibleAndClick(Movement.sort_data_time_icon);
+    }
+    await this.pause(1000);
   }
 
   modifyProductQuantity(Stock, order, quantity, comma = 'false') {
@@ -35,35 +32,35 @@ class ModifyQuantity extends CommonClient {
       });
   }
 
-  checkMovement(selector, order, quantity, variation, type, reference = "", dateAndTime = "", employee = "", productName = "") {
-    return this.client
-      .waitForVisible(selector.variation_value.replace('%P', order), 90000)
-      .then(() => this.client.getText(selector.variation_value.replace('%P', order)))
-      .then((text) => expect(text).to.be.equal(variation))
-      .then(() => this.client.getText(selector.quantity_value.replace('%P', order)))
-      .then((text) => expect(text.substring(2)).to.be.equal(quantity))
-      .then(() => this.client.getText(selector.type_value.replace('%P', order)))
-      .then((text) => expect(text.indexOf(type)).to.not.equal(-1))
-      .then(() => this.client.getText(selector.reference_value.replace('%P', order)))
-      .then((text) => expect(text).to.be.equal(reference))
-      .then(() => this.client.getText(selector.time_movement.replace('%P', order)))
-      .then((text) => {
-        if (dateAndTime !== "") {
-          expect(text).to.be.contain(dateAndTime)
-        }
-      })
-      .then(() => this.client.getText(selector.employee_value.replace('%P', order)))
-      .then((text) => {
-        if (employee !== '') {
-          expect(text).to.be.equal(employee)
-        }
-      })
-      .then(() => this.client.getText(selector.product_value.replace('%P', order)))
-      .then((text) => {
-        if (productName !== '') {
-          expect(text).to.be.equal(productName)
-        }
-      });
+  async checkMovement(selector, order, quantity, variation, type, reference = "", dateAndTime = "", employee = "", productName = "") {
+    await this.waitForVisible(selector.variation_value.replace('%P', order), 90000);
+    await page.$eval(selector.variation_value.replace('%P', order), el => el.innerText).then((text) => {
+      expect(text).to.be.equal(variation);
+    });
+    await page.$eval(selector.quantity_value.replace('%P', order), el => el.innerText).then((text) => {
+      expect(text.substring(2)).to.be.equal(quantity);
+    });
+    await page.$eval(selector.type_value.replace('%P', order), el => el.innerText).then((text) => {
+      expect(text.indexOf(type)).to.not.equal(-1);
+    });
+    await page.$eval(selector.reference_value.replace('%P', order), el => el.innerText).then((text) => {
+      expect(text).to.be.equal(reference);
+    });
+    await page.$eval(selector.time_movement.replace('%P', order), el => el.innerText).then((text) => {
+      if (dateAndTime !== "") {
+        expect(text).to.be.contain(dateAndTime);
+      }
+    });
+    await page.$eval(selector.employee_value.replace('%P', order), el => el.innerText).then((text) => {
+      if (employee !== '') {
+        expect(text).to.be.equal(employee);
+      }
+    });
+    await page.$eval(selector.product_value.replace('%P', order), el => el.innerText).then((text) => {
+      if (productName !== '') {
+        expect(text).to.be.equal(productName)
+      }
+    });
   }
 
   checkOrderMovement(Movement, client) {

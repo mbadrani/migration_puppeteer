@@ -1,8 +1,8 @@
 'use strict';
-var path = require('path');
-var should = require('should');
-var argv = require('minimist')(process.argv.slice(2));
-var pdfUtil = require('pdf-to-text');
+let path = require('path');
+let should = require('should');
+let argv = require('minimist')(process.argv.slice(2));
+let pdfUtil = require('pdf-to-text');
 
 global.date_time = new Date().getTime();
 

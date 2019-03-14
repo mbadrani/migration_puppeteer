@@ -6,7 +6,7 @@ module.exports = {
     save_productStocks_button:'#configuration_fieldset_stock div.card-footer  button',
     save_pagination_button:'#configuration_fieldset_stock div.card-footer  button',
     Pagination: {
-      products_per_page_input: '//*[@id="form_pagination_products_per_page"]'
+      products_per_page_input: '#form_pagination_products_per_page'
     }
   }
 };

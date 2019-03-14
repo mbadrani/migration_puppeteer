@@ -5,10 +5,11 @@ let path = require('path');
 let fs = require('fs');
 let pdfUtil = require('pdf-to-text');
 const {AccessPageBO} = require('../selectors/BO/access_page');
+require('../globals');
 
 let options = {
   timeout: 30000,
-  headless: false,
+  headless: global.headless,
   defaultViewport: {
     width: 0,
     height: 0
@@ -19,6 +20,7 @@ let options = {
 global.tab = [];
 global.isOpen = false;
 global.param = [];
+global.selectValue = '';
 
 class CommonClient {
 
@@ -90,12 +92,20 @@ class CommonClient {
       await page.waitFor(selector);
       await page.click(selector, options);
     }
-
   }
 
-  async isVisible(selector, wait = 0, options = {}) {
-    await page.waitFor(wait, options);
-    global.isVisible = await page.$(selector) !== null;
+  async isVisible(selector) {
+    await page.waitFor(2000);
+    const exists = await page.$(selector) !== null;
+    if (exists) {
+      global.isVisible = await page.evaluate((selector) => {
+        const e = document.querySelector(selector);
+        const style = window.getComputedStyle(e);
+        return style && style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+      }, selector);
+    } else {
+      global.isVisible = exists;
+    }
   }
 
   async closeBoarding(selector) {
@@ -392,7 +402,7 @@ class CommonClient {
   async switchWindow(id, wait = 0) {
     await page.waitFor(5000, {waituntil: 'networkidle2'});
     await page.waitFor(wait);
-    page = await this.getPage(id);
+    global.page = await this.getPage(id);
     await page.bringToFront();
     await page._client.send('Emulation.clearDeviceMetricsOverride');
   }
@@ -426,26 +436,20 @@ class CommonClient {
         }
       }
     }, selector, value);
+    global.selectValue = await result;
     await content.select(selector, result);
-  }
-
-  async checkExistence(selector, data) {
-    if (global.visible) {
-      await this.waitFor(selector);
-      await page.$eval(selector, el => el.innerText).then((text) => expect(text.trim).to.equal(data.trim));
-    }
   }
 
   async checkTextElementValue(selector, textToCheckWith, parameter = 'equal', wait = 0) {
     switch (parameter) {
       case "equal":
-        await this.waitFor(wait);
-        await this.waitFor(selector);
+        await page.waitFor(wait);
+        await page.waitFor(selector);
         await page.$eval(selector, el => el.value).then((text) => expect(text).to.equal(textToCheckWith));
         break;
       case "contain":
-        await this.waitFor(wait);
-        await this.waitFor(selector);
+        await page.waitFor(wait);
+        await page.waitFor(selector);
         await page.$eval(selector, el => el.value).then((text) => expect(text).to.contain(textToCheckWith));
         break;
     }
@@ -458,6 +462,16 @@ class CommonClient {
       }, selector)
   }
 
+   async checkExistence(selector, data, pos) {
+     if (global.isVisible) {
+       await page.waitFor(selector.replace('%ID', pos));
+       await page.$eval(selector.replace('%ID', pos), el => el.innerText).then((text) => expect(text.trim).to.equal(data.trim));
+     }
+     else {
+       await page.waitFor(selector.replace('%ID', pos-1));
+       await page.$eval(selector.replace('%ID', pos - 1), el => el.innerText).then((text) => expect(text.trim).to.equal(data.trim));
+     }
+   }
 }
 
 module.exports = CommonClient;
