@@ -27,6 +27,7 @@ scenario('Check adding a product to the cart with unavailable quantities', () =>
      await client.startTracing('checkAddProductToCart');
     });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
+    test('should close Ps Addons alert if exist', () => client.closePsAddonsAlert());
   }, 'order');
 
   common_scenarios.createProduct(AddProductPage, productData);

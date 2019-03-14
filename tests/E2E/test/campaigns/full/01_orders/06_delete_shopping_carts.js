@@ -15,16 +15,19 @@ let promise = Promise.resolve();
 
 scenario('Delete shopping carts', () => {
   scenario('Login in the Back Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('delete_shopping_carts');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
+    test('should close Ps Addons alert if exist', () => client.closePsAddonsAlert());
   }, 'order');
   scenario('Add products to the cart in the Front Office', () => {
     scenario('Go to the Front Office', client => {
-      test('should go to the "Front Office"', () => {
-        return promise
-          .then(() => client.waitForExistAndClick(AccessPageBO.shopname))
-          .then(() => client.switchWindow(1))
-          .then(() => client.signInFO(AccessPageFO));
+      test('should go to the "Front Office"', async () => {
+        await client.waitForExistAndClick(AccessPageBO.shopname);
+        await client.switchWindow(1);
+        await client.signInFO(AccessPageFO);
       });
       test('should set the language of shop to "English"', () => client.changeLanguage());
     }, 'order');
@@ -40,29 +43,22 @@ scenario('Delete shopping carts', () => {
     }, 'order');
   }, 'order');
   scenario('Delete an abandoned shopping cart', client => {
-    test('should go back to the Back office', () => {
-      return promise
-        .then(() => client.switchWindow(0))
-    });
+    test('should go back to the Back office', () => client.switchWindow(0));
     test('should go to "Shopping cart" page', () => client.goToSubtabMenuPage(Menu.Sell.Orders.orders_menu, Menu.Sell.Orders.shopping_carts_submenu));
     test('should check that the cart is not ordered yet', () => client.checkTextValue(OrderPage.check_order_id, 'Non ordered'));
     test('should get the "ID" of the last shopping cart', () => client.getTextInVar(ShoppingCart.id.replace('%NUMBER', 1).replace('%COL', 2), "idShoppingCart"));
     test('should click on "Dropdown" button', () => client.waitForExistAndClick(OrderPage.dropdown_button));
-    test('should click on "Delete" action', () => client.waitForExistAndClick(OrderPage.delete_button));
     test('should accept the confirmation alert', () => client.alertAccept());
+    test('should click on "Delete" action', () => client.waitForExistAndClick(OrderPage.delete_button));
     test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.success_panel, '×\nSuccessful deletion.'));
-    test('should check that this shopping carts does not appears in the list', () => {
-      return promise
-        .then(() => client.searchByValue(ShoppingCart.filter_id_input, ShoppingCart.search_button, global.tab['idShoppingCart']))
-        .then(() => client.checkTextValue(ShoppingCart.id.replace('%NUMBER', 1).replace('%COL', 1), 'No records found', 'contain'))
-        .then(() => client.waitForExistAndClick(ShoppingCart.reset_button));
+    test('should check that this shopping carts does not appears in the list', async () => {
+      await client.searchByValue(ShoppingCart.filter_id_input, ShoppingCart.search_button, global.tab['idShoppingCart']);
+      await client.checkTextValue(ShoppingCart.id.replace('%NUMBER', 1).replace('%COL', 1), 'No records found', 'contain');
+      await client.waitForExistAndClick(ShoppingCart.reset_button);
     });
   }, 'order');
   scenario('Create a new order from the Front Office', client => {
-    test('should go back to the Front office', () => {
-      return promise
-        .then(() => client.switchWindow(1))
-    });
+    test('should go back to the Front office', () => client.switchWindow(1));
     commonOrder.createOrderFO("connected");
   }, 'order');
   scenario('Delete a shopping cart related to an order', client => {

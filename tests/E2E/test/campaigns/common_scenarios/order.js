@@ -24,10 +24,9 @@ module.exports = {
       test('should go to the first product page', () => client.waitForExistAndClick(productPage.first_product, 2000));
       test('should select product "size M" ', () => client.waitAndSelectByValue(productPage.first_product_size, '2'));
       test('should select product "color Black"', () => client.waitForExistAndClick(productPage.first_product_color));
-      test('should set the product "quantity"', () => {
-        return promise
-          .then(() => client.waitAndSetValue(productPage.first_product_quantity, "4"))
-          .then(() => client.getTextInVar(CheckoutOrderPage.product_current_price, "first_basic_price"));
+      test('should set the product "quantity"', async () => {
+        await client.waitAndSetValue(productPage.first_product_quantity, "4");
+        await client.getTextInVar(CheckoutOrderPage.product_current_price, "first_basic_price");
       });
       if (checkAvailableQuantity === true) {
         test('should click on "product details" tab', () => client.waitForExistAndClick(CheckoutOrderPage.product_details_tab, 2000));
