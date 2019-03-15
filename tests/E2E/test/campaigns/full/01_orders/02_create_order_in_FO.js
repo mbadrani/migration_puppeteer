@@ -85,7 +85,10 @@ scenario('Check that Ordering more than the stock is giving a wrong message', ()
   }, 'order');
 
   scenario('Change configuration of  "Allow ordering of out-of-stock products" ', client => {
-    test('Should close the "symfony" toolbar', () => client.waitForSymfonyToolbar(AddProductPage));
+    test('Should close the "symfony" toolbar', async() => {
+      client.waitForSymfonyToolbar(AddProductPage);
+      client.pause(2000);
+    });
     test('Should go to "Product settings" page', () => client.goToSubtabMenuPage(Menu.Configure.ShopParameters.shop_parameters_menu, Menu.Configure.ShopParameters.product_settings_submenu));
     test('Should click on "NO" button to disable ordering of out-of-stock products', () => client.scrollWaitForExistAndClick(ProductSettings.disableOrderOutOfStock_button));
     test('Should close the "symfony" toolbar', () => client.waitForSymfonyToolbar(AddProductPage));

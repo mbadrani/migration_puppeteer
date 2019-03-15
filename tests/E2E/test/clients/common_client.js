@@ -347,7 +347,7 @@ class CommonClient {
 
   async scrollWaitForExistAndClick(selector, pause = 0, timeout = 90000) {
     await this.scrollTo(selector);
-    await this.waitForExistAndClick(selector, pause, options = {timeout: timeout})
+    await this.waitForExistAndClick(selector, pause, {timeout: timeout})
   }
 
   async getTextInVar(selector, globalVar, split = false, timeout = 90000) {

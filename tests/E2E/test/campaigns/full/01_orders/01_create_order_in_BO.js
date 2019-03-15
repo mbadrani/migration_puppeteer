@@ -120,6 +120,7 @@ scenario('Create order in the Back Office', () => {
       await client.startTracing('FullCreateOrderBO');
     });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
+    test('should close Ps Addons alert if exist', () => client.closePsAddonsAlert());
   }, 'order');
 
   welcomeScenarios.findAndCloseWelcomeModal();

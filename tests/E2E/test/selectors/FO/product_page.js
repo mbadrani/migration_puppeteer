@@ -24,7 +24,7 @@ module.exports = {
     products_number: '//*[@id="js-product-list-top"]//p',
     offline_warning_message: '//div[contains(@class, "alert-warning")]//p',
     product_discounts_table: '//*[@id="add-to-cart-or-refresh"]//tbody/tr[%R]/td[%D]',
-    second_product: '(//*[@id="content"]//h3[@itemprop="name"])[2]',
+    second_product: '#content article:nth-child(2) h3',
     product_availability_message: '#product-availability',
     product_summary: '(//*[@itemprop="description"]//p)[1]',
     product_description: '//*[@id="description"]',

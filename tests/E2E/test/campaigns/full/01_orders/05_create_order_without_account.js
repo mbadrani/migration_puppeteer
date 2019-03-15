@@ -56,6 +56,7 @@ scenario('Create order by a guest from the Front Office', client => {
       await client.startTracing('create_order_without_account');
     });
     test('should log in successfully in the Back Office', () => client.signInBO(AccessPageBO));
+    test('should close Ps Addons alert if exist', () => client.closePsAddonsAlert());
   }, 'common_client');
   scenario('Click on "Stop the OnBoarding" button', client => {
     test('should check and click on "Stop the OnBoarding" button', async () => {
@@ -321,7 +322,7 @@ scenario('Create order by a guest from the Front Office', client => {
   }, 'stocks');
   scenario('Check that the created order is opened in a new window', client => {
     test('should click on "Customer Order" link', async () => {
-      await client.pause(15000);
+      await client.pause(2000);
       await client.waitForExistAndClick(Movement.type_value_href.replace('%P', 1), 2000)
     });
     test('should check that the created order is opened in a new window', async () => {
