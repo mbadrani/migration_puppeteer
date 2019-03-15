@@ -217,7 +217,7 @@ module.exports = {
     }, "order");
   },
 
-  getShoppingCartsInfo: async function (client) {
+  async getShoppingCartsInfo(client) {
     let idColumn;
     await client.isVisible(ShoppingCart.checkbox_input);
     if (global.isVisible) {
@@ -237,10 +237,12 @@ module.exports = {
       await global.tab["carrier"] === '--' ? global.tab["carrier"] = '' : global.tab["carrier"] = '"' + global.tab["carrier"] + '"';
       await global.tab["customer_online"] === 'Yes' ? global.tab["customer_online"] = 1 : global.tab["customer_online"] = 0;
       global.tab["date"] = await dateFormat(global.tab["date"], "yyyy-mm-dd HH:MM:ss");
-      await global.orders.push(parseInt(global.tab["id"]) + ';' + global.tab["order_id"] + ';' + '"' + global.tab["customer"] + '"' + ';' + global.tab["total"] + ';' + global.tab["carrier"] + ';' + '"' + global.tab["date"] + '"' + ';' + global.tab["customer_online"]);
+      await global.orders.push(parseInt(global.tab["id"]) + ';' + global.tab["order_id"] + ';' + '"' + global.tab["customer"].replace('\t', '') + '"' + ';' + global.tab["total"].trim() + ';' + global.tab["carrier"].replace('\t', '') + ';' + '"' + global.tab["date"].replace('\t', '') + '"' + ';' + global.tab["customer_online"]);
     }
   },
-  checkExportedFile: async function (client) {
+
+  async checkExportedFile(client) {
+    await client.setDownloadBehavior();
     await client.downloadCart(ShoppingCart.export_carts_button);
     await client.checkFile(global.downloadsFolderPath, global.exportCartFileName);
     if (global.existingFile) {

@@ -184,10 +184,9 @@ scenario('Create order in the Back Office', () => {
     });
   }, 'order');
   scenario('Display then check details of the existing cart', client => {
-    test('should search for a customer', () => {
-      return promise
-        .then(() => client.waitAndSetValue(CreateOrder.customer_search_input, date_time + customerData.email_address))
-        .then(() => client.pause(1000));
+    test('should search for a customer', async () => {
+      await client.waitAndSetValue(CreateOrder.customer_search_input, date_time + customerData.email_address);
+      await client.pause(1000);
     });
     test('should choose the created customer', () => client.waitForExistAndClick(CreateOrder.choose_customer_button, 2000));
     test('should display details of the cart', async () => {
@@ -304,7 +303,7 @@ scenario('Create order in the Back Office', () => {
     test('should set "Address" input', () => client.waitAndSetValue(Addresses.address_input, "12 rue test " + date_time, 1000, {}, true));
     test('should set "Postal code" input', () => client.waitAndSetValue(Addresses.zip_code_input, '75009', 1000, {}, true));
     test('should set "City" input', () => client.waitAndSetValue(Addresses.city_input, 'Paris', 1000, {}, true));
-    test('should set "Country" input', () =>client.waitAndSelectByValue(Addresses.country_input, '8', 1000, {}, true));
+    test('should set "Country" input', () => client.waitAndSelectByValue(Addresses.country_input, '8', 1000, {}, true));
     test('should click on "Save" button', () => client.waitForExistAndClick(Addresses.save_button, 2000, {}, true));
     test('should set the delivery address ', () => client.waitAndSelectByVisibleText(CreateOrder.delivery_address_select, 'Address xxx ' + global.date_time, 1000));
     test('should set the invoice address ', () => client.waitAndSelectByVisibleText(CreateOrder.invoice_address_select, 'Address xxx ' + global.date_time, 1000));
@@ -341,31 +340,28 @@ scenario('Create order in the Back Office', () => {
   scenario('Check the created order in the Back Office', client => {
     test('should check status to be equal to "Awaiting check payment"', () => client.checkTextValue(OrderPage.order_status, 'Awaiting check payment'));
     test('should check that the "order message" is equal to "Order message test"', () => client.checkTextValue(OrderPage.message_order, 'Order message test', 'contain', 4000));
-    test('should check "Customer information"', () => {
-      return promise
-        .then(() => client.checkTextValue(OrderPage.customer_name, customerData.first_name + ' ' + customerData.last_name, 'contain', 4000))
-        .then(() => client.checkTextValue(OrderPage.customer_email_link, date_time + customerData.email_address))
-        .then(() => client.checkTextValue(OrderPage.customer_account_registred_text, dateSystem, 'contain'))
-        .then(() => client.checkTextValue(OrderPage.valid_order_placed_number_span, '0', 'contain'))
-        .then(() => client.checkTextValue(OrderPage.total_registration_span, '0.00', 'contain'));
+    test('should check "Customer information"', async () => {
+      await client.checkTextValue(OrderPage.customer_name, customerData.first_name + ' ' + customerData.last_name, 'contain', 4000);
+      await client.checkTextValue(OrderPage.customer_email_link, date_time + customerData.email_address);
+      await client.checkTextValue(OrderPage.customer_account_registred_text, dateSystem, 'contain');
+      await client.checkTextValue(OrderPage.valid_order_placed_number_span, '0', 'contain');
+      await client.checkTextValue(OrderPage.total_registration_span, '0.00', 'contain');
     });
     test('should check "Shipping Address"', () => client.checkTextValue(OrderPage.shipping_address_bloc, 'NewAddress NewAddress', "contain"));
     test('should click on "Invoice Address" subtab', () => client.waitForVisibleAndClick(OrderPage.invoice_address_tab, 1000));
-    test('should check "Shipping" information', () => {
-      return promise
-        .then(() => client.checkTextValue(OrderPage.date_shipping, dateSystem, 'contain'))
-        .then(() => client.checkTextValue(OrderPage.carrier, 'carrier', 'contain'))
-        .then(() => client.checkTextValue(OrderPage.weight_shipping, '0.00', 'contain'))
-        .then(() => client.checkTextValue(OrderPage.shipping_cost, '€8.40'))
+    test('should check "Shipping" information', async () => {
+      await client.checkTextValue(OrderPage.date_shipping, dateSystem, 'contain');
+      await client.checkTextValue(OrderPage.carrier, 'carrier', 'contain');
+      await client.checkTextValue(OrderPage.weight_shipping, '0.00', 'contain');
+      await client.checkTextValue(OrderPage.shipping_cost, '€8.40');
     });
     test('should check "Payment" information', () => client.checkTextValue(OrderPage.payment_method, '', 'contain'));
     test('should check that the "quantity" is  equal to "4"', () => client.checkTextValue(OrderPage.order_quantity.replace("%NUMBER", 1), '4'));
-    test('should check "Products" information', () => {
-      return promise
-        .then(() => client.checkTextValue(OrderPage.product_Url, productData[1].name + date_time, 'contain'))
-        .then(() => client.checkTextValue(OrderPage.order_quantity.replace("%NUMBER", 1), '4'))
-        .then(() => client.checkTextValue(OrderPage.stock_product.replace("%NUMBER", 1), '6'))
-        .then(() => client.getTextInVar(OrderPage.total_order, "total_orders"));
+    test('should check "Products" information', async () => {
+      await client.checkTextValue(OrderPage.product_Url, productData[1].name + date_time, 'contain');
+      await client.checkTextValue(OrderPage.order_quantity.replace("%NUMBER", 1), '4');
+      await client.checkTextValue(OrderPage.stock_product.replace("%NUMBER", 1), '6');
+      await client.getTextInVar(OrderPage.total_order, "total_orders");
     });
   }, 'order');
   scenario('Check the created order in the Front Office', () => {

@@ -12,11 +12,11 @@ const exec = require('child_process').exec;
 class Order extends CommonClient {
 
   async addOrderMessage(orderMessage) {
-    await this.scrollTo(CreateOrder.order_message_textarea);
+    await page.waitFor(2000);
     await this.waitForExist(CreateOrder.order_message_textarea, 90000);
     await this.pause(2000);
-    await this.waitAndSetValue(CreateOrder.order_message_textarea, orderMessage, 2000);
-    await this.waitForExistAndClick(CreateOrder.order_message_div, 1000);
+    await this.waitAndSetValue(CreateOrder.order_message_textarea, orderMessage, 3000);
+    await this.waitForExistAndClick(CreateOrder.order_message_div, 2000);
   }
 
   async updateStatus(value) {
@@ -37,49 +37,39 @@ class Order extends CommonClient {
       .then(() => this.client.pause(2000));
   }
 
-  downloadCart(selector) {
-    return this.client
-      .waitForExistAndClick(selector)
-      .pause(2000)
-      .then(() => {
-        let exportDate = common.getCustomDate(0);
-        let files = fs.readdirSync(downloadsFolderPath);
-        for (let i = 0; i < files.length; i++) {
-          if (files[i].includes('cart_' + exportDate)) {
-            global.exportCartFileName = files[i];
-          }
-        }
-      });
+  async downloadCart(selector) {
+    await this.waitForExistAndClick(selector);
+    await page.waitFor(2000);
+    let exportDate = await this.getCustomDate(0);
+    let files = await fs.readdirSync(global.downloadsFolderPath);
+    for (let i = 0; i < files.length; i++) {
+      if (files[i].includes('cart_' + exportDate)) {
+        global.exportCartFileName = await files[i];
+      }
+    }
   }
 
-  getShoppingCartNumber(selector) {
-    return this.client
-      .execute(function (selector) {
-        let count = document.getElementById(selector).getElementsByTagName("tbody")[0].children.length;
-        return count;
-      }, selector)
-      .then((count) => {
-        global.shoppingCartsNumber = count.value;
-      });
+  async getShoppingCartNumber(selector, wait = 0) {
+    await page.waitFor(wait);
+    let result = await page.evaluate((selector) => {
+      return document.getElementById(selector).getElementsByTagName("tbody")[0].children.length;
+    }, selector);
+    global.shoppingCartsNumber = await result;
   }
 
-  readFile(folderPath, fileName, pause = 0) {
-    fs.readFile(folderPath + fileName, {encoding: 'utf-8'}, function (err, data) {
+  async readFile(folderPath, fileName, wait = 0) {
+    await fs.readFile(folderPath + fileName, {encoding: 'utf-8'}, function (err, data) {
       global.lineFile = data.split("\n");
     });
-    return this.client
-      .pause(pause)
-      .then(() => expect(global.lineFile, "No data").to.be.not.empty)
+    await page.waitFor(wait);
+    await expect(global.lineFile, "No data").to.be.not.empty
   }
 
-  checkExportedFileInfo(pause = 0) {
-    return this.client
-      .pause(pause)
-      .then(() => {
-        for (let i = 1; i < (global.lineFile.length - 1); i++) {
-          expect(global.lineFile[i]).to.be.equal(global.orders[i - 1])
-        }
-      })
+  async checkExportedFileInfo(wait = 0) {
+    await page.waitFor(wait);
+    for (let i = 1; i < (global.lineFile.length - 1); i++) {
+      await expect(global.lineFile[i]).to.be.equal(global.orders[i - 1]);
+    }
   }
 
   checkEnable(selector) {

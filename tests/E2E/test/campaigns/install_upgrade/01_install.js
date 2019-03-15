@@ -9,7 +9,7 @@ scenario('The shop installation', () => {
       await client.open();
       await client.startTracing('installShop');
     });
-    test('should go to install page ', () => client.localhost(URL));
+    test('should go to install page ', () => client.localhost(URL, install_directory));
   }, 'installation');
 
   commonInstallation.prestaShopInstall(Installation, install_language, install_country);

@@ -26,7 +26,16 @@ class CommonClient {
 
   async open() {
     global.browser = await puppeteer.launch(options);
-    global.page = await this.getPage(0)
+    global.page = await this.getPage(0);
+    //Set the user agent and the accept language for headless mode => Chrome Headless will closely emulate Chrome
+    if (global.headless) {
+      const headlessUserAgent = await page.evaluate(() => navigator.userAgent);
+      const chromeUserAgent = headlessUserAgent.replace('HeadlessChrome', 'Chrome');
+      await page.setUserAgent(chromeUserAgent);
+      await page.setExtraHTTPHeaders({
+        'accept-language': 'en-US,en;q=0.8'
+      });
+    }
   }
 
   async getPage(id) {
@@ -58,7 +67,6 @@ class CommonClient {
   }
 
   async waitAndSetValue(selector, value, wait = 0, options = {}, isFrame = false) {
-
     await page.waitFor(wait);
     if (isFrame) {
       await frame.waitFor(selector, options);
@@ -94,8 +102,8 @@ class CommonClient {
     }
   }
 
-  async isVisible(selector) {
-    await page.waitFor(2000);
+  async isVisible(selector, wait = 0) {
+    await page.waitFor(wait);
     const exists = await page.$(selector) !== null;
     if (exists) {
       global.isVisible = await page.evaluate((selector) => {
@@ -133,23 +141,28 @@ class CommonClient {
     await this.waitForExistAndClick(selector, 2000);
   }
 
-  async scrollWaitForVisibleAndClick(selector, pause = 0, timeout = 40000) {
+  async scrollWaitForVisibleAndClick(selector, wait = 0, timeout = 40000) {
     await page.waitFor(selector);
     await page.evaluate((selector) => {
       document.querySelector(selector).scrollIntoView();
     }, selector);
-    await this.waitForVisibleAndClick(selector, pause, timeout)
+    await this.waitForVisibleAndClick(selector, wait, timeout)
   }
 
   async isExisting(selector, wait = 0) {
     await page.waitFor(wait);
     const exists = await page.$(selector) !== null;
     expect(exists).to.be.true;
+    if (exists) {
+      //If exist, element should be visible too
+      await this.isVisible(selector);
+      expect(global.isVisible).to.be.true;
+    }
   }
 
-  async waitForVisibleAndClick(selector, wait = 0) {
+  async waitForVisibleAndClick(selector, wait = 0, timeout = 30000) {
     await page.waitFor(wait);
-    await page.waitFor(selector, {visible: true});
+    await page.waitFor(selector, {visible: true, timeout: timeout});
     await page.click(selector);
   }
 
@@ -194,10 +207,10 @@ class CommonClient {
     }
   }
 
-  async waitForSymfonyToolbar(AddProductPage, pause = 4000) {
-    await page.waitFor(pause);
-    let exist = await page.$(AddProductPage.symfony_toolbar_block) !== null;
-    if (exist) {
+  async waitForSymfonyToolbar(AddProductPage, wait = 4000) {
+    await page.waitFor(wait);
+    await this.isVisible(AddProductPage.symfony_toolbar_block);
+    if (global.isVisible) {
       await this.waitForExistAndClick(AddProductPage.symfony_toolbar);
     }
   }
@@ -253,8 +266,8 @@ class CommonClient {
     await page.reload();
   }
 
-  async localhost(link) {
-    await page.goto(link + '/install-dev');
+  async localhost(link, installDirectory) {
+    await page.goto(link + '/' + installDirectory);
   }
 
   async signInFO(selector, link = global.URL) {
@@ -280,7 +293,6 @@ class CommonClient {
       await page.waitFor(selector);
       await page.select(selector, value);
     }
-
   }
 
   async signOutBO() {
@@ -345,9 +357,9 @@ class CommonClient {
     await this.waitForExistAndClick(selector.logo_home_page);
   }
 
-  async scrollWaitForExistAndClick(selector, pause = 0, timeout = 90000) {
+  async scrollWaitForExistAndClick(selector, wait = 0, timeout = 90000) {
     await this.scrollTo(selector);
-    await this.waitForExistAndClick(selector, pause, {timeout: timeout})
+    await this.waitForExistAndClick(selector, wait, {timeout: timeout})
   }
 
   async getTextInVar(selector, globalVar, split = false, timeout = 90000) {
@@ -462,16 +474,52 @@ class CommonClient {
       }, selector)
   }
 
-   async checkExistence(selector, data, pos) {
-     if (global.isVisible) {
-       await page.waitFor(selector.replace('%ID', pos));
-       await page.$eval(selector.replace('%ID', pos), el => el.innerText).then((text) => expect(text.trim).to.equal(data.trim));
-     }
-     else {
-       await page.waitFor(selector.replace('%ID', pos-1));
-       await page.$eval(selector.replace('%ID', pos - 1), el => el.innerText).then((text) => expect(text.trim).to.equal(data.trim));
-     }
-   }
+  async checkExistence(selector, data, pos) {
+    if (global.isVisible) {
+      await page.waitFor(selector.replace('%ID', pos));
+      await page.$eval(selector.replace('%ID', pos), el => el.innerText).then((text) => expect(text.trim).to.equal(data.trim));
+    }
+    else {
+      await page.waitFor(selector.replace('%ID', pos - 1));
+      await page.$eval(selector.replace('%ID', pos - 1), el => el.innerText).then((text) => expect(text.trim).to.equal(data.trim));
+    }
+  }
+
+  async checkFile(folderPath, fileName, wait = 0) {
+    await fs.stat(folderPath + fileName, function (err, stats) {
+      err === null && stats.isFile() ? global.existingFile = true : global.existingFile = false;
+    });
+    await page.waitFor(wait);
+    await expect(global.existingFile).to.be.true;
+  }
+
+  async getCustomDate(numberOfDay) {
+    let today = await new Date();
+    await today.setDate(today.getDate() + numberOfDay);
+    let dd = await today.getDate();
+    let mm = await today.getMonth() + 1; //January is 0!
+    let yyyy = await today.getFullYear();
+    if (dd < 10) {
+      dd = await '0' + dd;
+    }
+    if (mm < 10) {
+      mm = await '0' + mm;
+    }
+    return await yyyy + '-' + mm + '-' + dd;
+  }
+
+  async setDownloadBehavior() {
+    await page.waitFor(4000);
+    await page._client.send('Page.setDownloadBehavior', {
+      behavior: 'allow',
+      downloadPath: global.downloadsFolderPath
+    });
+  }
+
+  async deleteFile(folderPath, fileName, extension = "", wait = 0) {
+    fs.unlinkSync(folderPath + fileName + extension);
+    await page.waitFor(wait);
+  }
 }
 
 module.exports = CommonClient;

@@ -9,7 +9,10 @@ const {ShoppingCart} = require('../../../selectors/BO/order');
 const orderCommonScenarios = require('../../common_scenarios/order');
 scenario('Export shopping carts in the Back Office', () => {
   scenario('Login in the Back Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('Order');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
   }, 'order');
   scenario('Search for the shopping carts to export', client => {
@@ -17,7 +20,7 @@ scenario('Export shopping carts in the Back Office', () => {
     test('should set the "Customer" input', () => client.waitAndSetValue(ShoppingCart.search_input.replace('%searchParam', 'c!lastname'), 'DOE'));
     test('should set the "Carrier" input', () => client.waitAndSetValue(ShoppingCart.search_input.replace('%searchParam', 'ca!name'), 'My carrier'));
     test('should click on the "search" button', () => client.waitForExistAndClick(ShoppingCart.search_button));
-    test('should get the "Shopping Carts" number', () => client.getShoppingCartNumber(ShoppingCart.id_shopping_carts));
+    test('should get the "Shopping Carts" number', () => client.getShoppingCartNumber(ShoppingCart.id_shopping_carts, 2000));
     test('should get the "Shopping Carts" info', () => orderCommonScenarios.getShoppingCartsInfo(client));
     test('should export the "Shopping Carts" then check the exported file information', () => orderCommonScenarios.checkExportedFile(client));
     test('should delete the downloaded file', async () => {
@@ -27,4 +30,4 @@ scenario('Export shopping carts in the Back Office', () => {
       }
     });
   }, 'order');
-}, 'order', true);
+}, 'order',true);
