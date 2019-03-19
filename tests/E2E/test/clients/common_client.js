@@ -273,7 +273,7 @@ class CommonClient {
   async signInFO(selector, link = global.URL) {
     await page.goto(link);
     await page._client.send('Emulation.clearDeviceMetricsOverride');
-    await this.waitForExistAndClick(selector.sign_in_button, 1000);
+    await this.waitForExistAndClick(selector.sign_in_button, 3000);
     await this.waitAndSetValue(selector.login_input, 'pub@prestashop.com');
     await this.waitAndSetValue(selector.password_inputFO, '123456789');
     await this.waitForExistAndClick(selector.login_button);
@@ -508,7 +508,14 @@ class CommonClient {
     return await yyyy + '-' + mm + '-' + dd;
   }
 
-  async setDownloadBehavior() {
+  async setDownloadBehavior(removeBlankTarget = false, selector = '') {
+    if (removeBalnkTarget) {
+      await page.waitFor(2000);
+      await page.evaluate((selector) => {
+        let element = document.querySelector(selector);
+        element.setAttribute('target', '');
+      }, selector);
+    }
     await page.waitFor(4000);
     await page._client.send('Page.setDownloadBehavior', {
       behavior: 'allow',
@@ -516,9 +523,28 @@ class CommonClient {
     });
   }
 
-  async deleteFile(folderPath, fileName, extension = "", wait = 0) {
+  async checkDocument(folderPath, fileName, text) {
+    await pdfUtil.pdfToText(folderPath + fileName + '.pdf', function (err, data) {
+      global.indexText = data.indexOf(text);
+      global.data = global.data + data;
+    });
+    await page.waitFor(2000);
+    expect(global.indexText, text + "does not exist in the PDF document").to.not.equal(-1);
+  }
+
+  async getDocumentName(selector) {
+    await page.$eval(selector, el => el.innerText).then((text) => {
+      global.invoiceFileName = text.replace('#', '');
+    });
+  }
+
+  async deleteFile(folderPath, fileName, extension = "", pause = 0) {
     fs.unlinkSync(folderPath + fileName + extension);
-    await page.waitFor(wait);
+    await page.waitFor(pause);
+  }
+
+  linkAccess(link) {
+    return page.goto(link);
   }
 }
 

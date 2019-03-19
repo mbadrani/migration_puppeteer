@@ -6,7 +6,7 @@ let pdfUtil = require('pdf-to-text');
 
 global.date_time = new Date().getTime();
 
-let siteUrl = argv.URL || 'http://localhost'
+let siteUrl = argv.URL || 'http://localhost';
 if (!/^https?:\/\//i.test(siteUrl)) {
   siteUrl = 'http://' + siteUrl;
 }
