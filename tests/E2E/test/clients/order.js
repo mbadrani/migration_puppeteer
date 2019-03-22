@@ -72,16 +72,16 @@ class Order extends CommonClient {
     }
   }
 
-  checkEnable(selector) {
-    return this.client
-      .waitForExist(selector, 90000)
-      .isEnabled(selector)
-      .then((text) => expect(text).to.be.false);
+  async checkEnable(selector) {
+    await page.waitForSelector(selector, {visible: true});
+    const is_disabled = await page.$(selector + '[disabled]') !== null;
+    expect(is_disabled).to.be.true;
   }
 
   async getCreditSlipDocumentName(selector) {
-    let name = await this.client.getText(selector);
-    global.creditSlip = await name.replace('#', '');
+    await page.$eval(selector, el => el.innerText).then((text) => {
+      global.creditSlip = text.trim();
+    });
   }
 
   getNameInvoice(selector, pause = 0) {

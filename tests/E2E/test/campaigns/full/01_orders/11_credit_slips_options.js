@@ -10,7 +10,10 @@ const {Menu} = require('../../../selectors/BO/menu.js');
 require('./10_check_credit_slip');
 scenario('Generate and check a Credit slips options ', () => {
   scenario('Open the browser and login successfully in the Back Office ', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('checkCreditSlipAndOptions');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
   }, 'common_client');
   scenario('Change the credit slip prefix ', client => {
@@ -31,7 +34,7 @@ scenario('Generate and check a Credit slips options ', () => {
     test('should check the existence of "prefix value" ', async () => {
       await client.checkFile(global.downloadsFolderPath, global.creditSlip + '.pdf', 3000);
       if (global.existingFile) {
-        await client.pause(6000);
+        await client.pause(4000);
         await client.checkDocument(global.downloadsFolderPath, global.creditSlip, 'PrefixTest');
       }
     });
