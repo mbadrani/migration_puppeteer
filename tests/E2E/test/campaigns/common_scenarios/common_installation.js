@@ -11,7 +11,7 @@ module.exports = {
       test('should click on "Next" button', () => client.waitForVisibleAndClick(selector.next_step_button));
     }, 'installation');
     scenario('Step 3 : Checking system compatibility', client => {
-      test('should check if step 3 is skipped', () => client.isVisible(selector.refresh_button, 2000));
+      test('should check if step 3 is skipped', () => client.isVisible(selector.refresh_button, 3000));
       test('should check the test compatibility green box', async () => {
         if (global.isVisible) {
           await client.isExisting(selector.compatibility_green_box);
@@ -97,7 +97,7 @@ module.exports = {
       }));
     }, 'installation');
     scenario('Step 7 : Checking that installation finished', client => {
-      test('should check that the installation is finished!', () => client.isExisting(selector.finished_installation_msg));
+      test('should check that the installation is finished!', () => client.isExisting(selector.finished_installation_msg, 2000));
     }, 'installation');
   }
 };

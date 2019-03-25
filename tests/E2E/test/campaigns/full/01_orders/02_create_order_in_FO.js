@@ -80,19 +80,19 @@ let productDataOrder = [{
 
 scenario('Check that Ordering more than the stock is giving a wrong message', () => {
   scenario('Open the browser and connect to the Back Office', client => {
-    test('should login successfully in the Front Office', () => client.signInBO(AccessPageBO));
+    test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
     test('should close Ps Addons alert if exist', () => client.closePsAddonsAlert());
   }, 'order');
 
-  scenario('Change configuration of  "Allow ordering of out-of-stock products" ', client => {
-    test('Should close the "symfony" toolbar', async() => {
-      client.waitForSymfonyToolbar(AddProductPage);
-      client.pause(2000);
+  scenario('Change configuration of "Allow ordering of out-of-stock products" ', client => {
+    test('Should close the "symfony" toolbar', async () => {
+      await client.waitForSymfonyToolbar(AddProductPage);
+      await client.pause(2000);
     });
     test('Should go to "Product settings" page', () => client.goToSubtabMenuPage(Menu.Configure.ShopParameters.shop_parameters_menu, Menu.Configure.ShopParameters.product_settings_submenu));
-    test('Should click on "NO" button to disable ordering of out-of-stock products', () => client.scrollWaitForExistAndClick(ProductSettings.disableOrderOutOfStock_button));
+    test('Should click on "NO" button to disable ordering of out-of-stock products', () => client.waitForExistAndClick(ProductSettings.disableOrderOutOfStock_button, 2000));
     test('Should close the "symfony" toolbar', () => client.waitForSymfonyToolbar(AddProductPage));
-    test('Should click "Save" button', () => client.scrollWaitForExistAndClick(ProductSettings.save_productStocks_button, 1000));
+    test('Should click "Save" button', () => client.waitForExistAndClick(ProductSettings.save_productStocks_button, 3000));
   }, 'order');
 
   scenario('Create a product with the quantity equal to 5', client => {

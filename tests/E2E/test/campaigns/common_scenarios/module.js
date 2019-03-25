@@ -34,7 +34,7 @@ module.exports = {
     test('should click on "Uninstall" button', () => client.scrollWaitForVisibleAndClick(ModulePage.uninstall_button.split('%moduleTechName').join(moduleTechName)));
     test('should click on "Yes, uninstall it" button', async () => {
       await client.alertAccept();
-      await client.waitForVisibleAndClick(ModulePage.uninstall_module_modal, 1000)
+      await client.waitForVisibleAndClick(ModulePage.uninstall_module_modal, 2000);
     });
     test('should check that the success alert message is well displayed', () => client.waitForExistAndClick(AddProductPage.close_validation_button));
     test('should check that the backdrop is hidden', () => client.checkIsNotVisible(ModulePage.backdrop_modale));
@@ -42,7 +42,7 @@ module.exports = {
   },
   disableModule: function (client, ModulePage, AddProductPage, moduleTechName) {
     test('should go to "Module Manager" page', () => client.goToSubtabMenuPage(Menu.Improve.Modules.modules_menu, Menu.Improve.Modules.modules_manager_submenu));
-    test('should click on "Installed Modules"', () => client.waitForVisibleAndClick(Menu.Improve.Modules.installed_modules_tabs));
+    test('should click on "Installed Modules"', () => client.waitForVisibleAndClick(Menu.Improve.Modules.installed_modules_tabs, 2000));
     test('should search for ' + moduleTechName + ' module in the installed module tab', () => client.waitAndSetValue(ModulePage.modules_search_input, moduleTechName));
     test('should click on "Search" button', () => client.waitForExistAndClick(ModulePage.modules_search_button));
     test('should click on "Disable" button', () => {
