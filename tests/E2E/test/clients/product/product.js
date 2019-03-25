@@ -24,12 +24,9 @@ class Product extends CommonClient {
       .then(() => expect(Number(global.productIdElement[2])).to.be.below(Number(global.productIdElement[1])));
   }
 
-  checkCategoryRadioButton(categoryValue) {
-    return this.client
-      .waitForVisible(AddProductPage.category_radio_button.replace('%VALUE', categoryValue))
-      .scroll(0, 1000)
-      .isVisible(AddProductPage.category_radio_button.replace('%VALUE', categoryValue))
-      .then((text) => expect(text).to.be.true);
+  async checkCategoryRadioButton(categoryValue) {
+    var el_selector = AddProductPage.category_radio_button.replace('%VALUE', categoryValue);
+    return this.isVisible(el_selector);
   }
 
   openAllCategories() {
@@ -52,13 +49,11 @@ class Product extends CommonClient {
       .waitAndSetValue(AddProductPage.pack_label_out_stock, data.common.qty_msg_unstock);
   }
 
-  selectPricingPriorities(firstPriority = 'id_shop', secondPriority = 'id_currency', thirdPriority = 'id_country', fourthPriority = 'id_group') {
-    return this.client
-      .scrollTo(AddProductPage.pricing_first_priorities_select, 50)
-      .waitAndSelectByValue(AddProductPage.pricing_first_priorities_select, firstPriority)
-      .waitAndSelectByValue(AddProductPage.pricing_second_priorities_select, secondPriority)
-      .waitAndSelectByValue(AddProductPage.pricing_third_priorities_select, thirdPriority)
-      .waitAndSelectByValue(AddProductPage.pricing_fourth_priorities_select, fourthPriority);
+  async selectPricingPriorities(firstPriority = 'id_shop', secondPriority = 'id_currency', thirdPriority = 'id_country', fourthPriority = 'id_group') {
+    await this.waitAndSelectByValue(AddProductPage.pricing_first_priorities_select, firstPriority);
+    await this.waitAndSelectByValue(AddProductPage.pricing_second_priorities_select, secondPriority);
+    await this.waitAndSelectByValue(AddProductPage.pricing_third_priorities_select, thirdPriority);
+    await this.waitAndSelectByValue(AddProductPage.pricing_fourth_priorities_select, fourthPriority);
   }
 
   selectCondition() {
@@ -73,12 +68,11 @@ class Product extends CommonClient {
       .waitAndSetValue(AddProductPage.options_upc, data.common.upc);
   }
 
-  addPackProduct(search, quantity) {
-    return this.client
-      .waitAndSetValue(AddProductPage.search_product_pack, search)
-      .waitForExistAndClick(AddProductPage.product_item_pack)
-      .waitAndSetValue(AddProductPage.product_pack_item_quantity, quantity)
-      .waitForExistAndClick(AddProductPage.product_pack_add_button);
+  async addPackProduct(search, quantity) {
+    this.fillInputText(AddProductPage.search_product_pack, search)
+    this.click(AddProductPage.product_item_pack)
+    this.fillInputNumber(AddProductPage.product_pack_item_quantity, quantity)
+    this.click(AddProductPage.product_pack_add_button);
   }
 
   createCategory() {
@@ -89,27 +83,25 @@ class Product extends CommonClient {
 
   }
 
-  searchAndAddRelatedProduct() {
+  async searchAndAddRelatedProduct() {
+    //get all search_products
     let search_products = data.common.search_related_products.split('//');
-    return this.client
-      .scrollTo(AddProductPage.search_add_related_product_input)
-      .waitAndSetValue(AddProductPage.search_add_related_product_input, search_products[0])
-      .waitForVisibleAndClick(AddProductPage.related_product_item.replace('%I', 1))
-      .waitAndSetValue(AddProductPage.search_add_related_product_input, search_products[1])
-      .waitForVisibleAndClick(AddProductPage.related_product_item.replace('%I', 1));
+
+    //Add all related products
+    for(var i = 0; i<search_products.length;i++){
+      await page.click(AddProductPage.search_add_related_product_input, { waitUntil: 'domcontentloaded' });
+      await page.keyboard.type(search_products[i]);
+      await page.waitForSelector("div.tt-menu.tt-open", {visible: true});
+      await page.click(AddProductPage.related_product_item);
+    }
   }
 
-  addFeature(type, id = '0') {
-    if (type === 'pack') {
-      this.client
-        .scrollTo(AddProductPage.product_add_feature_btn, 50);
-    }
-    return this.client
-      .scrollTo(AddProductPage.product_add_feature_btn, 150)
-      .waitForExistAndClick(AddProductPage.product_add_feature_btn)
-      .waitForExistAndClick(AddProductPage.feature_select_button.replace("%ID", id))
-      .waitForExistAndClick(AddProductPage.feature_select_option)
-      .waitAndSetValue(AddProductPage.feature_custom_value_height, data.standard.features.feature1.custom_value);
+  async addFeature(type, id = '0') {
+    await page.click(AddProductPage.product_add_feature_btn);
+    await page.waitForSelector(AddProductPage.feature_select_button.replace("%ID", id));
+    await page.click(AddProductPage.feature_select_button.replace("%ID", id));
+    await page.click(AddProductPage.feature_select_option);
+    await this.fillInputText(AddProductPage.feature_custom_value_height, data.standard.features.feature1.custom_value);
   }
 
   async setPrice(selector, price) {
