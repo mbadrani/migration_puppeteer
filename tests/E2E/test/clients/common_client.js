@@ -489,6 +489,20 @@ class CommonClient {
     }
   }
 
+  async closeWindow() {
+    await page.close();
+  }
+
+  async changeOrderState(selector, state) {
+    await page.waitFor(selector.order_state_select);
+    await page.evaluate(() => {
+      let element = document.querySelector('#id_order_state');
+      element.style = "";
+    });
+    await this.waitAndSelectByVisibleText(selector.order_state_select, state);
+    await this.waitForExistAndClick(selector.update_status_button);
+  }
+
   async checkFile(folderPath, fileName, wait = 0) {
     await fs.stat(folderPath + fileName, function (err, stats) {
       err === null && stats.isFile() ? global.existingFile = true : global.existingFile = false;
@@ -513,7 +527,7 @@ class CommonClient {
   }
 
   async setDownloadBehavior(removeBlankTarget = false, selector = '') {
-    if (removeBalnkTarget) {
+    if (removeBlankTarget) {
       await page.waitFor(2000);
       await page.evaluate((selector) => {
         let element = document.querySelector(selector);
@@ -525,6 +539,11 @@ class CommonClient {
       behavior: 'allow',
       downloadPath: global.downloadsFolderPath
     });
+  }
+
+  async deleteFile(folderPath, fileName, extension = "", wait = 0) {
+    fs.unlinkSync(folderPath + fileName + extension);
+    await page.waitFor(wait);
   }
 
   async checkDocument(folderPath, fileName, text) {
@@ -542,56 +561,51 @@ class CommonClient {
     });
   }
 
-  async deleteFile(folderPath, fileName, extension = "", pause = 0) {
-    fs.unlinkSync(folderPath + fileName + extension);
-    await page.waitFor(pause);
-  }
-
   linkAccess(link) {
     return page.goto(link);
   }
 
-    /**
-     * Go to link, for only '<a/>'
-     * @param selector, link to go to
-     */
-    async goToLink(selector){
-        const selector_link = await page.$eval(selector, ({ href }) => href);
-        await page.goto(selector_link, { waitUntil: 'networkidle0' });
-    }
+  /**
+   * Go to link, for only '<a/>'
+   * @param selector, link to go to
+   */
+  async goToLink(selector) {
+    const selector_link = await page.$eval(selector, ({href}) => href);
+    await page.goto(selector_link, {waitUntil: 'networkidle0'});
+  }
 
-    /**
-     * To type on texte area
-     * @param selector, textarea to fill
-     * @param text_value, value to write
-     */
-    async fillTextArea(selector,text_value){
-        await page.click(selector);
-        await page.keyboard.type(text_value);
-    }
+  /**
+   * To type on texte area
+   * @param selector, textarea to fill
+   * @param text_value, value to write
+   */
+  async fillTextArea(selector, text_value) {
+    await page.click(selector);
+    await page.keyboard.type(text_value);
+  }
 
-    /**
-     * To type on input type text
-     * @param selector, input to set
-     * @param text_value, value to write
-     */
-    async fillInputText(selector,text_value){
-        await page.focus(selector);
-        await page.$eval(selector, el => el.setSelectionRange(0, el.value.length));
-        await page.keyboard.type(text_value);
-    }
+  /**
+   * To type on input type text
+   * @param selector, input to set
+   * @param text_value, value to write
+   */
+  async fillInputText(selector, text_value) {
+    await page.focus(selector);
+    await page.$eval(selector, el => el.setSelectionRange(0, el.value.length));
+    await page.keyboard.type(text_value);
+  }
 
-    /**
-     * To type on input type number
-     * @param selector, input to set
-     * @param number_value, value to write
-     */
-    async fillInputNumber(selector,number_value){
-        await page.focus(selector);
-        //await page.$eval(selector, el => el.click({clickCount: 3}));
-        await page.evaluate( () => document.execCommand( 'selectall', false, null ) );
-        await page.keyboard.type(number_value);
-    }
+  /**
+   * To type on input type number
+   * @param selector, input to set
+   * @param number_value, value to write
+   */
+  async fillInputNumber(selector, number_value) {
+    await page.focus(selector);
+    //await page.$eval(selector, el => el.click({clickCount: 3}));
+    await page.evaluate(() => document.execCommand('selectall', false, null));
+    await page.keyboard.type(number_value);
+  }
 
   /**
    * Check input.Value content

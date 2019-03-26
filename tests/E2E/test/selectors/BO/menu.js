@@ -33,7 +33,7 @@ module.exports = {
         addresses_submenu: '#subtab-AdminAddresses a'
       },
       CustomerService: {
-        customer_service_menu: '//*[@id="subtab-AdminParentCustomerThreads"]/a',
+        customer_service_menu: '#subtab-AdminParentCustomerThreads > a',
         customer_service_submenu: '#subtab-AdminCustomerThreads a',
         order_messages_submenu: '#subtab-AdminOrderMessage a',
         merchandise_returns_submenu: '#subtab-AdminReturn a'

@@ -35,12 +35,12 @@ module.exports = {
     first_dropdown_button: '#table-cart > tbody tr:nth-of-type(1) button[data-toggle=dropdown]',
     total_price_tax_included: '#orderProducts tr:nth-of-type(%NUMBER) > td.total_product',
     order_view_button: '#table-order tr:nth-child(%ORDERNumber) td:nth-child(12) a',
-    partial_refund: '//*[@id="desc-order-partial_refund"]',
-    product_total: '//*[@id="documents"]//tr[contains(@id,"orderslip")]/td[4]',
-    re_stock_product: '//label[@for="reinjectQuantitiesRefund"]',
+    partial_refund: '#desc-order-partial_refund',
+    product_total: '#documents tr[id*=orderslip] > td:nth-of-type(4)',
+    re_stock_product: 'label[for=reinjectQuantitiesRefund]',
     generate_credit_slip_checkbox: '//label[@for="generateCreditSlip"]',
-    refund_products_button: '//button[@name="partialRefund"]',
-    success_msg: '(//*[@id="main"]//div[contains(@class,"alert-success")])[1]',
+    refund_products_button: 'button[name="partialRefund"]',
+    success_msg: '#content  div[class*=alert-success]:nth-child(1)',
     order_date: '#content  div.col-xs-6.col-sm-3.box-stats.color3 span.value',
     order_ref: '#content  div:nth-child(4) > div.col-lg-7  div.panel-heading > span:nth-child(2)',
     product_information: '#orderProducts tr:nth-of-type(1) > td:nth-of-type(2) > a',
@@ -49,7 +49,7 @@ module.exports = {
     invoice_document: '//table//td[3]/a',
     product_quantity: '#orderProducts span[class*=product_quantity_show]',
     product_name_tab: '#orderProducts span[class*=productName]',
-    product_unit_price: '//*[@id="orderProducts"]//input[@name="product_price_tax_excl"]',
+    product_unit_price: '#orderProducts input[name=product_price_tax_excl]',
     product_unit_price_tax_included: '#orderProducts span.product_price_show',
     product_price: '//*[@id="orderProducts"]//input[@name="product_price_tax_incl"]',
     total_order_price: '#total_order > td:nth-of-type(2) > strong',
@@ -61,8 +61,8 @@ module.exports = {
     payment_method: '#formAddPayment tr:nth-of-type(1) > td:nth-of-type(2)',
     payment_date_column: '#formAddPayment tr:nth-of-type(1) > td:nth-of-type(1)',
     order_id: '#content  div:nth-child(4) > div.col-lg-7  div.panel-heading > span:nth-child(3)',
-    credit_slip_document_name: '//*[@id="documents_table"]//tr[3]//a',
-    quantity_refund: '//*[@id="orderProducts"]//div[@class="input-group"]/input[@onchange="checkPartialRefundProductQuantity(this)"]',
+    credit_slip_document_name: '#documents_table tr:nth-of-type(3) a',
+    quantity_refund: '#orderProducts div.input-group > input[onchange="checkPartialRefundProductQuantity(this)"]',
     documents_tab: '//*[@id="tabOrder"]/li[2]/a',
     generate_invoice_button: '//*[@id="documents_table"]/tbody/tr/td/a',
     awaiting_bank_wire_payment_option: '//*[@id="form_generate_by_status_order_states"]//label/span[contains(text(),"Awaiting bank wire payment")]',
@@ -96,6 +96,7 @@ module.exports = {
     date_delivery_slip:'//*[@id="documents_table"]//tr[3]/td[1]',
     page_title:'#content h1.page-title',
     id_order:'//*[@id="table-order"]//tr[1]/td[2]',
+    products_table:'div#start_products',
   },
 
   CreateOrder: {
@@ -178,15 +179,15 @@ module.exports = {
   },
 
   CreditSlip: {
-    download_btn: '//*[@id="table-order_slip"]//td[2][contains(text(),"%ID")]/..//a',
     date_form: '//*[@id="date_from"]',
     date_to: '//*[@id="date_to"]',
     generate_button: '//*[@id="submitPrint"]',
     alert_message: '//*[@id="content"]//div[contains(@class,"alert-danger")]',
-    credit_slip_prefix_input: '//*[@id="conf_id_PS_CREDIT_SLIP_PREFIX"]//div[@class="translatable-field lang-1"]//input',
-    save_button: '//*[@id="order_slip_fieldset_general"]//button[@type="submit"]',
-    green_validation: '//*[@id="content"]//div[@class="alert alert-success"]',
-    first_credit_slip_download_btn: '//*[@id="table-order_slip"]/tbody/tr[1]/td[4]/a'
+    credit_slip_prefix_input: '#conf_id_PS_CREDIT_SLIP_PREFIX div.translatable-field.lang-1 input',
+    save_button: '#order_slip_fieldset_general button[type=submit]',
+    green_validation: '#content div.alert.alert-success',
+    first_credit_slip_download_btn: '#table-order_slip > tbody > tr:nth-of-type(1) > td:nth-of-type(4) > a',
+    filter_by_order_id:'#table-order_slip input[name="order_slipFilter_a!id_order"]'
   },
 
   Invoices: {

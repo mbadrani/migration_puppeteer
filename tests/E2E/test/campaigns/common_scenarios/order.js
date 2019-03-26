@@ -268,7 +268,10 @@ module.exports = {
       test('should go to the created order', () => client.waitForExistAndClick(OrderPage.order_view_button.replace('%ORDERNumber', 1)));
       test('should change order state to "Payment accepted"', () => client.changeOrderState(OrderPage, 'Payment accepted'));
       test('should click on "Partial refund" button', () => client.waitForExistAndClick(OrderPage.partial_refund));
-      test('should set the "quantity refund" to "2"', () => client.waitAndSetValue(OrderPage.quantity_refund, refundedValue));
+      test('should set the "quantity refund" to "2"', async () => {
+        await client.scrollTo(OrderPage.products_table);
+        await client.waitAndSetValue(OrderPage.quantity_refund, refundedValue)
+      });
       test('should click on "Re-stock products" CheckBox', () => client.waitForExistAndClick(OrderPage.re_stock_product));
       test('should click on "Partial refund" button', () => client.waitForExistAndClick(OrderPage.refund_products_button));
       test('should check the success message', () => client.checkTextValue(OrderPage.success_msg, 'partial refund was successfully created.', 'contain'));
@@ -325,20 +328,27 @@ module.exports = {
           });
       });
       test('should go to the orders list', () => client.goToSubtabMenuPage(Menu.Sell.Orders.orders_menu, Menu.Sell.Orders.orders_submenu));
-      test('should go to the created order', () => client.waitForExistAndClick(OrderPage.order_view_button.replace('%ORDERNumber', 1)));
+      test('should go to the created order', () => client.waitForExistAndClick(OrderPage.order_view_button.replace('%ORDERNumber', 1), 2000));
       test('should click on "DOCUMENTS" subtab', () => client.scrollWaitForExistAndClick(OrderPage.document_submenu));
       test('should get the credit slip name', () => client.getCreditSlipDocumentName(OrderPage.credit_slip_document_name));
       test('should go to "Credit slip" page', () => client.goToSubtabMenuPage(Menu.Sell.Orders.orders_menu, Menu.Sell.Orders.credit_slips_submenu));
+      test('should search the created order', async () => {
+        await client.isVisible(CreditSlip.filter_by_order_id, 2000);
+        if (global.isVisible) {
+          await client.search(CreditSlip.filter_by_order_id, global.tab['orderID'].replace('#', ''), 2000)
+        }
+      });
       test('should click on "Download credit slip" button', async () => {
-        await client.waitForVisibleAndClick(CreditSlip.download_btn.replace('%ID', global.tab['orderID'].replace('#', '')), 2000);
-        await client.pause(8000);
+        await client.setDownloadBehavior(true, CreditSlip.first_credit_slip_download_btn);
+        await client.waitForVisibleAndClick(CreditSlip.first_credit_slip_download_btn, 2000);
+        await client.pause(3000);
       });
     }, 'order', close);
   },
   checkCreditSlip: function (refundedValue, i) {
     scenario('Check the credit slip information', client => {
       test('should check the "Billing Address" ', async () => {
-        await client.checkFile(global.downloadsFolderPath, global.creditSlip + ".pdf");
+        await client.checkFile(global.downloadsFolderPath, global.creditSlip + ".pdf", 1000);
         if (global.existingFile) {
           await client.checkDocument(global.downloadsFolderPath, global.creditSlip, 'My Company');
           await client.checkDocument(global.downloadsFolderPath, global.creditSlip, '16, Main street');
@@ -355,11 +365,11 @@ module.exports = {
           await client.checkDocument(global.downloadsFolderPath, global.creditSlip, global.orderInformation[i].productCombination);
           await client.checkDocument(global.downloadsFolderPath, global.creditSlip, global.orderInformation[i].productQuantity);
           await client.checkDocument(global.downloadsFolderPath, global.creditSlip, global.orderInformation[i].productName);
-          await client.checkDocument(global.downloadsFolderPath, global.creditSlip, global.orderInformation[i].unitPrice);
-          await client.checkDocument(global.downloadsFolderPath, global.creditSlip, parseInt(global.orderInformation[i].unitPrice * refundedValue));
-          await client.checkDocument(global.downloadsFolderPath, global.creditSlip, global.orderInformation[i].productTotal);
-          await client.checkDocument(global.downloadsFolderPath, global.creditSlip, Math.round(global.orderInformation[i].taxExcl * refundedValue * global.orderInformation[i].taxRate) / 100);
-          await client.checkDocument(global.downloadsFolderPath, global.creditSlip, parseInt((global.orderInformation[i].taxRate)).toFixed(3));
+          await client.checkDocument(global.downloadsFolderPath, global.creditSlip, global.orderInformation[i].unitPrice.trim());
+          await client.checkDocument(global.downloadsFolderPath, global.creditSlip, parseInt(global.orderInformation[i].unitPrice.trim() * refundedValue));
+          await client.checkDocument(global.downloadsFolderPath, global.creditSlip, global.orderInformation[i].productTotal.trim());
+          await client.checkDocument(global.downloadsFolderPath, global.creditSlip, Math.round(global.orderInformation[i].taxExcl.trim() * refundedValue * global.orderInformation[i].taxRate.trim()) / 100);
+          await client.checkDocument(global.downloadsFolderPath, global.creditSlip, parseInt((global.orderInformation[i].taxRate.trim())).toFixed(3));
         }
       });
       test('should check the "Tax detail" ', async () => {

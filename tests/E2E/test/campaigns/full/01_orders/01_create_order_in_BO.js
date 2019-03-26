@@ -258,11 +258,11 @@ scenario('Create order in the Back Office', () => {
       await client.keys('ArrowDown');
       await client.waitForExistAndClick(DiscountSubMenu.cartRules.first_result_option);
     });
-    test('should click on "Delete" button of the voucher', () => client.waitForExistAndClick(CreateOrder.delete_voucher_button));
+    test('should click on "Delete" button of the voucher', () => client.waitForExistAndClick(CreateOrder.delete_voucher_button, 2000));
   }, 'order');
   scenario('Add voucher from order in the Back Office', client => {
     test('should click on "Add new voucher" button', async () => {
-      await client.waitForExistAndClick(CreateOrder.new_voucher_button, 1000);
+      await client.waitForExistAndClick(CreateOrder.new_voucher_button, 2000);
       await client.pause(3000);
       await client.goToFrame('fancybox-frame');
       await client.pause(3000);
@@ -397,5 +397,5 @@ scenario('Create order in the Back Office', () => {
   commonCurrency.deleteCurrency(true, 'close\n\nSuccessful deletion.');
   scenario('Click on "Reset" button', client => {
     test('should click on reset button', () => client.waitForExistAndClick(Localization.Currencies.reset_button));
-  }, 'common_client');
+   }, 'common_client');
 }, 'order', true);
