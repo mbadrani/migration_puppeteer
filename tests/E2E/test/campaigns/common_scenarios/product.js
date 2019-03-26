@@ -67,29 +67,29 @@ global.dateNow = new Date();
 module.exports = {
   createProduct: function (AddProductPage, productData, attributeData = {}) {
     scenario('Create a new product in the Back Office', client => {
-      test('should go to "Products" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
+      test('should go to "Products" page', () => client.goToLink(Menu.Sell.Catalog.products_submenu));
       test('should click on "New Product" button', () => {
         return promise
-          .then(() => client.waitForExistAndClick(AddProductPage.new_product_button))
+          .then(() => client.goToLink(AddProductPage.new_product_button))
           .then(() => client.waitForSymfonyToolbar(AddProductPage))
       });
-      test('should set the "Name" input', () => client.waitAndSetValue(AddProductPage.product_name_input, productData["name"] + date_time));
-      test('should set the "Reference" input', () => client.waitAndSetValue(AddProductPage.product_reference, productData["reference"]));
-      test('should set the "Quantity" input', () => client.waitAndSetValue(AddProductPage.quantity_shortcut_input, productData["quantity"]));
-      test('should set the "Price" input', () => client.setPrice(AddProductPage.priceTE_shortcut, productData["price"]));
+      test('should set the "Name" input', () => client.fillInputText(AddProductPage.product_name_input, productData["name"] + date_time));
+      test('should set the "Reference" input', () => client.fillInputText(AddProductPage.product_reference, productData["reference"]));
+      test('should set the "Quantity" input', () => client.fillInputText(AddProductPage.quantity_shortcut_input, productData["quantity"]));
+      test('should set the "Price" input', () => client.fillInputText(AddProductPage.priceTE_shortcut, productData["price"]));
       test('should upload the first product picture', () => client.uploadPicture(productData["image_name"], AddProductPage.picture));
 
       if (productData.hasOwnProperty('type') && productData.type === 'pack') {
         scenario('Add the created product to pack', client => {
-          test('should select the "Pack of products"', () => client.waitAndSelectByValue(AddProductPage.product_type, 1));
+          test('should select the "Pack of products"', () => client.waitAndSelectByValue(AddProductPage.product_type, '1'));
           test('should add products to the pack', () => client.addPackProduct(productData['product']['name'] + date_time, productData['product']['quantity']));
         }, 'product/product');
       }
 
       if (productData.hasOwnProperty('attribute')) {
         scenario('Add Attribute', client => {
-          test('should select the "Product with combination" radio button', () => client.waitForExistAndClick(AddProductPage.variations_type_button));
-          test('should go to "Combinations" tab', () => client.scrollWaitForExistAndClick(AddProductPage.variations_tab));
+          test('should select the "Product with combination" radio button', () => page.click(AddProductPage.variations_type_button));
+          test('should go to "Combinations" tab', () => page.click(AddProductPage.variations_tab));
           test('should select the variation', () => {
             if (productData.type === 'combination') {
               return promise
@@ -692,41 +692,40 @@ module.exports = {
 
   CheckButtonsInHeaderProduct(productType, productData, secondProductData) {
     scenario('Check product name and language selector', client => {
-      test('should go to "Catalog > Products" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
-      test('should click on "New product" button', () => client.waitForExistAndClick(AddProductPage.new_product_button));
+      test('should go to "Catalog > Products" page', () => client.goToLink( Menu.Sell.Catalog.products_submenu));
+      test('should click on "New product" button', () => client.goToLink(AddProductPage.new_product_button));
       if (productType === 'virtual') {
-        test('should select the "virtual product" type', () => client.waitAndSelectByValue(AddProductPage.product_type, 2));
+        test('should select the "virtual product" type', () => client.waitAndSelectByValue(AddProductPage.product_type, '2'));
       }
       test('should check the "product name" placeholder', () => client.checkAttributeValue(AddProductPage.product_name_input, 'placeholder', 'Enter your product name'));
-      test('should check that the "product name" is empty', () => client.checkAttributeValue(AddProductPage.product_name_input, 'value', ''));
-      test('should set the "product name" input', () => client.waitAndSetValue(AddProductPage.product_name_input, productData.name + date_time));
+      test('should check that the "product name" is empty', () => client.checkInputValue(AddProductPage.product_name_input, 'value', ''));
+      test('should set the "product name" input', () => client.fillInputText(AddProductPage.product_name_input, productData.name + date_time));
       test('should check then close symfony toolbar', () => client.waitForSymfonyToolbar(AddProductPage, 1000));
       test('should switch the product online', () => {
         return promise
-          .then(() => client.waitForExistAndClick(AddProductPage.product_online_toggle, 3000))
-          .then(() => client.waitForExistAndClick(AddProductPage.close_validation_button, 1000));
+          .then(() => client.waitForSymfonyToolbar(AddProductPage, 2000))
+          .then(() => client.waitForExistAndClick(AddProductPage.product_online_toggle, 3000));
       });
       test('should click on "Save" button', () => {
         return promise
-          .then(() => client.waitForExistAndClick(AddProductPage.save_product_button, 5000))
-          .then(() => client.waitForExistAndClick(AddProductPage.close_validation_button, 1000));
+          .then(() => page.$eval(AddProductPage.save_product_button, elem => elem.click()))
+          .then(() => page.waitForSelector(AddProductPage.close_validation_button,{ visible : true }));
       });
-      test('should check that the "product name" input is equal to "' + productData.name + date_time + '"', () => client.checkAttributeValue(AddProductPage.product_name_input, 'value', productData.name + date_time));
+      test('should check that the "product name" input is equal to "' + productData.name + date_time + '"', () => client.checkInputValue(AddProductPage.product_name_input, 'value', productData.name + date_time));
       test('should select "fr" in language list', () => client.waitAndSelectByValue(AddProductPage.product_language, 'fr'));
-      test('should check that the "product name" input is equal to "' + productData.name + date_time + '"', () => client.checkAttributeValue(AddProductPage.product_name_input, 'value', productData.name + date_time));
+      test('should check that the "product name" input is equal to "' + productData.name + date_time + '"', () => client.checkInputValue(AddProductPage.product_name_input, 'value', productData.name + date_time));
       test('should select "en" in language list', () => client.waitAndSelectByValue(AddProductPage.product_language, 'en'));
       test('should go to the Front Office', () => {
         return promise
-          .then(() => client.waitForExistAndClick(AccessPageBO.shopname, 1000))
+          .then(() => page.$eval(AccessPageBO.shopname, elem => elem.click()))
           .then(() => client.switchWindow(1))
           .then(() => client.changeLanguage('fr'));
       });
       test('should search for the product ' + productData.name + date_time + ' then go back to the Back Office', async () => {
-        await client.waitAndSetValue(HomePage.search_input, productData.name + date_time);
-        await client.waitForExistAndClick(HomePage.search_icon, 2000);
-        await client.waitForExist(productPage.productLink.replace('%PRODUCTNAME', productData.name + date_time));
-        await client.pause(1000);
-        await client.closeOtherWindow(1);
+        await client.searchByValue(HomePage.search_input,HomePage.search_icon, productData.name + date_time);
+        //await page.click(HomePage.search_icon);
+        await page.waitForSelector(productPage.productLink.replace('%PRODUCTNAME', productData.name.toLowerCase() + date_time));
+        await page.close();
         await client.switchWindow(0);
       });
     }, 'common_client');
@@ -743,19 +742,19 @@ module.exports = {
       test('should verify the appearance of the warning modal', () => client.checkTextValue(AddProductPage.confirmation_modal_content, 'This will delete all the combinations. Do you wish to proceed?', 'equal', 3000));
       test('should click on "Yes" button from the modal', () => {
         return promise
-          .then(() => client.waitForExistAndClick(AddProductPage.delete_confirmation_button.replace('%BUTTON', 'No')))
+          .then(() => client.waitForExistAndClick(AddProductPage.delete_confirmation_button.replace('%I', '2')))
           .then(() => client.refresh());
       });
       test('should go to "Catalog > Products" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
       test('should click on reset button', () => client.waitForExistAndClick(AddProductPage.catalog_reset_filter));
     }, 'product/check_product');
     scenario('Check "Sales", "Quick navigation" and "Help" buttons in the header', client => {
-      test('should click on "New product" button', () => client.waitForExistAndClick(AddProductPage.new_product_button));
+      test('should click on "New product" button', () => client.goToLink(AddProductPage.new_product_button));
       test('should click on "Sales" button', () => client.waitForExistAndClick(AddProductPage.sales_button));
       test('should check that "Product details" block is displayed in stats page', async () => {
         await client.switchWindow(1);
         await client.isExisting(AddProductPage.calendar_form, 2000);
-        await client.closeOtherWindow(1);
+        await page.close();
         await client.switchWindow(0);
       });
       test('should click on "Quick navigation" button', () => client.waitForExistAndClick(AddProductPage.product_list_button));
@@ -765,8 +764,9 @@ module.exports = {
         await client.waitForExist(AddProductPage.quick_navigation_column.replace('%TEXT', 'Price'));
         await client.waitForExist(AddProductPage.quick_navigation_column.replace('%TEXT', 'Quantity'));
       });
-      test('should click on "' + productData.name + date_time + '" link', () => client.waitForExistAndClick(AddProductPage.quick_navigation_product_name_link.replace('%TEXT', productData.name + date_time)));
-      test('should check that we are redirected to "' + productData.name + date_time + '" page', () => client.checkAttributeValue(AddProductPage.product_name_input, 'value', productData.name + date_time));
+      test('should click on "' + productData.name + date_time + '" link', async () => client.waitElementByTextAndClick(AddProductPage.quick_navigation_product_name_link,productData.name + date_time));
+      //old_test('should click on "' + productData.name + date_time + '" link', () => client.waitForExistAndClick(AddProductPage.quick_navigation_product_name_link.replace('%TEXT', productData.name + date_time)));
+      test('should check that we are redirected to "' + productData.name + date_time + '" page', () => client.checkInputValue(AddProductPage.product_name_input, productData.name + date_time));
       test('should click on "Help" button', () => client.waitForExistAndClick(AddProductPage.help_button));
       test('should check that the "Help" sidebar is opened', () => client.isExisting(AddProductPage.right_sidebar, 2000));
       test('should close the "Help" sidebar', () => client.waitForExistAndClick(AddProductPage.help_button));
@@ -775,7 +775,7 @@ module.exports = {
 
   CheckButtonsInFooterProduct(productType, productData, client) {
     test('should click on "Delete" icon', () => client.waitForExistAndClick(AddProductPage.delete_button));
-    test('should click on "No" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%BUTTON', 'No')));
+    test('should click on "No" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%I', '1')));
     test('should go to "Catalog > products" page', () => {
       return promise
         .then(() => client.pause(2000))
@@ -784,11 +784,11 @@ module.exports = {
     test('should search for product by name', () => client.searchProductByName(productData.name + date_time));
     test('should click on the product name', () => client.waitForExistAndClick(AddProductPage.catalog_product_name));
     test('should click on "Delete" icon', () => client.waitForExistAndClick(AddProductPage.delete_button));
-    test('should click on "No" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%BUTTON', 'Yes')));
+    test('should click on "No" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%I', '1')));
     test('should verify the appearance of the green validation', () => client.checkTextValue(AddProductPage.success_panel, 'Product successfully deleted.', 'equal', 2000));
-    test('should click on "New product" button', () => client.waitForExistAndClick(AddProductPage.new_product_button));
+    test('should click on "New product" button', () => client.goToLink(AddProductPage.new_product_button));
     if (productType === 'virtual') {
-      test('should select the "virtual product" type', () => client.waitAndSelectByValue(AddProductPage.product_type, 2));
+      test('should select the "virtual product" type', () => client.waitAndSelectByValue(AddProductPage.product_type, '2'));
     }
     test('should set the "product name" input', () => client.waitAndSetValue(AddProductPage.product_name_input, productData.name + date_time));
     test('should check then close symfony toolbar', () => client.waitForSymfonyToolbar(AddProductPage, 1000));
@@ -801,7 +801,7 @@ module.exports = {
     this.clickOnPreviewLink(client, AddProductPage.preview_link, productPage.product_name);
     test('should check the offline warning message', () => client.checkTextValue(productPage.offline_warning_message, "This product is not visible to your customers.", "contain"));
     test('should go back to the Back Office', async () => {
-      await client.closeOtherWindow(1);
+      await page.close();
       await client.switchWindow(0);
     });
     test('should switch the product online then offline', async () => {
@@ -832,7 +832,7 @@ module.exports = {
     });
     test('should set the "product name" input', async () => await client.waitAndSetValue(AddProductPage.product_name_input, 'thirdVirtualProduct' + date_time));
     if (productType === 'virtual') {
-      test('should select the "virtual product" type', () => client.waitAndSelectByValue(AddProductPage.product_type, 2));
+      test('should select the "virtual product" type', () => client.waitAndSelectByValue(AddProductPage.product_type, '2'));
     }
     test('should save the product with "ALT+ SHIFT + S"', async () => {
       await client.keys(["\uE00A", "\uE008", "\u0053"]);
@@ -944,7 +944,7 @@ module.exports = {
         await client.checkAttributeValue(productPage.product_pictures.replace('%ID', 2).replace('%LEGEND', data.common.first_picture_legend), 'title', data.common.first_picture_legend);
       });
       test('should go back to the Back Office', async () => {
-        await client.closeOtherWindow(1);
+        await page.close();
         await client.switchWindow(0);
       });
       test('should click on "First image" of product', async () => {
@@ -988,7 +988,7 @@ module.exports = {
       test('should check that the "summary" is empty', () => client.isNotExisting(productPage.product_summary));
       test('should check that the "description" is empty', () => client.checkTextValue(productPage.product_description, ''));
       test('should go back to the Back Office', async () => {
-        await client.closeOtherWindow(1);
+        await page.close();
         await client.switchWindow(0);
       });
     }, 'common_client');
@@ -1026,7 +1026,7 @@ module.exports = {
           .then(() => client.checkValuesFeature(productPage.product_value_text.replace('%B', 'last'), 'Cotton' + '\n' + 'Wool'));
       });
       test('should go back to the Back Office', async () => {
-        await client.closeOtherWindow(1);
+        await page.close();
         await client.switchWindow(0);
       });
       test('should click on "Add a brand" button', () => client.scrollWaitForExistAndClick(AddProductPage.product_add_brand_btn, 50));
@@ -1089,7 +1089,7 @@ module.exports = {
     this.clickOnPreviewLink(client, AddProductPage.preview_link, AccessPageFO.logo_home_page);
     test('should check that the "Product price" is equal to "€10.55"', () => client.checkTextValue(productPage.product_price, '€10.55', 'equal', 4000));
     test('should go back to the Back Office', async () => {
-      await client.closeOtherWindow(1);
+      await page.close();
       await client.switchWindow(0);
     });
     test('should choose "No tax" from the "Tax rule" list', async () => {
@@ -1179,7 +1179,7 @@ module.exports = {
     test('should check that the "Product price" is equal to "€9.50"', () => client.checkTextValue(productPage.product_price, '€9.50', 'equal', 3000));
     test('should check that the "Unit price" is equal to "(€2.40 kilo)"', () => client.checkTextValue(productPage.unit_price_text, '(€2.40 kilo)', 'equal', 3000));
     test('should go back to the Back Office', async () => {
-      await client.closeOtherWindow(1);
+      await page.close();
       await client.switchWindow(0);
     });
     test('should set the "Tax rule" to "5.5%"', async () => {
@@ -1555,7 +1555,7 @@ module.exports = {
       test('should check that the product price is equal to "€4.50"', () => client.checkTextValue(productPage.product_price, '€4.50', 'equal', 4000));
       test('should verify that the discount is equal to "SAVE €5.00"', () => client.checkTextValue(CheckoutOrderPage.product_discount_details, 'SAVE €5.00'));
       test('should go back to the Back Office', async () => {
-        await client.closeOtherWindow(1);
+        await page.close();
         await client.switchWindow(0);
       });
       test('should click on "Apply to all products" checkbox', () => client.waitForExistAndClick(AddProductPage.apply_all_product_checkbox));

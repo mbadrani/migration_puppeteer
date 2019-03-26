@@ -67,10 +67,12 @@ class Product extends CommonClient {
   }
 
   async addPackProduct(search, quantity) {
-    this.fillInputText(AddProductPage.search_product_pack, search)
-    this.click(AddProductPage.product_item_pack)
-    this.fillInputNumber(AddProductPage.product_pack_item_quantity, quantity)
-    this.click(AddProductPage.product_pack_add_button);
+    await page.click(AddProductPage.search_product_pack, { waitUntil: 'domcontentloaded' })
+    await this.fillInputText(AddProductPage.search_product_pack, search);
+    await page.waitForSelector("div.tt-menu.tt-open",{visible : true});
+    await page.$eval(AddProductPage.product_item_pack, elem => elem.click());
+    await this.fillInputNumber(AddProductPage.product_pack_item_quantity, quantity);
+    await page.$eval(AddProductPage.product_pack_add_button, elem => elem.click());
   }
 
   createCategory() {
