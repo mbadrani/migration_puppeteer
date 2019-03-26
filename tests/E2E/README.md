@@ -1,4 +1,4 @@
-# PrestaShop Functional Tests
+# PrestaShop E2E Tests
 
 ## Summary
 
