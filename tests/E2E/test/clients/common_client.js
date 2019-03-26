@@ -130,6 +130,9 @@ class CommonClient {
   }
 
   async goToSubtabMenuPage(menuSelector, selector) {
+    const selector_link = await page.$eval(selector, ({ href }) => href);
+    await page.goto(selector_link, { waitUntil: 'networkidle0' });
+    /*
     let isOpen = false;
     let result = await page.evaluate((menuSelector) => {
       isOpen = document.querySelector(menuSelector).matches('open');
@@ -139,6 +142,7 @@ class CommonClient {
       await this.waitForExistAndClick(menuSelector);
     }
     await this.waitForExistAndClick(selector, 2000);
+    */
   }
 
   async scrollWaitForVisibleAndClick(selector, wait = 0, timeout = 40000) {
