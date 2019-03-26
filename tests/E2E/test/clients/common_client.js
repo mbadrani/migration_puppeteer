@@ -245,6 +245,12 @@ class CommonClient {
     await inputFile.uploadFile(path.join(__dirname, '..', 'datas', fileName));
   }
 
+  async setEditorText(selector, textDescription) {
+    await page.click(selector);
+    await page.keyboard.type(textDescription);
+  //  await page.type(selector, textDescription);
+  }
+
   async checkIsNotVisible(selector) {
     await page.waitFor(2000);
     await this.isVisible(selector);
