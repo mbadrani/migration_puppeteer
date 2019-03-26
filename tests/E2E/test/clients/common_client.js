@@ -520,6 +520,48 @@ class CommonClient {
     fs.unlinkSync(folderPath + fileName + extension);
     await page.waitFor(wait);
   }
+
+    /**
+     * Go to link, for only '<a/>'
+     * @param selector, link to go to
+     */
+    async goToLink(selector){
+        const selector_link = await page.$eval(selector, ({ href }) => href);
+        await page.goto(selector_link, { waitUntil: 'networkidle0' });
+    }
+
+    /**
+     * To type on texte area
+     * @param selector, textarea to fill
+     * @param text_value, value to write
+     */
+    async fillTextArea(selector,text_value){
+        await page.click(selector);
+        await page.keyboard.type(text_value);
+    }
+
+    /**
+     * To type on input type text
+     * @param selector, input to set
+     * @param text_value, value to write
+     */
+    async fillInputText(selector,text_value){
+        await page.focus(selector);
+        await page.$eval(selector, el => el.setSelectionRange(0, el.value.length));
+        await page.keyboard.type(text_value);
+    }
+
+    /**
+     * To type on input type number
+     * @param selector, input to set
+     * @param number_value, value to write
+     */
+    async fillInputNumber(selector,number_value){
+        await page.focus(selector);
+        //await page.$eval(selector, el => el.click({clickCount: 3}));
+        await page.evaluate( () => document.execCommand( 'selectall', false, null ) );
+        await page.keyboard.type(number_value);
+    }
 }
 
 module.exports = CommonClient;
