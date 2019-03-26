@@ -19,8 +19,8 @@ module.exports = {
   },
   TrafficAndSeo: {
     SeoAndUrls: {
-      friendly_url_button: '//*[@id="main-div"]//label[contains(@for, "meta_settings_form_set_up_urls_friendly_url_%s")]',
-      save_button: '(//*[@id="main-div"]//form[@name="meta_settings_form"]//button)[1]'
+      friendly_url_button: '#main-div label[for="meta_settings_form_set_up_urls_friendly_url_%s"]',
+      save_button: '#main-div div [name="meta_settings_form"] button:nth-child(1)'
     }
   },
   Contact: {

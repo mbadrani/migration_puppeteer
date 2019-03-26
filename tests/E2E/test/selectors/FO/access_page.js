@@ -54,9 +54,9 @@ module.exports = {
     selected_language_option: '//*[@id="_desktop_language_selector"]//select/option[@selected="selected" and (text()="%D")]',
     account: '#_desktop_user_info > div.user-info > a.account > span',
     selected_language_by_isocode_option: '//*[@id="_desktop_language_selector"]//select/option[@selected="selected" and @data-iso-code="%ID"]',
-    language_bloc: '//*[@id="_desktop_language_selector"]',
-    popular_products_block: '#content-hook-order-confirmation-footer > section',
-    category_title: '//*[@id="js-product-list-header"]//h1',
-    product_name_title: '//*[@id="main"]//h1',
+    language_bloc: '#_desktop_language_selector',
+    popular_products_block:'#content-hook-order-confirmation-footer > section',
+    category_title:'#js-product-list-header h1',
+    product_name_title: '#main > h1',
   }
 };
