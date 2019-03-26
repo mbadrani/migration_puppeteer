@@ -6,8 +6,6 @@ PrestaShop functional end2end tests are based on the following stack:
 
 * [mocha](https://mochajs.org/)
 * [chai](http://chaijs.com/)
-* [webdriver.io](http://webdriver.io/)
-* [selenium](http://www.seleniumhq.org/)
 * [PageObject pattern](https://martinfowler.com/bliki/PageObject.html)
 
 ## Requirements
@@ -19,7 +17,6 @@ To run these tests you have to install
 * [node.js](https://nodejs.org/en/download/), the minimum required version is 8
 * [npm](https://www.npmjs.com/get-npm), the minimum required version is 5
 * [java](https://java.com/fr/download/), the minimum required version is 8
-* [Google Chrome](https://www.google.com/chrome/browser/desktop/index.html), the minimum required version is 58
 * [mysql](https://www.mysql.com)
 
 * poppler-utils for Ubuntu/Debian users
@@ -35,7 +32,7 @@ To run these tests you have to install
 
 ### Dependencies
 
-To install npm dependencies (selenium-server, chromedriver and geckodriver) you have to run this command:
+To install npm dependencies (Puppeteer, chromium, ...) you have to run this command:
 
 ```bash
 npm install
@@ -53,7 +50,7 @@ This command line does it for you but you need a mysql server available with the
 php install/index_cli.php --language=en \
                           --country=fr \
                           --domain=localhost \
-                          --db_server=localhostr \
+                          --db_server=localhost \
                           --db_user=prestashop_user \
                           --db_name=prestashop \
                           --DB_PASSWD=prestaop_password \
@@ -66,33 +63,6 @@ php install/index_cli.php --language=en \
 
 > Note:
 > Or you can run the installation script via the npm script specific-test
-
-
-## How to run the tests
-
-On Windows, you will need one instance for Selenium and one for the tests.
-
-### Launch selenium-standalone
-
-Then you have to launch selenium-standalone
-
-```bash
-npm run start-selenium
-```
-
-Wait until you see something like:
-
-```bash
-14:11:56.786 INFO - Found handler: org.openqa.selenium.remote.server.commandhandler.Status@712804ef
-14:11:56.789 INFO - /status: Executing GET on /status (handler: Status)
-Selenium started
-```
-
-Check if it is working
-
-```bash
-npm run sanity-check
-```
 
 ### Tests suite
 
@@ -179,7 +149,7 @@ npm run full-test -- --URL=prestashop.localhost --DIR=DownloadDirectory --MODULE
 > 2) if you are running full/01_order/* or full/16_file/* you must set the **DIR** option
 > 3) if you are running full/10_module/* or regular/02_install_module.js you must set the **MODULE** option
 
-#### Install and Autoupgrade
+#### Install and AutoUpgrade
 
 If you want to run the Install, Autoupgrade and Rollback tests you can run the campaign **install_upgrade**
 
