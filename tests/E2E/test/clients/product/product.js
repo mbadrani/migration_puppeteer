@@ -11,17 +11,15 @@ global.productStatus = [];
 
 class Product extends CommonClient {
 
-  getElementID() {
-    return this.client
-      .waitForExist(ProductList.product_id.replace('%ID', 1), 90000)
-      .then(() => this.client.getText(ProductList.product_id.replace('%ID', 1)))
-      .then((text) => global.productIdElement[0] = text)
-      .then(() => this.client.getText(ProductList.product_id.replace('%ID', 2)))
-      .then((text) => global.productIdElement[1] = text)
-      .then(() => this.client.getText(ProductList.product_id.replace('%ID', 3)))
-      .then((text) => global.productIdElement[2] = text)
-      .then(() => expect(Number(global.productIdElement[1])).to.be.below(Number(global.productIdElement[0])))
-      .then(() => expect(Number(global.productIdElement[2])).to.be.below(Number(global.productIdElement[1])));
+  async getElementID() {
+    page.waitForSelector(ProductList.product_id.replace('%ID', 1),{visible:true});
+    for(var i=0;i<3;i++){
+      const element = await page.$(ProductList.product_id.replace('%ID', i+1));
+      global.productIdElement[i] = await page.evaluate(el => el.textContent, element);
+      console.log(global.productIdElement[i]);
+    }
+    expect(Number(global.productIdElement[1])).to.be.below(Number(global.productIdElement[0]));
+    expect(Number(global.productIdElement[2])).to.be.below(Number(global.productIdElement[1]));
   }
 
   async checkCategoryRadioButton(categoryValue) {
@@ -69,10 +67,12 @@ class Product extends CommonClient {
   }
 
   async addPackProduct(search, quantity) {
-    this.fillInputText(AddProductPage.search_product_pack, search)
-    this.click(AddProductPage.product_item_pack)
-    this.fillInputNumber(AddProductPage.product_pack_item_quantity, quantity)
-    this.click(AddProductPage.product_pack_add_button);
+    await page.click(AddProductPage.search_product_pack, { waitUntil: 'domcontentloaded' })
+    await this.fillInputText(AddProductPage.search_product_pack, search);
+    await page.waitForSelector("div.tt-menu.tt-open",{visible : true});
+    await page.$eval(AddProductPage.product_item_pack, elem => elem.click());
+    await this.fillInputNumber(AddProductPage.product_pack_item_quantity, quantity);
+    await page.$eval(AddProductPage.product_pack_add_button, elem => elem.click());
   }
 
   createCategory() {

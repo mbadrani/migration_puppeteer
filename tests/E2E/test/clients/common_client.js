@@ -592,6 +592,55 @@ class CommonClient {
         await page.evaluate( () => document.execCommand( 'selectall', false, null ) );
         await page.keyboard.type(number_value);
     }
+
+  /**
+   * Check input.Value content
+   * @param selector, input to check
+   * @param textToCheckWith, String of the expected text
+   * @param parameter, String of equal / contains / notequal
+   * @return true if expected is true, else false
+   */
+  async checkInputValue(selector, textToCheckWith, parameter = 'equal') {
+      await page.waitFor(selector);
+
+      let value = await page.evaluate((selector) => {
+        let elem = document.querySelector(selector);
+      return elem.value;
+    }, selector);
+      switch (parameter) {
+        case 'contain': {
+          expect(value).to.be.contain(textToCheckWith);
+          break;
+        }
+        case 'equal': {
+          expect(value).to.be.equal(textToCheckWith);
+          break;
+        }
+        case 'notequal': {
+          expect(value).to.not.equal(textToCheckWith);
+          break;
+        }
+     }
+  }
+
+  /**
+   * Get Element By text and click
+   * @param selector, selector to click on
+   * @text text to check for element
+   */
+  async waitElementByTextAndClick(selector,text){
+    const elements = await page.$$(selector);
+    var found = false;
+    for (var element in elements){
+      const label = await this.page.evaluate(el => el.innerText, element);
+      if(label.includes(text)){
+        element.click();
+        found = true ;
+        break;
+      }
+    }
+    return expect(found).to.be.true;
+  }
 }
 
 module.exports = CommonClient;
