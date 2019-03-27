@@ -5,7 +5,7 @@ module.exports = {
     save_button: '#feature_form_submit_btn ',
     search_input: '#table-feature th input[name="featureFilter_%SEARCHBY"]',
     search_button: '#submitFilterButtonfeature ',
-    selected_feature: '#table-feature a [title="View"]',
+    selected_feature: "#table-feature #tr_2_7_6 [title='View']",
     feature_select: '#id_feature ',
     add_value_button: '#page-header-desc-feature_value-new_feature_value | #page-header-desc-feature-new_feature_value ',
     value_input: '#value_1 ',

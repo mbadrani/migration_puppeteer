@@ -1,6 +1,6 @@
 module.exports = {
   Menu: {
-    dashboard_menu: '//*[@id="tab-AdminDashboard"]/a',
+    dashboard_menu: '#tab-AdminDashboard a',
     Sell: {
       Orders: {
         orders_menu: '#subtab-AdminParentOrders',
@@ -17,15 +17,15 @@ module.exports = {
         category_submenu: '#subtab-AdminCategories a',
         monitoring_submenu: '#subtab-AdminTracking a',
         attributes_features_submenu: '#subtab-AdminParentAttributesGroups a',
-        feature_tab: '//*[@id="subtab-AdminFeatures"]',
+        feature_tab: "#subtab-AdminFeatures",
         manufacturers_submenu: '#subtab-AdminParentManufacturers a',
-        supplier_tab: '//*[@id="subtab-AdminSuppliers"]',
+        supplier_tab: '#subtab-AdminSuppliers ',
         files_submenu: '#subtab-AdminAttachments a',
         discounts_submenu: '#subtab-AdminParentCartRules a',
         catalog_price_rules_tab: '#subtab-AdminSpecificPriceRule a',
         stocks_submenu: '#subtab-AdminStockManagement',
-        stock_tab: '#head_tabs ul li:nth-child(1)  a[role="tab"]',
-        movement_tab: '#head_tabs ul  a[href*="movement"]'
+        stock_tab: '#head_tabs ul li:nth-child(1) a [role="tab"]',
+        movement_tab: '#head_tabs ul a [href*="movement"]'
       },
       Customers: {
         customers_menu: '#subtab-AdminParentCustomer',
@@ -39,7 +39,7 @@ module.exports = {
         merchandise_returns_submenu: '#subtab-AdminReturn a'
       },
       Stats: {
-        stats_menu: '//*[@id="subtab-AdminStats"]/a'
+        stats_menu: '#subtab-AdminStats a'
       }
     },
     Improve: {
@@ -48,42 +48,42 @@ module.exports = {
         modules_manager_submenu: '#subtab-AdminModulesSf > a',
         modules_catalog_submenu: '#subtab-AdminParentModulesCatalog > a',
         installed_modules_tabs: '#subtab-AdminModulesManage',
-        catalog_tab: '//*[@id="subtab-AdminModulesCatalog"] | //*[@id="subtab-AdminPsMboModule"]',
+        catalog_tab: '#subtab-AdminModulesCatalog | #subtab-AdminPsMboModule ',
         modules_selections_submenu: '#subtab-AdminAddonsCatalog a',
         selection_tab: '#subtab-AdminAddonsCatalog',
-        alerts_subTab: '//*[@id="subtab-AdminModulesNotifications"]',
-        updates_subTab: '//*[@id="subtab-AdminModulesUpdates"]',
+        alerts_subTab: '#subtab-AdminModulesNotifications ',
+        updates_subTab: '#subtab-AdminModulesUpdates ',
       },
       Design: {
-        design_menu: '//*[@id="subtab-AdminParentThemes"]/a',
+        design_menu: '#subtab-AdminParentThemes  a',
         theme_logo_submenu: '#subtab-AdminThemesParent a',
         theme_catalog_submenu: '#subtab-AdminPsMboTheme a, #subtab-AdminThemesCatalog a',
         pages_submenu: '#subtab-AdminCmsContent a',
         positions_submenu: '#subtab-AdminModulesPositions a',
         image_settings_submenu: '#subtab-AdminImages a',
         link_widget_submenu: '#subtab-AdminLinkWidget a',
-        homepage_configuration_subTab: '//*[@id="subtab-AdminPsThemeCustoConfiguration"]',
-        advanced_customization_subTab: '//*[@id="subtab-AdminPsThemeCustoAdvanced"]',
+        homepage_configuration_subTab: '#subtab-AdminPsThemeCustoConfiguration ',
+        advanced_customization_subTab: '#subtab-AdminPsThemeCustoAdvanced ',
       },
       Shipping: {
-        shipping_menu: '//*[@id="subtab-AdminParentShipping"]/a',
+        shipping_menu: '#subtab-AdminParentShipping a',
         carriers_submenu: '#subtab-AdminCarriers a',
         preferences_submenu: '#subtab-AdminShipping a'
       },
       Payment: {
-        payment_menu: '//*[@id="subtab-AdminParentPayment"]/a',
+        payment_menu: '#subtab-AdminParentPayment  a',
         payment_methods_submenu: '#subtab-AdminPayment a',
         preferences_submenu: '#subtab-AdminPaymentPreferences a'
       },
       International: {
         international_menu: '#subtab-AdminInternational',
         localization_submenu: '#subtab-AdminParentLocalization a',
-        languages_tab: '//*[@id="subtab-AdminLanguages"]',
+        languages_tab: '#subtab-AdminLanguages ',
         currencies_tab: '#subtab-AdminCurrencies',
-        geolocation_tab: '//*[@id="subtab-AdminGeolocation"]',
+        geolocation_tab: '#subtab-AdminGeolocation ',
         locations_submenu: '#subtab-AdminParentCountries a',
-        countries_tab: '//*[@id="subtab-AdminCountries"]',
-        states_tab: '//*[@id="subtab-AdminStates"]',
+        countries_tab: '#subtab-AdminCountries ',
+        states_tab: '#subtab-AdminStates ',
         taxes_submenu: '#subtab-AdminParentTaxes a',
         taxe_rules_tab: '#subtab-AdminTaxRulesGroup',
         translations_submenu: '#subtab-AdminTranslations a'
@@ -93,19 +93,19 @@ module.exports = {
       ShopParameters: {
         shop_parameters_menu: '#subtab-ShopParameters',
         general_submenu: '#subtab-AdminParentPreferences a',
-        maintenance_tab: '//*[@id="subtab-AdminMaintenance"]',
+        maintenance_tab: '#subtab-AdminMaintenance ',
         order_settings_submenu: '#subtab-AdminParentOrderPreferences a',
-        statuses_tab: '//*[@id="subtab-AdminStatuses"]',
+        statuses_tab: '#subtab-AdminStatuses ',
         product_settings_submenu: '#subtab-AdminPPreferences a',
         customer_settings_submenu: '#subtab-AdminParentCustomerPreferences a',
         groups_tab: '#subtab-AdminGroup',
         titles_tab: '#subtab-AdminGenders',
         contact_submenu: '#subtab-AdminParentStores a',
         stores_tab: '#subtab-AdminStores',
-        search_engines_tab: '//*[@id="subtab-AdminSearchEngines"]',
-        referrers_tab: '//*[@id="subtab-AdminReferrers"]',
+        search_engines_tab: '#subtab-AdminSearchEngines ',
+        referrers_tab: '#subtab-AdminReferrers ',
         search_submenu: '#subtab-AdminParentSearchConf a',
-        tags_tab: '//*[@id="subtab-AdminTags"]',
+        tags_tab: '#subtab-AdminTags ',
         merchant_expertise_submenu: '#subtab-AdminGamification a',
         traffic_seo_submenu: '#subtab-AdminParentMeta a',
       },
@@ -117,8 +117,8 @@ module.exports = {
         email_submenu: '#subtab-AdminEmails a',
         import_submenu: '#subtab-AdminImport a',
         team_submenu: '#subtab-AdminParentEmployees a',
-        profiles_tab: '//*[@id="subtab-AdminProfiles"]',
-        permissions_tab: '//*[@id="subtab-AdminAccess"]',
+        profiles_tab: '#subtab-AdminProfiles ',
+        permissions_tab: '#subtab-AdminAccess ',
         database_submenu: '#subtab-AdminParentRequestSql a',
         logs_submenu: '#subtab-AdminLogs a',
         webservice_submenu: '#subtab-AdminWebservice a',
