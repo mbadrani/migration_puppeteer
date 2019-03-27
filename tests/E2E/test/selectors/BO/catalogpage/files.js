@@ -1,4 +1,4 @@
-.module.exports = {
+module.exports = {
   Files: {
     add_new_file_button: '#page-header-desc-attachment-new_attachment ',
     filename_input: '#name_1 ',
