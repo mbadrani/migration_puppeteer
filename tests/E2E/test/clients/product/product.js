@@ -153,22 +153,21 @@ class Product extends CommonClient {
         global.productsNumber = text.match(/[0-9]+/g)[2];
       });
     } else {
-      this.getProductPageNumber('product_catalog_list');
+      this.getProductPageNumber('#product_catalog_list');
     }
   }
 
-  getProductPageNumber(selector, pause = 0) {
-    return this.client
-      .pause(pause)
-      .execute(function (selector) {
-        return document.getElementById(selector).getElementsByTagName("tbody")[0].children.length;
+  async getProductPageNumber(selector, pause = 0) {
+    return page
+      .evaluate((selector) => {
+        return document.querySelector(selector).querySelectorAll("tbody")[0].children.length;
       }, selector)
       .then((count) => {
         if (count.value !== 1) {
           global.productsNumber = count.value;
         }
         else {
-          return this.client.isVisible(CatalogPage.search_result_message)
+          return this.client.isVisible()
             .then((isVisible) => {
               if (isVisible) {
                 global.productsNumber = 0;
@@ -258,57 +257,53 @@ class Product extends CommonClient {
   }
 
   checkSearchProduct(searchBy, min, max) {
-    return this.client
-      .pause(2000)
-      .then(() => {
-        switch (searchBy) {
+      switch (searchBy) {
           case 'name':
-            for (let k = 0; k < (elementsTable.length); k++) {
-              expect(elementsTable[k]).to.contains("mug");
-            }
-            break;
+              for (let k = 0; k < (elementsTable.length); k++) {
+                  expect(elementsTable[k]).to.contains("mug");
+              }
+              break;
           case 'reference':
-            for (let k = 0; k < (elementsTable.length); k++) {
-              expect(elementsTable[k]).to.contains("demo_1");
-            }
-            break;
+              for (let k = 0; k < (elementsTable.length); k++) {
+                  expect(elementsTable[k]).to.contains("demo_1");
+              }
+              break;
           case 'category':
-            for (let k = 0; k < (elementsTable.length); k++) {
-              expect(elementsTable[k]).to.be.equal("art");
-            }
-            break;
+              for (let k = 0; k < (elementsTable.length); k++) {
+                  expect(elementsTable[k]).to.be.equal("art");
+              }
+              break;
           case 'price':
-            for (let k = 0; k < (elementsTable.length); k++) {
-              expect(elementsTable[k] >= min && elementsTable[k] <= max).to.be.true;
-            }
-            break;
+              for (let k = 0; k < (elementsTable.length); k++) {
+                  expect(elementsTable[k] >= min && elementsTable[k] <= max).to.be.true;
+              }
+              break;
           case 'min_quantity':
-            for (let k = 0; k < (elementsTable.length); k++) {
-              expect(elementsTable[k] >= min).to.be.true;
-            }
-            break;
+              for (let k = 0; k < (elementsTable.length); k++) {
+                  expect(elementsTable[k] >= min).to.be.true;
+              }
+              break;
           case 'quantity':
-            for (let k = 0; k < (elementsTable.length); k++) {
-              expect(elementsTable[k] >= min && elementsTable[k] <= max).to.be.true;
-            }
-            break;
+              for (let k = 0; k < (elementsTable.length); k++) {
+                  expect(elementsTable[k] >= min && elementsTable[k] <= max).to.be.true;
+              }
+              break;
           case 'id':
-            for (let k = 0; k < (elementsTable.length); k++) {
-              expect(elementsTable[k] >= min && elementsTable[k] <= max).to.be.true;
-            }
-            break;
+              for (let k = 0; k < (elementsTable.length); k++) {
+                  expect(elementsTable[k] >= min && elementsTable[k] <= max).to.be.true;
+              }
+              break;
           case 'active_status':
-            for (let k = 0; k < (elementsTable.length); k++) {
-              expect(elementsTable[k]).to.be.equal("check");
-            }
-            break;
+              for (let k = 0; k < (elementsTable.length); k++) {
+                  expect(elementsTable[k]).to.be.equal("check");
+              }
+              break;
           case 'inactive_status':
-            for (let k = 0; k < (elementsTable.length); k++) {
-              expect(elementsTable[k]).to.be.equal("clear");
-            }
-            break;
-        }
-      });
+              for (let k = 0; k < (elementsTable.length); k++) {
+                  expect(elementsTable[k]).to.be.equal("clear");
+              }
+              break;
+      }
   }
 
   checkCategoryProduct() {

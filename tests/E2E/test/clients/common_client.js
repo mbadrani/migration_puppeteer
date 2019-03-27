@@ -246,12 +246,6 @@ class CommonClient {
     await inputFile.uploadFile(path.join(__dirname, '..', 'datas', fileName));
   }
 
-  async setEditorText(selector, textDescription) {
-    await page.click(selector);
-    await page.keyboard.type(textDescription);
-  //  await page.type(selector, textDescription);
-  }
-
   async checkIsNotVisible(selector) {
     await page.waitFor(2000);
     await this.isVisible(selector);
@@ -668,6 +662,55 @@ class CommonClient {
       let element = document.getElementsByClassName(selector);
       element.style = ''
     }, selector);
+  }
+
+
+  /**
+   * These functions are used to sort table then check the sorted table
+   * elementsTable, elementsSortedTable are two global variables that must be initialized in the sort table function
+   * "normalize('NFKD').replace(/[\u0300-\u036F]/g, '')" is used to replace special characters example ô to o
+   * * "normalize('NFKD').replace(/[\u0300-\u036F]/g, '')" is used to replace special characters example € to o
+   */
+  async getTableField(element_list, i, sorted = false, priceWithCurrency = false) {
+    const name = await page.evaluate(element => element.textContent, element_list.replace("%ID", i + 1));
+    if(sorted){
+      if (priceWithCurrency === true) {
+        elementsSortedTable[i] = name.normalize('NFKD').replace(/[^\x00-\x7F]/g, '').toLowerCase();
+      } else {
+        elementsSortedTable[i] = name.normalize('NFKD').replace(/[\u0300-\u036F]/g, '').toLowerCase();
+      }
+    }
+    else {
+      if (priceWithCurrency === true) {
+        elementsTable[i] = name.normalize('NFKD').replace(/[^\x00-\x7F]/g, '').toLowerCase();
+      } else {
+        elementsTable[i] = name.normalize('NFKD').replace(/[\u0300-\u036F]/g, '').toLowerCase();
+      }
+    }
+  }
+  /**
+   * This function checks the sort of a table
+   * @param isNumber= true if we sort by a number, isNumber= false if we sort by a string
+   * @param sortWay equal to 'ASC' or 'DESC'
+   */
+  async checkSortTable(isNumber = false, sortWay = 'ASC') {
+    if (isNumber) {
+      if (sortWay === 'ASC') {
+        await expect(elementsTable.sort(function (a, b) {
+          return a - b;
+        })).to.deep.equal(elementsSortedTable);
+      } else {
+        await expect(elementsTable.sort(function (a, b) {
+          return a - b
+        }).reverse()).to.deep.equal(elementsSortedTable);
+      }
+    } else {
+      if (sortWay === 'ASC') {
+        await expect(elementsTable.sort()).to.deep.equal(elementsSortedTable);
+      } else {
+        await expect(elementsTable.sort().reverse()).to.deep.equal(elementsSortedTable);
+      }
+    }
   }
 }
 
