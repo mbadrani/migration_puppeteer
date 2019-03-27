@@ -266,13 +266,13 @@ module.exports = {
           await client.getTableField(selector, j, false, priceWithCurrency);
         }
         if (sortBy === 'id_product') {
-          await client.moveToObject(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "desc"));
           await client.scrollWaitForExistAndClick(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "desc"));
+
         } else if (sortBy === 'price_included') {
-          await client.moveToObject(ProductList.price_tax_included_sort_button);
           await client.waitForExistAndClick(ProductList.price_tax_included_sort_button);
+        } else if(sortBy === 'price_excluded'){
+          await client.waitForExistAndClick(ProductList.price_tax_excluded_sort_button);
         } else {
-          await client.moveToObject(ProductList.sort_button.replace("%B", sortBy));
           await client.waitForExistAndClick(ProductList.sort_button.replace("%B", sortBy));
         }
       });
@@ -284,13 +284,12 @@ module.exports = {
       });
       test('should click on "Sort by DESC" icon', async () => {
         if (sortBy === 'id_product') {
-          await client.moveToObject(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "asc"));
           await client.waitForExistAndClick(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "asc"));
         } else if (sortBy === 'price_included') {
-          await client.moveToObject(ProductList.price_tax_included_sort_button);
           await client.waitForExistAndClick(ProductList.price_tax_included_sort_button);
+        } else if(sortBy === 'price_excluded'){
+          await client.waitForExistAndClick(ProductList.price_tax_excluded_sort_button);
         } else {
-          await client.moveToObject(ProductList.sort_button.replace("%B", sortBy));
           await client.waitForExistAndClick(ProductList.sort_button.replace("%B", sortBy));
         }
       });
@@ -305,8 +304,9 @@ module.exports = {
   sortProductByStatus: async function () {
     scenario('Check the sort of products by "STATUS"', client => {
       test('should select "Inactive" in Status list then click on "Search" button', async () => {
-        await client.waitAndSelectByValue(ProductList.status_filter, "0");
+        await client.waitAndSelectByValue(ProductList.status_filter, '0');
         await client.waitForExistAndClick(AddProductPage.catalogue_submit_filter_button);
+        await page.waitForNavigation();
       });
       test('should get the number of inactive products', async () => {
         await client.isVisible(ProductList.pagination_products);
@@ -320,6 +320,7 @@ module.exports = {
       test('should select "Active" in Status list then click on "Search" button', async () => {
         await client.waitAndSelectByValue(ProductList.status_filter, "1");
         await client.waitForExistAndClick(AddProductPage.catalogue_submit_filter_button);
+        await page.waitForNavigation();
       });
       test('should get the number of active products', async () => {
         await client.isVisible(ProductList.pagination_products);
@@ -331,8 +332,8 @@ module.exports = {
         await client.waitForExistAndClick(AddProductPage.catalog_reset_filter);
       });
       test('should check that the products are well sorted by ASC', async () => {
-        await client.moveToObject(ProductList.sort_button.replace("%B", 'active'));
         await client.waitForExistAndClick(ProductList.sort_button.replace("%B", 'active'));
+        await page.waitForNavigation();
         for (let j = 0; j < (parseInt(global.inactiveProductsNumber)); j++) {
           await client.isExisting(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'disabled'));
         }
@@ -341,8 +342,8 @@ module.exports = {
         }
       });
       test('should check that the products are well sorted by DESC', async () => {
-        await client.moveToObject(ProductList.sort_button.replace("%B", 'active'));
         await client.waitForExistAndClick(ProductList.sort_button.replace("%B", 'active'));
+        await page.waitForNavigation();
         for (let j = 0; j < (parseInt(global.activeProductsNumber)); j++) {
           await client.isExisting(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'enabled'));
         }
