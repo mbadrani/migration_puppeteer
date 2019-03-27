@@ -4,3 +4,4 @@ node_modules/*
 **.log
 **/mochawesome-report
 email_sender/test_report.html
+package-lock.json
