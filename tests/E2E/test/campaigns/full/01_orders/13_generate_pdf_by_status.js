@@ -19,7 +19,10 @@ global.orderInfo = [];
 
 scenario('Generate a PDF by status', () => {
   scenario('Login in the Front Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('GeneratePdfByStatus');
+    });
     test('should login successfully in the Front Office', () => client.signInFO(AccessPageFO));
   }, 'order');
   scenario('Generate a PDF by "Awaiting bank wire payment" status', client => {
@@ -32,14 +35,14 @@ scenario('Generate a PDF by status', () => {
     }, 'order');
     scenario('Change the Customer Group tax parameter', client => {
       test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
-      test('should go to "Product settings" page', () => client.goToSubtabMenuPage(Menu.Configure.ShopParameters.shop_parameters_menu, Menu.Configure.ShopParameters.customer_settings_submenu));
+      test('should go to "Customer settings" page', () => client.goToSubtabMenuPage(Menu.Configure.ShopParameters.shop_parameters_menu, Menu.Configure.ShopParameters.customer_settings_submenu));
       test('should click on "Group" tab', () => client.waitForExistAndClick(CustomerSettings.groups.group_button));
       test('should click on customer "Edit" button', () => client.waitForExistAndClick(CustomerSettings.groups.customer_edit_button));
       test('should select "Tax excluded" option for "Price display method"', () => client.waitAndSelectByValue(CustomerSettings.groups.price_display_method, "1"));
       test('should click on "Save" button', () => client.waitForExistAndClick(CustomerSettings.groups.save_button));
     }, 'order');
     scenario('Get the created Orders information', client => {
-      test('should go to "Product settings" page', () => client.goToSubtabMenuPage(Menu.Sell.Orders.orders_menu, Menu.Sell.Orders.orders_submenu));
+      test('should go to "Orders" page', () => client.goToSubtabMenuPage(Menu.Sell.Orders.orders_menu, Menu.Sell.Orders.orders_submenu));
       for (let i = 1; i <= 2; i++) {
         test('should go the order n°' + i, () => client.waitForExistAndClick(OrderPage.order_view_button.replace("%ORDERNumber", i)));
         test('should go to "Documents" tab', () => client.waitForExistAndClick(OrderPage.documents_tab));
@@ -105,15 +108,18 @@ scenario('Generate a PDF by status', () => {
         return promise
           .then(() => client.waitForSymfonyToolbar(AddProductPage, 2000))
       });
-      test('should click on "Generate PDF by status"', () => client.waitForExistAndClick(Invoices.generate_pdf_by_status_button));
+      test('should click on "Generate PDF by status"', async () => {
+        await client.setDownloadBehavior();
+        await client.waitForExistAndClick(Invoices.generate_pdf_by_status_button);
+      });
       test('should wait for the "invoice" to download', () => client.pause(7000));
       for (let i = 1; i <= 2; i++) {
         commonOrder.checkOrderInvoice(client, i)
       }
-      test('should delete the invoice pdf file', async () =>{
+      test('should delete the invoice pdf file', async () => {
         await client.checkFile(global.downloadsFolderPath, 'invoices.pdf');
         if (global.existingFile) {
-          await  client.deleteFile(global.downloadsFolderPath, 'invoices', '.pdf');
+          await client.deleteFile(global.downloadsFolderPath, 'invoices', '.pdf');
         }
       });
     }, 'order');
@@ -200,7 +206,10 @@ scenario('Generate a PDF by status', () => {
       test('should go to "Orders - Invoices" page', () => client.goToSubtabMenuPage(Menu.Sell.Orders.orders_menu, Menu.Sell.Orders.invoices_submenu));
       test('should click on "Awaiting bank wire payment" option', () => client.waitForExistAndClick(OrderPage.awaiting_check_payment));
       test('should click on "Cancelled" option', () => client.waitForExistAndClick(OrderPage.cancelled_option));
-      test('should click on "Generate PDF by status"', () => client.waitForExistAndClick(Invoices.generate_pdf_by_status_button));
+      test('should click on "Generate PDF by status"', async () => {
+        await client.setDownloadBehavior();
+        await client.waitForExistAndClick(Invoices.generate_pdf_by_status_button);
+      });
       test('should wait for the "invoice" to download', () => client.pause(7000));
       for (let i = 1; i <= 2; i++) {
         commonOrder.checkOrderInvoice(client, i)
@@ -208,7 +217,7 @@ scenario('Generate a PDF by status', () => {
       test('should delete the invoice pdf file', async () => {
         await client.checkFile(global.downloadsFolderPath, 'invoices.pdf');
         if (global.existingFile) {
-         await client.deleteFile(global.downloadsFolderPath, 'invoices', '.pdf');
+          await client.deleteFile(global.downloadsFolderPath, 'invoices', '.pdf');
         }
       });
     }, 'order');
