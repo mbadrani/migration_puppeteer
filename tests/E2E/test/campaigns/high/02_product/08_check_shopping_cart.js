@@ -67,7 +67,7 @@ scenario('Check that the shopping cart dosen\'t allow checkout of zero quantity 
       test('should go back to "Product Settings" page', () => {
         return promise
           .then(() => client.switchWindow(0))
-          .then(() => client.waitForExistAndClick(Menu.Sell.Catalog.catalog_menu))
+          .then(() => client.waitForExistAndClick(Menu.Sell.Catalog.products_submenu))
           .then(() => client.waitForExistAndClick(AddProductPage.catalog_reset_filter));
       });
       test('should search for product by name', () => client.searchProductByName(productData.name + date_time));

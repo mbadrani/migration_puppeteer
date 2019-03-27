@@ -349,7 +349,7 @@ module.exports = {
     price_tax_excluded_sort_button: '#product_catalog_list [data-sort-col-name="price"]:nth-child(1) span[role="columnheader"]',
     price_tax_included_sort_button: '#product_catalog_list [data-sort-col-name="price"]:nth-child(2) span[role="columnheader"]',
     status_select: '#product_filter_column_active select[name="filter_column_active"]',
-    product_status: '//*[@id="product_catalog_list"]//tr[%I]/td[10]/a/i[contains(@class, "action-%ACTION")]',
+    product_status: '#product_catalog_list tr:nth-child(%I) td:nth-child(10) a i.action-%ACTION',
     edit_button: '#product_catalog_list a.product-edit i:nth-child(1)',
     pagination_products: '#product_catalog_list div[class*=justify-content-center] > div:nth-of-type(1)',
     dropdown_button: '(//*[@id="product_catalog_list"]//tbody//div[@class="btn-group-action"]//button[@data-toggle="dropdown"])[%POS]',
