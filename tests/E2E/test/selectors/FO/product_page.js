@@ -22,7 +22,7 @@ module.exports = {
     product_discount_details: '//*[@id="main"]//span[contains(@class, "discount")]',
     quick_view_add_to_cart: '#add-to-cart-or-refresh button[data-button-action*=add-to-cart]',
     products_number: '//*[@id="js-product-list-top"]//p',
-    offline_warning_message: '//div[contains(@class, "alert-warning")]//p',
+    offline_warning_message: 'div.alert-warning p',
     product_discounts_table: '//*[@id="add-to-cart-or-refresh"]//tbody/tr[%R]/td[%D]',
     second_product: '#content article:nth-child(2) h3',
     product_availability_message: '#product-availability',

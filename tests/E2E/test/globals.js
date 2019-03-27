@@ -50,6 +50,8 @@ global.invoiceFileName = '';
 global.basic_price = '';
 global.indexText = 0;
 global.categoryID = '';
+
+global.ps_mode_dev = true;
 module.exports = {
   selector: require('./selectors'),
   shouldExist: function (err, existing) {
