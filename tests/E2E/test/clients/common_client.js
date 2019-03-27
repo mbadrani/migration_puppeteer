@@ -130,8 +130,9 @@ class CommonClient {
   }
 
   async goToSubtabMenuPage(menuSelector, selector) {
-    const selector_link = await page.$eval(selector, ({ href }) => href);
-    await page.goto(selector_link, { waitUntil: 'networkidle0' });
+    await page.waitFor(selector);
+    const selector_link = await page.$eval(selector, ({href}) => href);
+    await page.goto(selector_link, {waitUntil: 'networkidle0'});
     /*
     let isOpen = false;
     let result = await page.evaluate((menuSelector) => {
@@ -621,26 +622,26 @@ class CommonClient {
    * @return true if expected is true, else false
    */
   async checkInputValue(selector, textToCheckWith, parameter = 'equal') {
-      await page.waitFor(selector);
+    await page.waitFor(selector);
 
-      let value = await page.evaluate((selector) => {
-        let elem = document.querySelector(selector);
+    let value = await page.evaluate((selector) => {
+      let elem = document.querySelector(selector);
       return elem.value;
     }, selector);
-      switch (parameter) {
-        case 'contain': {
-          expect(value).to.be.contain(textToCheckWith);
-          break;
-        }
-        case 'equal': {
-          expect(value).to.be.equal(textToCheckWith);
-          break;
-        }
-        case 'notequal': {
-          expect(value).to.not.equal(textToCheckWith);
-          break;
-        }
-     }
+    switch (parameter) {
+      case 'contain': {
+        expect(value).to.be.contain(textToCheckWith);
+        break;
+      }
+      case 'equal': {
+        expect(value).to.be.equal(textToCheckWith);
+        break;
+      }
+      case 'notequal': {
+        expect(value).to.not.equal(textToCheckWith);
+        break;
+      }
+    }
   }
 
   /**
@@ -648,18 +649,25 @@ class CommonClient {
    * @param selector, selector to click on
    * @text text to check for element
    */
-  async waitElementByTextAndClick(selector,text){
+  async waitElementByTextAndClick(selector, text) {
     const elements = await page.$$(selector);
     var found = false;
-    for (var element in elements){
+    for (var element in elements) {
       const label = await this.page.evaluate(el => el.innerText, element);
-      if(label.includes(text)){
+      if (label.includes(text)) {
         element.click();
-        found = true ;
+        found = true;
         break;
       }
     }
     return expect(found).to.be.true;
+  }
+
+  async displayHiddenBlock(selector) {
+    await page.evaluate(function (selector) {
+      let element = document.getElementsByClassName(selector);
+      element.style = ''
+    }, selector);
   }
 }
 
