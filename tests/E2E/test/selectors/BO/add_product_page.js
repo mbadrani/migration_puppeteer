@@ -364,7 +364,7 @@ module.exports = {
     search_no_results: '#product_catalog_list tbody tr:nth-child(1) td',
     pagination_next: '#pagination_next_url ',
     pagination_previous: '#product_catalog_list li.page-item previous  a',
-    page_active_number: '#product_catalog_list li.page-item active input',
+    page_active_number: '#product_catalog_list li.page-item.active input',
     item_per_page: '#paginator_select_page_limit ',
     product_category: '#product_catalog_list div tr:nth-child(%I) td:nth-child(6)',
     reset_button: '#product_catalog_list tr:nth-child(2) th:nth-child(9) button[name="products_filter_reset"]',

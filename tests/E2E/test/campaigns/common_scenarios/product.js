@@ -384,7 +384,7 @@ module.exports = {
       test('should check that the current page is equal to "' + pageNumber + '"', () => client.checkAttributeValue(ProductList.page_active_number, 'value', pageNumber, 'contain', 3000));
       test('should check that the number of products is less or equal to "' + itemPerPage + '"', () => {
         return promise
-          .then(() => client.getProductPageNumber('product_catalog_list'))
+          .then(() => client.getProductPageNumber('#product_catalog_list'))
           .then(() => expect(global.productsNumber).to.be.at.most(itemPerPage))
       });
       if (paginateBetweenPages) {
@@ -394,16 +394,16 @@ module.exports = {
             .then(() => client.isVisible(selectorButton))
             .then(() => client.clickNextOrPrevious(selectorButton));
         });
-        test('should check that the current page is equal to 2', () => client.checkAttributeValue(ProductList.page_active_number, 'value', '2', 'contain', 3000));
+        test('should check that the current page is equal to 2', () => client.checkInputValue(ProductList.page_active_number, '2', 'contain'));
         test('should set the "Page value" input to "' + pageNumber + '"', () => {
           return promise
             .then(() => client.waitAndSetValue(ProductList.page_active_number, pageNumber))
             .then(() => client.keys('Enter'));
         });
-        test('should check that the current page is equal to "' + pageNumber + '"', () => client.checkAttributeValue(ProductList.page_active_number, 'value', pageNumber, 'contain', 3000));
+        test('should check that the current page is equal to "' + pageNumber + '"', () => client.checkInputValue(ProductList.page_active_number, pageNumber, 'contain'));
       }
       if (close)
-        test('should set the "item per page" to 20 (back to normal)', () => client.waitAndSelectByValue(ProductList.item_per_page, 20));
+        test('should set the "item per page" to 20 (back to normal)', () => client.waitAndSelectByValue(ProductList.item_per_page, '20'));
     }, 'product/product');
   },
 
@@ -604,7 +604,7 @@ module.exports = {
   },
 
   async checkPaginationThenCreateProduct(client, productData) {
-    await client.getProductPageNumber('product_catalog_list', 5000);
+    await client.getProductPageNumber('#product_catalog_list', 5000);
     let productNumber = await 20 - global.productsNumber;
     if (productNumber !== 0) {
       for (let i = 0; i < productNumber + 1; i++) {
@@ -633,7 +633,7 @@ module.exports = {
         await client.isVisible(CategorySubMenu.category_view_button.replace('%ID', i));
         if (global.isVisible) {
           await client.waitForExistAndClick(CategorySubMenu.category_view_button.replace('%ID', i));
-          await client.getProductPageNumber('table-category');
+          await client.getProductPageNumber('#table-category');
           for (let j = 1; j <= global.productsNumber; j++) {
             await client.getTextInVar(CategorySubMenu.category_name.replace('%ID', j), "subCategory");
             global.categories.HOME[tab["category"]][j] = await tab["subCategory"];
@@ -663,7 +663,7 @@ module.exports = {
 
   checkFiltersCategories: async function (client) {
     await client.waitForExistAndClick(ProductList.category_radio.replace('%CATEGORY', 'Accessories'));
-    await client.getProductPageNumber('product_catalog_list');
+    await client.getProductPageNumber('#product_catalog_list');
     for (let i = 1; i <= global.productsNumber; i++) {
       await client.getTextInVar(ProductList.products_column.replace('%ID', i).replace('%COL', 6), 'categoryName');
       await client.checkCategoryProduct();
