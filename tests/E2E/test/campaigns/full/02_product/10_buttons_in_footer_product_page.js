@@ -66,11 +66,11 @@ scenario('Check product page buttons', () => {
   scenario('Testing "Delete" button', () => {
     scenario('Check when clicking on "No" of the delete confirmation modal', client => {
       test('should click on "Delete" icon', () => client.waitForExistAndClick(AddProductPage.delete_button));
-      test('should click on "No" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%BUTTON', 'No')));
+      test('should click on "No" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%I', '1')));
       test('should go to "Catalog - products" page', () => {
         return promise
           .then(() => client.pause(2000))
-          .then(() => client.waitForVisibleAndClick(Menu.Sell.Catalog.products_submenu));
+          .then(() => client.goToLink(Menu.Sell.Catalog.products_submenu));
       });
       test('should search for product by name', () => client.searchProductByName("copy of " + firstProductData.name + date_time));
       test('should click on the product name', () => client.waitForExistAndClick(AddProductPage.catalog_product_name));
@@ -82,7 +82,7 @@ scenario('Check product page buttons', () => {
      **/
     scenario('Check when clicking on "Yes" of the delete confirmation modal', client => {
       test('should click on "Delete" icon', () => client.waitForExistAndClick(AddProductPage.delete_button));
-      test('should click on "Yes" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%BUTTON', 'Yes')));
+      test('should click on "Yes" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%I', '2')));
       test('should verify the appearance of the green validation (BOOM-4950)', () => client.checkTextValue(AddProductPage.success_panel, "Product successfully deleted."));
       test('should click on "Reset" button', () => client.waitForExistAndClick(AddProductPage.catalog_reset_filter));
       scenario('Check that the duplicated product is deleted', client => {
