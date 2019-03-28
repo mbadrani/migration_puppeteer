@@ -30,7 +30,7 @@ scenario('Delete product', () => {
     test('should click on the "dropdown" icon', () => client.waitForExistAndClick(CatalogPage.dropdown_toggle));
     test('should click on the "delete" icon', () => client.waitForExistAndClick(CatalogPage.delete_button));
     test('should click on the "delete now" button', () => client.waitForVisibleAndClick(CatalogPage.delete_confirmation));
-    test('should verify the appearance of the green validation message', () => client.checkTextValue(CatalogPage.green_validation, 'close\nProduct successfully deleted.'));
+    test('should verify the appearance of the green validation message', () => client.checkTextValue(CatalogPage.green_validation, 'Product successfully deleted.'));
 
     scenario('should check that the created product has been deleted', client => {
       test('should search for the created product', () => client.waitAndSetValue(CatalogPage.name_search_input, productData.name + date_time));
@@ -51,7 +51,10 @@ scenario('Delete product', () => {
 
   scenario('check that the product "DP' + date_time + ' doesn\'t exist in the front office', client => {
     test('should set the shop language to "English"', () => client.changeLanguage());
-    test('should search for the product', () => client.searchByValue(SearchProductPage.search_input, SearchProductPage.search_button, productData.name + date_time));
+    test('should search for the product', async () => {
+        client.searchByValue(SearchProductPage.search_input, SearchProductPage.search_button, productData.name + date_time);
+        await page.waitForNavigation();
+    });
     test('should check that the product "DP' + date_time + '" doesn\'t exist ', () => client.isNotExisting(SearchProductPage.product_result_name));
   }, 'product/product');
 
