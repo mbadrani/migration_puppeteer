@@ -539,39 +539,47 @@ module.exports = {
       if (productData.hasOwnProperty('type')) {
         if (productData.type === 'standard' || productData.type === 'combination' || productData.type === 'customizable') {
           if (productData.type === 'customizable') {
-            test('should check that the product name contains Customizable', () => client.checkAttributeValue(AddProductPage.product_name_input, 'value', 'Customizable', 'contain'));
+            test('should check that the product name contains Customizable', () => client.checkInputValue(AddProductPage.product_name_input, 'Customizable', 'contain'));
           }
-          test('should check that "Standard product" type is well selected', () => client.isSelected(AddProductPage.product_type_option.replace('%POS', 1)));
+          test('should check that "Standard product" type is well selected', async () => {
+            await page.waitForSelector(AddProductPage.product_type_select,{visible:true});
+            client.isSelected(AddProductPage.product_type_select,0);
+        });
         } else if (productData.type === 'pack') {
-          test('should check that the product name contains Pack', () => client.checkAttributeValue(AddProductPage.product_name_input, 'value', 'Pack', 'contain'));
-          test('should check that "Pack of product" type is well selected', () => client.isSelected(AddProductPage.product_type_option.replace('%POS', 2)));
+          test('should check that the product name contains Pack', () => client.checkInputValue(AddProductPage.product_name_input, 'Pack', 'contain'));
+          test('should check that "Pack of product" type is well selected', async () => {
+            await page.waitForSelector(AddProductPage.product_type_select,{visible:true});
+            client.isSelected(AddProductPage.product_type_select,1);
+          });
           test('should check that the "List of products for this pack" is well displayed', () => client.isExisting(AddProductPage.product_pack_items));
           test('should check that the "Add products to your pack" is well displayed', () => client.isExisting(AddProductPage.add_products_to_pack));
         } else {
-          test('should check that "Virtual product" type is well selected', () => client.isSelected(AddProductPage.product_type_option.replace('%POS', 3)));
+          test('should check that "Virtual product" type is well selected', async () => {
+            await page.waitForSelector(AddProductPage.product_type_select,{visible:true});
+            client.isSelected(AddProductPage.product_type_select,2);
+        });
         }
       }
       if (productData.hasOwnProperty('picture')) {
         test('should check the appearance of the product picture', () => client.checkAttributeValue(AddProductPage.background_picture, 'style', productData.picture, 'contain'));
       }
-      test('should check that the product quantity is equal to "' + productData.quantity + '"', () => client.checkAttributeValue(AddProductPage.product_quantity_input, 'value', productData.quantity));
-      test('should check that the product price HT is equal to "' + productData.priceHT + '"', () => client.checkAttributeValue(AddProductPage.priceTE_shortcut, 'value', productData.priceHT));
-      test('should check that the product price TTC is equal to "' + productData.priceTTC + '"', () => client.checkAttributeValue(AddProductPage.priceTTC_shortcut, 'value', productData.priceTTC));
-      test('should check that "' + productData.tax_rule + '" of tax rule is well selected', () => client.isSelected(AddProductPage.tax_rule_taux_standard_option));
-      test('should check that the product summary is well filled', () => client.checkTextEditor(AddProductPage.summary_textarea, productData.summary, 2000));
+      test('should check that the product quantity is equal to "' + productData.quantity + '"', () => client.checkInputValue(AddProductPage.product_quantity_input, productData.quantity));
+      test('should check that the product price HT is equal to "' + productData.priceHT + '"', () => client.checkInputValue(AddProductPage.priceTE_shortcut, productData.priceHT));
+      test('should check that the product price TTC is equal to "' + productData.priceTTC + '"', () => client.checkInputValue(AddProductPage.priceTTC_shortcut, productData.priceTTC));
+      test('should check that "' + productData.tax_rule + '" of tax rule is well selected', () => client.isSelected(AddProductPage.tax_rule_taux_standard_select,4));
+      test('should check that the product summary is well filled', () => client.checkTextContent(AddProductPage.summary_input, productData.summary,'contain'));
       if (productData.hasOwnProperty('type') && productData.type !== 'pack') {
         test('should click on "Description" tab', () => client.waitForExistAndClick(AddProductPage.description_tab));
-        test('should check that the product description is well filled', () => client.checkTextEditor(AddProductPage.description_textarea, productData.description, 2000));
+        test('should check that the product description is well filled', () => client.checkTextContent(AddProductPage.description_input, productData.description,'contain'));
       }
       if (productData.hasOwnProperty('feature')) {
         test('should check that the product feature is well filled', () => {
           return promise
-            .then(() => client.isVisible(AddProductPage.feature_select_button))
-            .then(() => client.checkFeatureValue(AddProductPage.predefined_value_option.replace('%V', productData.feature.predefined_value), AddProductPage.custom_value_input, productData.feature));
+            .then(() => client.checkFeatureValue(AddProductPage.predefined_value_select, AddProductPage.custom_value_input, productData.feature));
         });
       }
       if (productData.hasOwnProperty('combination') && productData.type === 'combination') {
-        test('should check that "Product with combination" is well selected', () => client.checkAttributeValue(AddProductPage.product_combinations.replace('%I', 2), 'value', '1'));
+        test('should check that "Product with combination" is well selected', () => client.checkAttributeValue(AddProductPage.product_combinations.replace('%I', 3),'checked', 'checked'));
         test('should click on "Combinations" tab', () => client.scrollWaitForExistAndClick(AddProductPage.product_combinations_tab));
         test('should check the appearance of the first generated combination ', () => client.waitForExist(AddProductPage.combination_table));
       }

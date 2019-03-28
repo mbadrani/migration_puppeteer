@@ -204,20 +204,15 @@ class Product extends CommonClient {
       });
   }
 
-  checkFeatureValue(predefinedValueSelector, customValueSelector, featureData) {
+  async checkFeatureValue(predefinedValueSelector, customValueSelector, featureData) {
     if (global.isVisible) {
-      if (featureData.predefined_value !== '') {
-        return this.client
-          .isSelected(predefinedValueSelector)
-          .then((value) => expect(value).to.be.equal(true));
-      } else if (featureData.customized_value !== '') {
-        return this.client
-          .getAttribute(customValueSelector, 'value')
-          .then((value) => expect(value).to.be.equal(featureData.customized_value));
+      if(featureData.predefined_value !== ''){
+          const selectedIndex = await page.evaluate(async (selector) => await document.querySelector(selector).selectedIndex, predefinedValueSelector);
+          this.checkTextContent(predefinedValueSelector + ' option:nth-child(' + String(selectedIndex+1) + ')',featureData.predefined_value);
+      } else if(featureData.customized_value !== ''){
+          this.checkInputValue(customValueSelector,featureData.customized_value);
       } else {
-        return this.client
-          .pause(0)
-          .then(() => expect(featureData.predefined_value !== '' && featureData.customized_value !== '', "You must choose a pre-defined value or set the customized value").to.be.equal(true));
+          expect(featureData.predefined_value === '' && featureData.customized_value === '', "You must choose a pre-defined value or set the customized value").to.be.equal(true);
       }
     }
   }
