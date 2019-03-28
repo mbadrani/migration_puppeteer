@@ -718,6 +718,53 @@ class CommonClient {
       }
     }
   }
+   /**
+    * Verify selected Value
+    * @param selector : select to check
+    * @param value : value of the option
+    */
+  async isSelected(selector, value = 0) {
+    const selectedIndex = await page.evaluate(async (selector) => await document.querySelector(selector).selectedIndex, selector);
+    expect(selectedIndex).to.be.equal(value);
+  }
+  /**
+   * Verify not selected Value
+   * @param selector : select to check
+   * @param value : value of the option
+   */
+  async isNotSelected(selector, value = 0) {
+    const selectedIndex = await page.evaluate(async (selector) => await document.querySelector(selector).selectedIndex, selector);
+    expect(selectedIndex).to.be.not.equal(value);
+  }
+
+  /**
+   * check text from element
+   * @param selector : element to get text with
+   * @param textToCheckWith : text to check
+   * @param parameter : equal / notequal / contain
+   */
+  async checkTextContent(selector, textToCheckWith, parameter = 'equal') {
+    await page.waitFor(selector);
+
+    let value = await page.evaluate((selector) => {
+       let elem = document.querySelector(selector);
+     return elem.textContent;
+    }, selector);
+    switch (parameter) {
+      case 'contain': {
+        expect(value).to.be.contain(textToCheckWith);
+        break;
+      }
+      case 'equal': {
+        expect(value).to.be.equal(textToCheckWith);
+        break;
+      }
+      case 'notequal': {
+        expect(value).to.not.equal(textToCheckWith);
+        break;
+      }
+    }
+    }
 }
 
 module.exports = CommonClient;

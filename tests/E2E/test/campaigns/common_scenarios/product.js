@@ -384,7 +384,7 @@ module.exports = {
       test('should check that the current page is equal to "' + pageNumber + '"', () => client.checkAttributeValue(ProductList.page_active_number, 'value', pageNumber, 'contain', 3000));
       test('should check that the number of products is less or equal to "' + itemPerPage + '"', () => {
         return promise
-          .then(() => client.getProductPageNumber('product_catalog_list'))
+          .then(() => client.getProductPageNumber('#product_catalog_list'))
           .then(() => expect(global.productsNumber).to.be.at.most(itemPerPage))
       });
       if (paginateBetweenPages) {
@@ -394,16 +394,16 @@ module.exports = {
             .then(() => client.isVisible(selectorButton))
             .then(() => client.clickNextOrPrevious(selectorButton));
         });
-        test('should check that the current page is equal to 2', () => client.checkAttributeValue(ProductList.page_active_number, 'value', '2', 'contain', 3000));
+        test('should check that the current page is equal to 2', () => client.checkInputValue(ProductList.page_active_number, '2', 'contain'));
         test('should set the "Page value" input to "' + pageNumber + '"', () => {
           return promise
             .then(() => client.waitAndSetValue(ProductList.page_active_number, pageNumber))
             .then(() => client.keys('Enter'));
         });
-        test('should check that the current page is equal to "' + pageNumber + '"', () => client.checkAttributeValue(ProductList.page_active_number, 'value', pageNumber, 'contain', 3000));
+        test('should check that the current page is equal to "' + pageNumber + '"', () => client.checkInputValue(ProductList.page_active_number, pageNumber, 'contain'));
       }
       if (close)
-        test('should set the "item per page" to 20 (back to normal)', () => client.waitAndSelectByValue(ProductList.item_per_page, 20));
+        test('should set the "item per page" to 20 (back to normal)', () => client.waitAndSelectByValue(ProductList.item_per_page, '20'));
     }, 'product/product');
   },
 
@@ -539,39 +539,47 @@ module.exports = {
       if (productData.hasOwnProperty('type')) {
         if (productData.type === 'standard' || productData.type === 'combination' || productData.type === 'customizable') {
           if (productData.type === 'customizable') {
-            test('should check that the product name contains Customizable', () => client.checkAttributeValue(AddProductPage.product_name_input, 'value', 'Customizable', 'contain'));
+            test('should check that the product name contains Customizable', () => client.checkInputValue(AddProductPage.product_name_input, 'Customizable', 'contain'));
           }
-          test('should check that "Standard product" type is well selected', () => client.isSelected(AddProductPage.product_type_option.replace('%POS', 1)));
+          test('should check that "Standard product" type is well selected', async () => {
+            await page.waitForSelector(AddProductPage.product_type_select,{visible:true});
+            client.isSelected(AddProductPage.product_type_select,0);
+        });
         } else if (productData.type === 'pack') {
-          test('should check that the product name contains Pack', () => client.checkAttributeValue(AddProductPage.product_name_input, 'value', 'Pack', 'contain'));
-          test('should check that "Pack of product" type is well selected', () => client.isSelected(AddProductPage.product_type_option.replace('%POS', 2)));
+          test('should check that the product name contains Pack', () => client.checkInputValue(AddProductPage.product_name_input, 'Pack', 'contain'));
+          test('should check that "Pack of product" type is well selected', async () => {
+            await page.waitForSelector(AddProductPage.product_type_select,{visible:true});
+            client.isSelected(AddProductPage.product_type_select,1);
+          });
           test('should check that the "List of products for this pack" is well displayed', () => client.isExisting(AddProductPage.product_pack_items));
           test('should check that the "Add products to your pack" is well displayed', () => client.isExisting(AddProductPage.add_products_to_pack));
         } else {
-          test('should check that "Virtual product" type is well selected', () => client.isSelected(AddProductPage.product_type_option.replace('%POS', 3)));
+          test('should check that "Virtual product" type is well selected', async () => {
+            await page.waitForSelector(AddProductPage.product_type_select,{visible:true});
+            client.isSelected(AddProductPage.product_type_select,2);
+        });
         }
       }
       if (productData.hasOwnProperty('picture')) {
         test('should check the appearance of the product picture', () => client.checkAttributeValue(AddProductPage.background_picture, 'style', productData.picture, 'contain'));
       }
-      test('should check that the product quantity is equal to "' + productData.quantity + '"', () => client.checkAttributeValue(AddProductPage.product_quantity_input, 'value', productData.quantity));
-      test('should check that the product price HT is equal to "' + productData.priceHT + '"', () => client.checkAttributeValue(AddProductPage.priceTE_shortcut, 'value', productData.priceHT));
-      test('should check that the product price TTC is equal to "' + productData.priceTTC + '"', () => client.checkAttributeValue(AddProductPage.priceTTC_shortcut, 'value', productData.priceTTC));
-      test('should check that "' + productData.tax_rule + '" of tax rule is well selected', () => client.isSelected(AddProductPage.tax_rule_taux_standard_option));
-      test('should check that the product summary is well filled', () => client.checkTextEditor(AddProductPage.summary_textarea, productData.summary, 2000));
+      test('should check that the product quantity is equal to "' + productData.quantity + '"', () => client.checkInputValue(AddProductPage.product_quantity_input, productData.quantity));
+      test('should check that the product price HT is equal to "' + productData.priceHT + '"', () => client.checkInputValue(AddProductPage.priceTE_shortcut, productData.priceHT));
+      test('should check that the product price TTC is equal to "' + productData.priceTTC + '"', () => client.checkInputValue(AddProductPage.priceTTC_shortcut, productData.priceTTC));
+      test('should check that "' + productData.tax_rule + '" of tax rule is well selected', () => client.isSelected(AddProductPage.tax_rule_taux_standard_select,4));
+      test('should check that the product summary is well filled', () => client.checkTextContent(AddProductPage.summary_input, productData.summary,'contain'));
       if (productData.hasOwnProperty('type') && productData.type !== 'pack') {
         test('should click on "Description" tab', () => client.waitForExistAndClick(AddProductPage.description_tab));
-        test('should check that the product description is well filled', () => client.checkTextEditor(AddProductPage.description_textarea, productData.description, 2000));
+        test('should check that the product description is well filled', () => client.checkTextContent(AddProductPage.description_input, productData.description,'contain'));
       }
       if (productData.hasOwnProperty('feature')) {
         test('should check that the product feature is well filled', () => {
           return promise
-            .then(() => client.isVisible(AddProductPage.feature_select_button))
-            .then(() => client.checkFeatureValue(AddProductPage.predefined_value_option.replace('%V', productData.feature.predefined_value), AddProductPage.custom_value_input, productData.feature));
+            .then(() => client.checkFeatureValue(AddProductPage.predefined_value_select, AddProductPage.custom_value_input, productData.feature));
         });
       }
       if (productData.hasOwnProperty('combination') && productData.type === 'combination') {
-        test('should check that "Product with combination" is well selected', () => client.checkAttributeValue(AddProductPage.product_combinations.replace('%I', 2), 'value', '1'));
+        test('should check that "Product with combination" is well selected', () => client.checkAttributeValue(AddProductPage.product_combinations.replace('%I', 3),'checked', 'checked'));
         test('should click on "Combinations" tab', () => client.scrollWaitForExistAndClick(AddProductPage.product_combinations_tab));
         test('should check the appearance of the first generated combination ', () => client.waitForExist(AddProductPage.combination_table));
       }
@@ -596,7 +604,7 @@ module.exports = {
   },
 
   async checkPaginationThenCreateProduct(client, productData) {
-    await client.getProductPageNumber('product_catalog_list', 5000);
+    await client.getProductPageNumber('#product_catalog_list', 5000);
     let productNumber = await 20 - global.productsNumber;
     if (productNumber !== 0) {
       for (let i = 0; i < productNumber + 1; i++) {
@@ -625,7 +633,7 @@ module.exports = {
         await client.isVisible(CategorySubMenu.category_view_button.replace('%ID', i));
         if (global.isVisible) {
           await client.waitForExistAndClick(CategorySubMenu.category_view_button.replace('%ID', i));
-          await client.getProductPageNumber('table-category');
+          await client.getProductPageNumber('#table-category');
           for (let j = 1; j <= global.productsNumber; j++) {
             await client.getTextInVar(CategorySubMenu.category_name.replace('%ID', j), "subCategory");
             global.categories.HOME[tab["category"]][j] = await tab["subCategory"];
@@ -655,7 +663,7 @@ module.exports = {
 
   checkFiltersCategories: async function (client) {
     await client.waitForExistAndClick(ProductList.category_radio.replace('%CATEGORY', 'Accessories'));
-    await client.getProductPageNumber('product_catalog_list');
+    await client.getProductPageNumber('#product_catalog_list');
     for (let i = 1; i <= global.productsNumber; i++) {
       await client.getTextInVar(ProductList.products_column.replace('%ID', i).replace('%COL', 6), 'categoryName');
       await client.checkCategoryProduct();

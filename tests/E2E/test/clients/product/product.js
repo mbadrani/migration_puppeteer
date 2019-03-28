@@ -132,14 +132,8 @@ class Product extends CommonClient {
       .waitAndSetValue(addProductPage.customized_value_input.replace('%ID', number), customizedValue)
   }
 
-  clickNextOrPrevious(selector) {
-    if (global.isVisible) {
-      return this.client
-        .click(selector)
-        .pause(2000);
-    } else {
-      return this.client.pause(0)
-    }
+  async clickNextOrPrevious(selector) {
+      await page.click(selector);
   }
 
   /**
@@ -158,25 +152,13 @@ class Product extends CommonClient {
   }
 
   async getProductPageNumber(selector, pause = 0) {
-    return page
-      .evaluate((selector) => {
-        return document.querySelector(selector).querySelectorAll("tbody")[0].children.length;
-      }, selector)
-      .then((count) => {
-        if (count.value !== 1) {
-          global.productsNumber = count.value;
-        }
-        else {
-          return this.client.isVisible()
-            .then((isVisible) => {
-              if (isVisible) {
-                global.productsNumber = 0;
-              } else {
-                global.productsNumber = count.value;
-              }
-            });
-        }
-      })
+    const count = await page.evaluate((selector) => {
+        const element = document.querySelectorAll(selector+ " tbody tr");
+        return element.length;
+      }, selector);
+    if (count !== 1) {
+      global.productsNumber = count;
+    }
   }
 
   async clickPageNext(selector, pause = 0) {
@@ -204,20 +186,15 @@ class Product extends CommonClient {
       });
   }
 
-  checkFeatureValue(predefinedValueSelector, customValueSelector, featureData) {
+  async checkFeatureValue(predefinedValueSelector, customValueSelector, featureData) {
     if (global.isVisible) {
-      if (featureData.predefined_value !== '') {
-        return this.client
-          .isSelected(predefinedValueSelector)
-          .then((value) => expect(value).to.be.equal(true));
-      } else if (featureData.customized_value !== '') {
-        return this.client
-          .getAttribute(customValueSelector, 'value')
-          .then((value) => expect(value).to.be.equal(featureData.customized_value));
+      if(featureData.predefined_value !== ''){
+          const selectedIndex = await page.evaluate(async (selector) => await document.querySelector(selector).selectedIndex, predefinedValueSelector);
+          this.checkTextContent(predefinedValueSelector + ' option:nth-child(' + String(selectedIndex+1) + ')',featureData.predefined_value);
+      } else if(featureData.customized_value !== ''){
+          this.checkInputValue(customValueSelector,featureData.customized_value);
       } else {
-        return this.client
-          .pause(0)
-          .then(() => expect(featureData.predefined_value !== '' && featureData.customized_value !== '', "You must choose a pre-defined value or set the customized value").to.be.equal(true));
+          expect(featureData.predefined_value === '' && featureData.customized_value === '', "You must choose a pre-defined value or set the customized value").to.be.equal(true);
       }
     }
   }
