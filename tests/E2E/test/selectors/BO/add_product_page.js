@@ -388,8 +388,9 @@ module.exports = {
     filter_by_category_button: '#product_catalog_category_tree_filter button',
     expand_filter_link: '#product_catalog_category_tree_filter_expand ',
     unselect_filter_link: '#product_catalog_category_tree_filter_reset ',
-    filter_list_category_label: '#product_categories_categories ul li ul li:nth-child(%ID) div label',
+    filter_list_category_label: '#product_categories_categories > ul.category-tree  > li > ul > li:nth-child(%ID) div label',
     sub_category_label: '#product_categories_categories ul.category-tree ul li:nth-child(%I) ul li:nth-child(%J) label.category-label ',
-    category_radio: '#tree-categories label[text()[contains(.,"%CATEGORY")]] input:nth-child(1):nth-child(1)',
+    category_radio: '#product_categories_categories label:nth-child(%I)',
+    categories_radio: '#product_categories_categories label'
   }
 };

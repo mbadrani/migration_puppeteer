@@ -650,19 +650,30 @@ module.exports = {
     await client.waitForExistAndClick(ProductList.expand_filter_link);
     for (let i = 1; i <= global.categoriesPageNumber; i++) {
       await client.getTextInVar(ProductList.filter_list_category_label.replace('%ID', i), "productCategory");
-      global.productCategories.HOME[tab["productCategory"]] = await [tab["productCategory"]];
-      await client.getSubCategoryNumber('product_categories_categories', i);
+      global.productCategories.HOME[tab["productCategory"]] = [tab["productCategory"]];
+      await client.getSubCategoryNumber('#product_categories_categories > ul.category-tree  > li > ul',i);
       if (global.subCatNumber !== 0) {
         for (let j = 1; j <= global.subCatNumber; j++) {
           await client.getTextInVar(ProductList.sub_category_label.replace('%I', i).replace('%J', j), 'psubCategory');
-          global.productCategories.HOME[tab["productCategory"]][j] = await tab["psubCategory"];
+          global.productCategories.HOME[tab["productCategory"]][j] = tab["psubCategory"];
         }
       }
     }
   },
 
   checkFiltersCategories: async function (client) {
-    await client.waitForExistAndClick(ProductList.category_radio.replace('%CATEGORY', 'Accessories'));
+    let numberOfLabels = await page.evaluate((selector) => {return document.querySelectorAll(selector).length;} , ProductList.categories_radio);
+    var found = false ;
+    for(let j =1 ; j<= numberOfLabels ; j++){
+      let text_content = await page.evaluate((selector,j) => {return document.querySelectorAll(selector)[j-1].textContent;} , ProductList.categories_radio,j);
+      if(text_content.startsWith('Accessories')){
+        await page.evaluate((selector,j) => {document.querySelectorAll(selector)[j-1].querySelector(' input:nth-child(1):nth-child(1)').click();} , ProductList.categories_radio,j);
+        await page.waitForNavigation({waitUntil:'domcontentloaded'});
+        found = true ;
+        break;
+      }
+    }
+    expect(found).to.be.true;
     await client.getProductPageNumber('#product_catalog_list');
     for (let i = 1; i <= global.productsNumber; i++) {
       await client.getTextInVar(ProductList.products_column.replace('%ID', i).replace('%COL', 6), 'categoryName');

@@ -205,22 +205,14 @@ class Product extends CommonClient {
       .waitForVisible(AddProductPage.product_name_input)
   }
 
-  getSubCategoryNumber(selector, i) {
-    return this.client
-      .execute(function (selector, i) {
-        let count;
-        try {
-          count = document.getElementById(selector).getElementsByTagName("ul")[i + 1].children.length;
-          return count;
-        }
-        catch (err) {
-          count = 0;
-          return count;
-        }
-      }, selector, i)
-      .then((count) => {
-        global.subCatNumber = count.value;
-      })
+  async getSubCategoryNumber(selector, i) {
+      const count = await page.evaluate((selector,i) => {
+          const element = document.querySelectorAll(selector+ " > li:nth-child("+ String(i) +") li");
+      return element.length;
+        }, selector,i);
+      if (count !== 1) {
+          global.subCatNumber = count;
+      }
   }
 
   checkValuesFeature(selector, value) {
@@ -284,22 +276,17 @@ class Product extends CommonClient {
   }
 
   checkCategoryProduct() {
-    return this.client
-      .pause(1000)
-      .then(() => {
-        expect(global.productCategories.HOME.Accessories).to.contains(tab['categoryName'])
-      });
+      expect(global.productCategories.HOME.Accessories).to.contains(tab['categoryName']);
   }
 
-  getCategoriesPageNumber(selector) {
-    return this.client
-      .waitForVisible('#' + selector)
-      .execute(function (selector) {
-        return document.getElementById(selector).getElementsByTagName("tbody")[0].children.length;
-      }, selector)
-      .then((count) => {
-        global.categoriesPageNumber = count.value;
-      });
+  async getCategoriesPageNumber(selector) {
+    const count = await page.evaluate((selector) => {
+        const element = document.querySelectorAll(selector+ " tbody tr");
+    return element.length;
+    }, selector);
+    if (count !== 1) {
+        global.categoriesPageNumber = count;
+    }
   }
 
   checkTitleValue(selector, value, pause = 0) {
