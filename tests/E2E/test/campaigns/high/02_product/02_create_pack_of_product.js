@@ -8,7 +8,10 @@ let data = require('./../../../datas/product-data');
 let promise = Promise.resolve();
 
 scenario('Create a pack of products in the Back Office', client => {
-  test('should open browser', () => client.open());
+  test('should open browser', async () => {
+    await client.open();
+    await client.startTracing('FullCreatePackOfProductBO');
+  });
   test('should log in successfully in BO', () => client.signInBO(AccessPageBO));
   test('should go to "Catalog" page', () => client.goToLink(Menu.Sell.Catalog.products_submenu));
   test('should click on "NEW PRODUCT"', () => client.goToLink(AddProductPage.new_product_button));
