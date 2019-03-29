@@ -10,7 +10,10 @@ let promise = Promise.resolve();
 
 scenario('Create Standard Product in the Back Office', () => {
   scenario('Login in the Back Office', client => {
-    test('should open browser', () => client.open());
+    test('should open browser', async () => {
+      await client.open();
+      await client.startTracing('FullCreateStandardProductBO');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
   }, 'product/product');
   welcomeScenarios.findAndCloseWelcomeModal();

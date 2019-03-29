@@ -11,7 +11,10 @@ const {OnBoarding} = require('../../../selectors/BO/onboarding.js');
 let promise = Promise.resolve();
 scenario('Go to next & previous page', () => {
   scenario('Login in the Back Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('NextAndPreviousPage');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
     test('should check and click on "Stop the OnBoarding" button', () => {
       return promise

@@ -23,7 +23,10 @@ let firstProductData = {
 scenario('Check product page buttons', () => {
 
   scenario('Login in the Back Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('ButtonInFooterProductPage');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
   }, 'product/product');
 

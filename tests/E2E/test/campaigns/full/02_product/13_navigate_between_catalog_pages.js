@@ -16,7 +16,10 @@ let productData = {
 
 scenario('Navigate between the catalog pages in the back office', () => {
   scenario('Login in the Back Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+        await client.open();
+        await client.startTracing('navigateBetweenCatalogPages');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
   }, 'common_client');
 

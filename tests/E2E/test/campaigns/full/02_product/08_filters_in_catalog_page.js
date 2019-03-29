@@ -9,7 +9,10 @@ const commonProduct = require('../../common_scenarios/product');
 const promise = Promise.resolve();
 
 scenario('Check the sort of products in the Back Office', client => {
-  test('should open browser', () => client.open());
+  test('should open browser', async () => {
+        await client.open();
+        await client.startTracing('FilterInCatalogPage');
+    });
   test('should log in successfully in BO', () => client.signInBO(AccessPageBO));
   test('should go to "Catalog" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
   scenario('Close symfony toolbar then change items per page number', client => {

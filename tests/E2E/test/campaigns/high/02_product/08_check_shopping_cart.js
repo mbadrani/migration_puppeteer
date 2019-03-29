@@ -22,7 +22,10 @@ let productData = {
  **/
 
 scenario('Check that the shopping cart dosen\'t allow checkout of zero quantity and inactive products', client => {
-  test('should open the browser', () => client.open());
+  test('should open the browser', async () => {
+    await client.open();
+    await client.startTracing('CheckShoppingCart');
+  });
   test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
   common_scenarios.createProduct(AddProductPage, productData);
 

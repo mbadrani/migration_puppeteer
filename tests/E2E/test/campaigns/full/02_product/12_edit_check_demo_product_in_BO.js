@@ -88,7 +88,10 @@ let productData = [
 scenario('Check the basic information of demo product in the Back Office', () => {
 
   scenario('Open the browser and login in the Back Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('EditCheckDemoProductInBO');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
   }, 'product/product');
 
