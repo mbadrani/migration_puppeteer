@@ -14,7 +14,7 @@ let options = {
     width: 0,
     height: 0
   },
-  args: [`--window-size=${1280},${1024}`]
+  args: [`--window-size=${1500},${2400}`]
 };
 
 global.tab = [];
@@ -35,6 +35,8 @@ class CommonClient {
       await page.setExtraHTTPHeaders({
         'accept-language': 'en-US,en;q=0.8'
       });
+    } else {
+      await page.setViewport({ width: 1500, height: 2400 });
     }
   }
 
