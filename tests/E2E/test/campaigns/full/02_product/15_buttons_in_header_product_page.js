@@ -40,20 +40,21 @@ scenario('Check that the buttons in header product page works successfully', () 
     test('should go to "Catalog" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
     test('should search for the product with combination "' + productData.name + date_time + '" by name', () => client.searchProductByName(productData.name + date_time));
     test('should click on "Edit" button', () => client.waitForExistAndClick(ProductList.edit_button));
-    test('should check that "Combinations" block exist', () => client.isExisting(AddProductPage.product_combinations.replace('%I', 2)));
+    test('should check that "Combinations" block exist', () => client.checkAttributeValue(AddProductPage.product_combinations.replace('%I', 3),'checked','checked'));
     test('should check that the "Combinations" tab does exist', () => client.isExisting(AddProductPage.product_combinations_tab));
-    test('should click on "Simple product" radio button', () => client.waitForExistAndClick(AddProductPage.product_combinations.replace('%I', 1)));
-    test('should verify the appearance of the warning modal', () => client.checkTextValue(AddProductPage.confirmation_modal_content, 'This will delete all the combinations. Do you wish to proceed?', 'equal', 3000));
+    test('should click on "Simple product" radio button', () => client.waitForExistAndClick(AddProductPage.product_combinations.replace('%I', 2)));
+    test('should verify the appearance of the warning modal', () => client.checkTextContent(AddProductPage.confirmation_modal_content, 'This will delete all the combinations. Do you wish to proceed?', 'equal'));
     test('should click on "Yes" button from the modal', () => {
       return promise
-        .then(() => client.waitForExistAndClick(AddProductPage.delete_confirmation_button.replace('%BUTTON', 'Yes')))
+        .then(() => page.waitForSelector(AddProductPage.delete_confirmation_button.replace('%I', '2')))
+        .then(() => client.waitForExistAndClick(AddProductPage.delete_confirmation_button.replace('%I', '2')))
         .then(() => client.refresh());
     });
-    test('should change the product type to "Standard"', () => client.waitAndSelectByValue(AddProductPage.product_type, 0));
-    test('should check that the "Show variation" does exist', () => client.isExisting(AddProductPage.product_combinations.replace('%I', 1)));
-    test('should change the product type to "Pack"', () => client.waitAndSelectByValue(AddProductPage.product_type, 1));
+    test('should change the product type to "Standard"', () => client.waitAndSelectByValue(AddProductPage.product_type, '0'));
+    test('should check that the "Show variation" does exist', () => client.isExisting(AddProductPage.product_combinations.replace('%I', 2)));
+    test('should change the product type to "Pack"', () => client.waitAndSelectByValue(AddProductPage.product_type, '1'));
     test('should check that the "Input pack items" does exist', () => client.isExisting(AddProductPage.input_pack_item, 2000));
-    test('should change the product type to "Virtual"', () => client.waitAndSelectByValue(AddProductPage.product_type, 2));
+    test('should change the product type to "Virtual"', () => client.waitAndSelectByValue(AddProductPage.product_type, '2'));
     test('should check that the "Virtual product" tab does exist', () => client.isExisting(AddProductPage.product_quantities_tab));
     test('should click on "Virtual product" tab', () => client.waitForExistAndClick(AddProductPage.product_quantities_tab, 3000));
     test('should check that "Does this product have an associated file?" question exists', () => client.isExisting(AddProductPage.virtual_associated_file.replace('%ID', '0')));
