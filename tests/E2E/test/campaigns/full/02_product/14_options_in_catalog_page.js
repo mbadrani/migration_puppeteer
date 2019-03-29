@@ -15,19 +15,22 @@ let promise = Promise.resolve();
 
 scenario('Check the options in the catalog page', () => {
   scenario('Login in the Back Office', client => {
-    test('should open the browser', () => client.open());
+    test('should open the browser', async () => {
+      await client.open();
+      await client.startTracing('OptionsInCatalogPage');
+    });
     test('should login successfully in the Back Office', () => client.signInBO(AccessPageBO));
   }, 'common_client');
   scenario('Disable the first product from the list in the Back Office', client => {
     test('should go to "Catalog" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
     test('should disable the first product', () => client.waitForExistAndClick(ProductList.product_status.replace('%I', 1).replace('%ACTION', 'enabled')));
-    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'close\nProduct successfully deactivated.'));
+    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'Product successfully deactivated.'));
     test('should check that the status of the first product is equal to "Clear"', () => client.checkTextValue(CatalogPage.product_status_icon.replace('%S', 1), 'clear'));
   }, 'common_client');
   scenario('Enable the first product from the list in the Back Office', client => {
     test('should go to "Catalog" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
     test('should disable the first product', () => client.waitForExistAndClick(ProductList.product_status.replace('%I', 1).replace('%ACTION', 'disabled')));
-    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'close\nProduct successfully activated.'));
+    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'Product successfully activated.'));
     test('should check that the status of the first product is equal to "Check"', () => client.checkTextValue(CatalogPage.product_status_icon.replace('%S', 1), 'check'));
   }, 'common_client');
   scenario('Preview the first product from the list in the Back Office', client => {
@@ -53,7 +56,7 @@ scenario('Check the options in the catalog page', () => {
         .then(() => client.waitForExistAndClick(ProductList.dropdown_button.replace('%POS', 1)))
         .then(() => client.waitForVisibleAndClick(ProductList.action_duplicate_button.replace('%POS', 1)));
     });
-    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'close\nProduct successfully duplicated.', 'equal', 3000));
+    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'Product successfully duplicated.', 'equal', 3000));
     test('should check that the first product is well duplicated', () => client.checkAttributeValue(AddProductPage.product_name_input, 'value', 'copy', 'contain'));
   }, 'common_client');
   scenario('Delete the first product from the list in the Back Office', client => {
@@ -67,7 +70,7 @@ scenario('Check the options in the catalog page', () => {
         .then(() => client.waitForVisibleAndClick(ProductList.action_delete_button.replace('%POS', 1)))
         .then(() => client.waitForVisibleAndClick(ProductList.delete_now_modal_button));
     });
-    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'close\nProduct successfully deleted.'));
+    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'Product successfully deleted.'));
     test('should check that the first product is well deleted', () => {
       return promise
         .then(() => client.searchProductByName(tab['duplicatedProductName']))
