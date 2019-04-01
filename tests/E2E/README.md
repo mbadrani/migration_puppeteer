@@ -113,7 +113,7 @@ npm test -- --URL=http://prestashop.localhost \
 If you want to run test only on specific parts (for example products), you have to run this command:
 
 ```bash
-TEST_PATH=high/02_product/* npm run specific-test -- --URL=http://prestashop.localhost
+TEST_PATH=full/02_product/* npm run specific-test -- --URL=http://myPSlocalhost/admindirectory
 ```
 
 Use `TEST_PATH` environement variable to specify which test you want to run.
@@ -122,18 +122,6 @@ Use `TEST_PATH` environement variable to specify which test you want to run.
 >1) if you are running high/01_order/* you must set the **DIR** option
 >2) if you are running high/10_module/* or regular/02_install_module.js you must set the **MODULE** option
 >3) If you have run only the install_upgrade/01_install.js with language different and country different from "en" and "france" you need to reinstall PrestaShop in **English** with setting country to **France** So you can launch the other tests
-
-#### High tests
-
-If you want to run the high level tests you can run the campaign **High**
-
-```
-npm run high-test -- --URL=prestashop.localhost --DIR=DownloadDirectory --MODULE=DataTechNameModule
-```
-
->Notes:
->
-> It's not recommended to run all the campaign high tests together, it's safer to run them one by one using the script specific-test.
 
 #### Full tests
 

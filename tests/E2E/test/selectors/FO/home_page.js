@@ -1,18 +1,18 @@
 module.exports = {
   HomePage: {
-    home_page: '//*[@id="index"]',
-    contact_us_link: '//*[@id="header"]/nav/div/div/div[1]/div[1]',
-    logo_home_page: '//*[@id="_desktop_logo"]',
-    top_menu_page: '//*[@id="_desktop_top_menu"]/..',
-    search_widget: '//*[@id="search_widget"]',
-    all_product_link: '//*[@id="content"]/section/a',
-    newsletter_block: '//*[@id="footer"]/div[1]/div/div[1]',
-    products_block: '//*[@id="footer"]/div[2]/div/div[1]/div[1]/div/div[1]',
-    our_campany_block: '//*[@id="footer"]/div[2]/div/div[1]/div[1]/div/div[2]',
-    your_account_block: '//*[@id="block_myaccount_infos"]',
-    store_information_block: '//*[@id="footer"]/div[2]/div/div[1]/div[3]',
+    home_page: '#index ',
+    contact_us_link: '#header nav div div div:nth-child(1) div:nth-child(1)',
+    logo_home_page: '#_desktop_logo ',
+    top_menu_page: '#_desktop_top_menu ..',
+    search_widget: '#search_widget ',
+    all_product_link: '#content section a',
+    newsletter_block: '#footer div:nth-child(1) div div:nth-child(1)',
+    products_block: '#footer div:nth-child(2) div div:nth-child(1) div:nth-child(1) div div:nth-child(1)',
+    our_campany_block: '#footer div:nth-child(2) div div:nth-child(1) div:nth-child(1) div div:nth-child(2)',
+    your_account_block: '#block_myaccount_infos ',
+    store_information_block: '#footer div:nth-child(2) div div:nth-child(1) div:nth-child(3)',
     search_input: '#search_widget input:nth-of-type(2)',
     search_icon: '#search_widget i',
-    your_account_link:'//*[@id="block_myaccount_infos"]/p/a'
+    your_account_link: '#block_myaccount_infos p a'
   }
 };

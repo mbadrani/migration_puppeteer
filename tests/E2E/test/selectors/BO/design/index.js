@@ -1,6 +1,6 @@
 module.exports = Object.assign(
   {
-    success_panel: '//*[@id="content"]/div[@class="bootstrap"]/div[contains(@class, "success")]'
+    success_panel: '#content div.bootstrap div.success'
   },
   require('./pages'),
   require('./theme_catalog')
