@@ -47,6 +47,7 @@ module.exports = {
     second_display_top_link_widget: '#header div:nth-child(2) div div:nth-child(1) div:nth-child(2) div:nth-child(3) div div:nth-child(2) p',
     not_found_error_message: '#main h1',
     product_name: '#js-product-list h2 a [contains(text(),"%PAGENAME")]',
+    products_name: '#js-product-list h2 a',
     personal_info: '#footer_account_list a [title="Personal info"]',
     currency_list_select: '#_desktop_currency_selector button',
     currency_list_element: '#_desktop_currency_selector li a [contains(text(),"%NAME")]',

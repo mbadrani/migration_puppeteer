@@ -24,7 +24,15 @@ scenario('Display all product', () => {
 
   scenario('Check the product pagination in the Back Office', client => {
     test('should go to "Products" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
-    test('should select "active product"', () => client.waitAndSelectByValue(ProductList.status_filter, "1"));
+    test('should select "active product"', async () => {
+      await client.waitAndSelectByValue(ProductList.status_filter, '1');
+      await page.click(AddProductPage.catalogue_submit_filter_button);
+      await page.waitForNavigation();
+    });
+    test('should sort by product Name', async () => {
+      await page.click(ProductList.sort_by_icon.replace('%B','name'));
+      await page.waitForNavigation();
+    })
     test('should get the product number', () => {
       return promise
         .then(() => client.isVisible(ProductList.pagination_products))
@@ -42,16 +50,13 @@ scenario('Display all product', () => {
         });
     });
 
-    test('should get all product\'s name', () => {
+    test('should get all product\'s name', async () => {
       for (let i = 1; i <= global.productsNumber; i++) {
-        promise = client.getProductName(ProductList.product_name.replace('%ID', i));
-        promise = client.pause(2000);
+        client.getProductName(ProductList.product_name.replace('%ID', i));
       }
-      return promise
-        .then(() => client.pause(2000));
     });
 
-    test('should close "catalog" menu', () => client.waitForVisibleAndClick(Menu.Sell.Catalog.catalog_menu));
+
     test('should go to "Shop Parameters - Product Settings" page', () => {
       return promise
         .then(() => client.pause(3000))

@@ -491,17 +491,27 @@ module.exports = {
     await client.signInFO(AccessPageFO);
     await client.changeLanguage();
     await client.scrollWaitForExistAndClick(productPage.see_all_products);
-    for (let i = 0; i <= pagination; i++) {
-      for (let j = 0; j < global.productInfo.length; j++) {
-        await client.pause(2000);
-        await client.isVisible(AccessPageFO.product_name.replace('%PAGENAME', global.productInfo[j].name.substring(0, 23)));
-        if (global.isVisible) {
-          global.productInfo[j].status = await true;
+    //sort by name Z -> A
+    await client.waitForExistAndClick('#js-product-list-top button');
+    await client.goToLink('#js-product-list-top a.select-list[href*="name.asc"]');
+
+    for(let i = 0 ; i< global.productInfo.length ; i++){
+      var found = false ;
+      let displayed_products_number = await page.evaluate((selector) => {return document.querySelectorAll(selector).length;}, AccessPageFO.products_name);
+      let k = 0 ;
+      for(k = 0 ; k < displayed_products_number; k++){
+        let product_name = await page.evaluate((selector,k) => {return document.querySelectorAll(selector)[k].textContent;}, AccessPageFO.products_name,k);
+        if(product_name.includes(global.productInfo[i].name.substring(0, 23))){
+          found = true;
+          global.productInfo[i].status = await true;
+          break;
         }
       }
-      if (i < pagination) {
+      expect(found).to.be.true;
+      if(k=== (displayed_products_number - 1) && i < global.productInfo.length-1){
         await client.isVisible(productPage.pagination_next);
-        await client.clickPageNext(productPage.pagination_next, 3000);
+        await page.click(productPage.pagination_next);
+        await page.waitForNavigation();
       }
     }
     for (let i = 0; i < global.productInfo.length; i++) {

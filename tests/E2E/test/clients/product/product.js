@@ -166,11 +166,9 @@ class Product extends CommonClient {
     await this.scrollWaitForExistAndClick(selector);
   }
 
-  getProductName(selector, i) {
-    return this.client
-      .getText(selector).then(function (name) {
-        global.productInfo.push({'name': name, 'status': 'false'})
-      });
+  async getProductName(selector) {
+    let product_name = await page.evaluate((selector) => {return document.querySelector(selector).textContent;}, selector);
+    global.productInfo.push({'name': product_name, 'status': 'false'});
   }
 
   UrlModification(globalVar, productName) {
