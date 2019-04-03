@@ -1,7 +1,7 @@
 module.exports =Object.assign(
   {
     InternationalPage: {
-      success_panel: '//*[@id="content"]//div[@class="alert alert-success"]'
+      success_panel: '#content div.alert alert-success'
     }
   },
   require('./taxes'),
