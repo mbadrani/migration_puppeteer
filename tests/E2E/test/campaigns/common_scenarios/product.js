@@ -85,6 +85,11 @@ module.exports = {
           test('should add products to the pack', () => client.addPackProduct(productData['product']['name'] + date_time, productData['product']['quantity']));
         }, 'product/product');
       }
+      if (productData.hasOwnProperty('type') && productData.type === 'virtual') {
+        scenario('Add the created product to pack', client => {
+          test('should select the "Virtual product"', () => client.waitAndSelectByValue(AddProductPage.product_type, '2'));
+      }, 'product/product');
+      }
 
       if (productData.hasOwnProperty('attribute')) {
         scenario('Add Attribute', client => {
@@ -440,52 +445,21 @@ module.exports = {
   async checkProductInListFO(AccessPageFO, productPage, productData, client) {
     await client.signInFO(AccessPageFO);
     await client.changeLanguage();
-    await client.scrollWaitForExistAndClick(productPage.see_all_products);
-    for (let i = 0; i <= global.pagination; i++) {
-      for (let j = 0; j < 4; j++) {
-        await client.pause(4000);
-        await client.isVisible(productPage.productLink.replace('%PRODUCTNAME', productData[j].name + date_time));
-        await client.middleClick(productPage.productLink.replace('%PRODUCTNAME', productData[j].name + date_time), global.isVisible);
-      }
-      if (i !== global.pagination) {
-        await client.isVisible(productPage.pagination_next);
-        if (global.isVisible) {
-          await client.clickPageNext(productPage.pagination_next);
-        }
+    await client.waitForExistAndClick(productPage.see_all_products,0,{waitUntil:'load'});
+    for (let j = 0; j < 4; j++) {
+      await client.searchByValue(SearchProductPage.search_input, SearchProductPage.search_button, productData[j].name + date_time);
+      await page.waitForSelector(SearchProductPage.product_result_name);
+      await page.$eval(SearchProductPage.product_result_name + '[href*="'+productData[j].name.toLowerCase() + date_time+'"]', elem => elem.click());
+      await client.checkTextValue(productPage.product_name, (productData[j].name + date_time).toUpperCase());
+      await client.checkTextValue(productPage.product_price, "€12.00", "contain");
+      await client.checkTextValue(productPage.product_reference, productData[j].reference);
+      await client.checkAttributeValue(productPage.product_quantity, 'data-stock', productData[j].quantity);
+      if(j===1){
+        await client.checkTextValue(productPage.pack_product_name.replace('%P', 2), productData[j].product.name + date_time);
+        await client.checkTextValue(productPage.pack_product_price.replace('%P', 2), '€12.00');
+        await client.checkTextValue(productPage.pack_product_quantity.replace('%P', 2), 'x 1');
       }
     }
-    //Check "standard" product information
-    await client.switchWindow(4);
-    await client.checkTextValue(productPage.product_name, (productData[0].name + date_time).toUpperCase());
-    await client.checkTextValue(productPage.product_price, "€12.00", "contain");
-    await client.scrollTo(productPage.product_reference);
-    await client.checkTextValue(productPage.product_reference, productData[0].reference);
-    await client.checkAttributeValue(productPage.product_quantity, 'data-stock', productData[0].quantity);
-    //Check "pack" product information
-    await client.switchWindow(3);
-    await client.checkTextValue(productPage.product_name, (productData[1].name + date_time).toUpperCase());
-    await client.checkTextValue(productPage.product_price, "€12.00", "contain");
-    await client.checkTextValue(productPage.pack_product_name.replace('%P', 1), productData[0].name + date_time);
-    await client.checkTextValue(productPage.pack_product_price.replace('%P', 1), '€12.00');
-    await client.checkTextValue(productPage.pack_product_quantity.replace('%P', 1), 'x 1');
-    await client.scrollTo(productPage.product_reference);
-    await client.checkTextValue(productPage.product_reference, productData[1].reference);
-    await client.checkAttributeValue(productPage.product_quantity, 'data-stock', productData[1].quantity);
-    //Check "combination" product information
-    await client.switchWindow(2);
-    await client.checkTextValue(productPage.product_name, (productData[2].name + date_time).toUpperCase());
-    await client.checkTextValue(productPage.product_price, "€12.00", "contain");
-    await client.scrollTo(productPage.product_reference);
-    await client.checkTextValue(productPage.product_reference, productData[2].reference);
-    await client.checkAttributeValue(productPage.product_quantity, 'data-stock', productData[2].quantity);
-    //Check "virtual" product information
-    await client.switchWindow(1);
-    await client.checkTextValue(productPage.product_name, (productData[3].name + date_time).toUpperCase());
-    await client.checkTextValue(productPage.product_price, "€12.00", "contain");
-    await client.scrollTo(productPage.product_reference);
-    await client.checkTextValue(productPage.product_reference, productData[3].reference);
-    await client.checkAttributeValue(productPage.product_quantity, 'data-stock', productData[3].quantity);
-
   },
   async checkAllProduct(AccessPageFO, productPage, client) {
     await client.signInFO(AccessPageFO);
@@ -768,18 +742,15 @@ module.exports = {
       test('should go to "Catalog > Products" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
       test('should search for the product by name', () => client.searchProductByName(secondProductData.name + date_time));
       test('should click on "Edit" button', () => client.waitForExistAndClick(ProductList.edit_button));
-      test('should click on "Simple product" radio button', () => client.waitForExistAndClick(AddProductPage.product_combinations.replace('%I', 1)));
-      test('should verify the appearance of the warning modal', () => client.checkTextValue(AddProductPage.confirmation_modal_content, 'This will delete all the combinations. Do you wish to proceed?', 'equal', 3000));
-      test('should click on "Yes" button from the modal', () => {
-        return promise
-          .then(() => client.waitForExistAndClick(AddProductPage.delete_confirmation_button.replace('%I', '2')))
-          .then(() => client.refresh());
-      });
+
       test('should go to "Catalog > Products" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
-      test('should click on reset button', () => client.waitForExistAndClick(AddProductPage.catalog_reset_filter));
+      test('should click on reset button', async () => {
+        await client.waitForExistAndClick(AddProductPage.catalog_reset_filter);
+        await page.waitForNavigation();
+      });
     }, 'product/check_product');
     scenario('Check "Sales", "Quick navigation" and "Help" buttons in the header', client => {
-      test('should click on "New product" button', () => client.goToLink(AddProductPage.new_product_button));
+      test('should click on "New product" button', () => page.click(AddProductPage.new_product_button));
       test('should click on "Sales" button', () => client.waitForExistAndClick(AddProductPage.sales_button));
       test('should check that "Product details" block is displayed in stats page', async () => {
         await client.switchWindow(1);
@@ -789,12 +760,25 @@ module.exports = {
       });
       test('should click on "Quick navigation" button', () => client.waitForExistAndClick(AddProductPage.product_list_button));
       test('should check the existence of id, name, price and quantity columns', async () => {
-        await client.waitForExist(AddProductPage.quick_navigation_column.replace('%TEXT', 'ID'));
-        await client.waitForExist(AddProductPage.quick_navigation_column.replace('%TEXT', 'Name'));
-        await client.waitForExist(AddProductPage.quick_navigation_column.replace('%TEXT', 'Price'));
-        await client.waitForExist(AddProductPage.quick_navigation_column.replace('%TEXT', 'Quantity'));
+        await page.waitForSelector('#right-sidebar.sidebar-open table tr', {visible : 'true'});
+        for(let i = 0 ; i < 4 ;i++){
+          let text_content = await page.evaluate((selector,i) => {return document.querySelectorAll(selector)[i].textContent;}, AddProductPage.quick_navigation_columns,i);
+          switch (i) {
+              case 0 :
+                  expect(text_content).to.have.string('ID'); break;
+              case 1 :
+                  expect(text_content).to.have.string('Name'); break;
+              case 2 :
+                  expect(text_content).to.have.string('Price'); break;
+              case 3 :
+                  expect(text_content).to.have.string('Quantity'); break;
+          }
+        }
       });
-      test('should click on "' + productData.name + date_time + '" link', async () => client.waitElementByTextAndClick(AddProductPage.quick_navigation_product_name_link,productData.name + date_time));
+      test('should click on "' + productData.name + date_time + '" link', async () => {
+        await page.waitForSelector('#right-sidebar table tr:nth-child(1) td:nth-child(2) a',{visible:'true'});
+        await client.waitElementByTextAndClick(AddProductPage.quick_navigation_product_name_link,productData.name + date_time)
+      });
       //old_test('should click on "' + productData.name + date_time + '" link', () => client.waitForExistAndClick(AddProductPage.quick_navigation_product_name_link.replace('%TEXT', productData.name + date_time)));
       test('should check that we are redirected to "' + productData.name + date_time + '" page', () => client.checkInputValue(AddProductPage.product_name_input, productData.name + date_time));
       test('should click on "Help" button', () => client.waitForExistAndClick(AddProductPage.help_button));
@@ -804,8 +788,11 @@ module.exports = {
   },
 
   CheckButtonsInFooterProduct(productType, productData, client) {
-    test('should click on "Delete" icon', () => client.waitForExistAndClick(AddProductPage.delete_button));
-    test('should click on "No" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%I', '1')));
+    test('should click on "Delete" icon', async () => client.waitForExistAndClick(AddProductPage.delete_button));
+    test('should click on "No" of the confirmation modal', async  () => {
+      await page.waitForSelector(AddProductPage.delete_confirmation_button.replace('%I', '1'));
+      await client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%I', '1'))
+    });
     test('should go to "Catalog > products" page', () => {
       return promise
         .then(() => client.pause(2000))
@@ -814,7 +801,7 @@ module.exports = {
     test('should search for product by name', () => client.searchProductByName(productData.name + date_time));
     test('should click on the product name', () => client.waitForExistAndClick(AddProductPage.catalog_product_name));
     test('should click on "Delete" icon', () => client.waitForExistAndClick(AddProductPage.delete_button));
-    test('should click on "No" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%I', '1')));
+    //test('should click on "No" of the confirmation modal', () => client.waitForVisibleAndClick(AddProductPage.delete_confirmation_button.replace('%I', '1')));
     test('should verify the appearance of the green validation', () => client.checkTextValue(AddProductPage.success_panel, 'Product successfully deleted.', 'equal', 2000));
     test('should click on "New product" button', () => client.goToLink(AddProductPage.new_product_button));
     if (productType === 'virtual') {
@@ -841,34 +828,33 @@ module.exports = {
       await client.checkTextValue(AddProductPage.validation_msg, 'Settings updated.');
     });
     test('should save then duplicate product with "ALT + SHIFT + D"', async () => {
-      await client.keys(["\uE00A", "\uE008", "\u0044"]);
+      await client.multipleKeys(["Alt", "Shift", "D"]);
       await client.checkTextValue(AddProductPage.success_panel, 'Product successfully duplicated.');
     });
     test('should save then go to catalog page with "ALT+ SHIFT + Q"', async () => {
-      await client.keys(["\uE00A", "\uE008", "\u0051"]);
-      await client.keys(["\uE00A", "\uE008", "\u0041"]);
-      await client.keys(["\uE00A", "\uE008", "\u0041"]);
+      await client.multipleKeys(["Alt", "Shift", "Q"]);
+      await page.waitForSelector(AddProductPage.new_product_button);
       await client.waitForVisibleAndClick(AddProductPage.new_product_button);
     });
     if (productType === 'virtual') {
-      test('should select the "virtual product" type', () => client.waitAndSelectByValue(AddProductPage.product_type, 2));
+      test('should select the "virtual product" type', () => client.waitAndSelectByValue(AddProductPage.product_type, '2'));
     }
     test('should set the "product name" input', () => client.waitAndSetValue(AddProductPage.product_name_input, 'secondVirtualProduct' + date_time));
     test('should save and open new product form with "ALT+ SHIFT + P"', async () => {
-      await client.keys(["\uE00A", "\uE008", "\u0050"]);
+      await client.multipleKeys(["Alt", "Shift", "S"]);
       await client.pause(3000);
-      await client.checkAttributeValue(AddProductPage.product_name_input, 'value', '');
-      await client.keys(["\uE00A", "\uE008", "\u0041"]);
+      await client.checkInputValue(AddProductPage.product_name_input, '');
+      await client.multipleKeys(["Alt", "Shift", "P"]);
     });
     test('should set the "product name" input', async () => await client.waitAndSetValue(AddProductPage.product_name_input, 'thirdVirtualProduct' + date_time));
     if (productType === 'virtual') {
       test('should select the "virtual product" type', () => client.waitAndSelectByValue(AddProductPage.product_type, '2'));
     }
     test('should save the product with "ALT+ SHIFT + S"', async () => {
-      await client.keys(["\uE00A", "\uE008", "\u0053"]);
+      await client.multipleKeys(["Alt", "Shift", "S"]);
       await client.checkTextValue(AddProductPage.validation_msg, 'Settings updated.', 1000);
       await client.pause(2000);
-      await client.keys(["\uE00A", "\uE008", "\u0041"]);
+      await client.multipleKeys(["Alt", "Shift", "P"]);
     });
     test('should check the click on tooltips "?" icon for "Quantity" and "type"', async () => {
       await client.waitForExistAndClick(AddProductPage.type_help_box_icon);

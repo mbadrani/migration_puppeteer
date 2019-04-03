@@ -438,9 +438,21 @@ class CommonClient {
     global.frame = frame;
   }
 
+  /**
+   * Press on Keyboard , don't work with multiple keyss
+   */
   async keys(button) {
     await page.keyboard.press(button);
   }
+    /**
+     * Press on Keyboard , multiple Keys
+     * @param buttons, array of buttons to click on
+     */
+    async multipleKeys(buttons) {
+      for(let i = 0 ; i< buttons.length ; i++)  await page.keyboard.down(buttons[i]);
+      for(let j = 0 ; j< buttons.length ; j++)  await page.keyboard.up(buttons[j]);
+    }
+
 
   async waitAndSelectByVisibleText(selector, value, wait = 0, isFrame = false) {
     let content = {};
@@ -652,10 +664,10 @@ class CommonClient {
    * @text text to check for element
    */
   async waitElementByTextAndClick(selector, text) {
-    const elements = await page.$$(selector);
+    const elements = await page.evaluate((selector) => { return document.querySelectorAll(selector);} , selector);
     var found = false;
     for (var element in elements) {
-      const label = await this.page.evaluate(el => el.innerText, element);
+      const label = await this.page.evaluate(el => el.textContent, element);
       if (label.includes(text)) {
         element.click();
         found = true;
