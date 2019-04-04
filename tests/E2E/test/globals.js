@@ -52,6 +52,7 @@ global.indexText = 0;
 global.categoryID = '';
 
 global.ps_mode_dev = true;
+global.alertAccept = false;
 module.exports = {
   selector: require('./selectors'),
   shouldExist: function (err, existing) {

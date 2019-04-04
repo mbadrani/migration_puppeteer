@@ -54,7 +54,7 @@ scenario('Create, edit and delete "Attribute"', () => {
 
   /* Update the created attribute */
   scenario('Go back to the Back Office', client => {
-    test('should login successfully in the Back Office', () => client.accessToBO(AccessPageBO));
+    test('should login successfully in the Back Office', () => client.accessToBO());
   }, 'attribute_and_feature');
   commonAttribute.updateAttribute(attributeData);
 

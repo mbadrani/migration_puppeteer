@@ -27,6 +27,7 @@ class CommonClient {
   async open() {
     global.browser = await puppeteer.launch(options);
     global.page = await this.getPage(0);
+    global.alertAccept = false ;
     //Set the user agent and the accept language for headless mode => Chrome Headless will closely emulate Chrome
     if (global.headless) {
       const headlessUserAgent = await page.evaluate(() => navigator.userAgent);
@@ -236,6 +237,14 @@ class CommonClient {
           dialog.dismiss();
         });
     }
+    global.alertAccept = true ;
+  }
+
+  /**
+   * close dialog listner
+   */
+  alertListenerClose(){
+    page.removeListener("dialog",(dialog) => {dialog.accept();});
   }
 
   async scrollTo(selector) {
@@ -266,6 +275,7 @@ class CommonClient {
     await page.waitFor(wait);
     const exists = await page.$(selector) === null;
     expect(exists).to.be.true;
+    return exists;
   }
 
   async waitForExist(selector, option = {}) {
@@ -791,6 +801,44 @@ class CommonClient {
     let current_url = page.url();
     expect(current_url).to.contain(param);
     global.param[param] = current_url.split(param + '=')[1].split("&")[0];
+  }
+
+  /**
+   * Access to BO function
+   */
+  async accessToBO() {
+    await page.goto(global.URL + '/admin-dev');
+  }
+
+  /**
+   * Edit Object Data
+   * @param object, object to edit
+   * @param type, type of object
+   */
+  editObjectData(object, type = '') {
+    for (let key in object) {
+      if (object.hasOwnProperty(key) && key !== 'type') {
+        if (typeof object[key] === 'string') {
+          parseInt(object[key]) ? object[key] = (parseInt(object[key]) + 10).toString() : object[key] += 'update';
+        } else if (typeof object[key] === 'number') {
+          object[key] += 10;
+        } else if (typeof object[key] === 'object') {
+          this.editObjectData(object[key]);
+        }
+      }
+      if (type !== '') {
+        object['type'] = type;
+      }
+    }
+  }
+
+  /**
+   * delete object element
+   * @param object, object to delete from
+   * @param pos, position to delete
+   */
+  deleteObjectElement(object, pos) {
+    delete object[pos];
   }
 }
 

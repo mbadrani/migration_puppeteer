@@ -2,24 +2,22 @@ var CommonClient = require('./common_client');
 
 class AttributeAndFeature extends CommonClient {
 
-  clickOnAction(groupActionSelector, actionSelector, action = 'edit') {
+  async clickOnAction(groupActionSelector, actionSelector, action = 'edit') {
     if (action === 'delete') {
-      return this.client
-        .waitForExistAndClick(groupActionSelector)
-        .waitForExistAndClick(actionSelector)
-        .alertAccept()
+      await this.waitForExistAndClick(groupActionSelector);
+      if(!global.alertAccept) await this.alertAccept();
+      await this.waitForExistAndClick(actionSelector);
     } else {
-      return this.client
-        .waitForExistAndClick(groupActionSelector)
-        .waitForExistAndClick(actionSelector)
+      await this.waitForExistAndClick(groupActionSelector);
+      await this.waitForExistAndClick(actionSelector)
     }
   }
 
   checkDeleted(selector) {
-    return this.client
-      .pause(3000)
-      .then(() => this.client.isExisting(selector))
-      .then((value) => expect(value).to.be.false);
+
+    return this
+      .isNotExisting(selector)
+      .then((value) => expect(value).to.be.true);
   }
 
   checkOneExistence(valueToCheckWith, column = 'id') {

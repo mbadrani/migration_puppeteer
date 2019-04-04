@@ -14,7 +14,7 @@ class Category extends CommonClient {
     if (action === 'delete') {
       if (alert) {
         await this.waitForExistAndClick(groupActionSelector);
-        await this.alertAccept('accept');
+        if(!global.alertAccept)  await this.alertAccept('accept');
         await this.waitForExistAndClick(actionSelector);
 
       } else {
