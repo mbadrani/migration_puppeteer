@@ -1,7 +1,7 @@
 module.exports = {
   CategoryPageFO: {
-    category_top_menu: '#category-%ID:nth-child(%POS)',
-    category_name: '#left-column div.categories a [text()="%NAME"]',
+    category_top_menu: '#category-%ID a[href*="%NAME"]',
+    category_name: '#left-column li a[href*="%LINK"]',
     category_title: '#main h1:nth-child(1)',
     category_description: '#category-description',
     category_picture: '#main img',

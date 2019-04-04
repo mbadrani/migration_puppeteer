@@ -116,6 +116,7 @@ class CommonClient {
     } else {
       global.isVisible = exists;
     }
+    return global.isVisible;
   }
 
   async closeBoarding(selector) {
@@ -164,6 +165,7 @@ class CommonClient {
       //If exist, element should be visible too
       await this.isVisible(selector);
       expect(global.isVisible).to.be.true;
+      return global.isVisible;
     }
   }
 
@@ -222,15 +224,15 @@ class CommonClient {
     }
   }
 
-  async alertAccept(action = 'accept') {
+  alertAccept(action = 'accept') {
     switch (action) {
       case "accept":
-        await page.on("dialog", (dialog) => {
+        page.on("dialog", (dialog) => {
           dialog.accept();
         });
         break;
       default :
-        await page.on("dialog", (dialog) => {
+        page.on("dialog", (dialog) => {
           dialog.dismiss();
         });
     }
@@ -249,7 +251,7 @@ class CommonClient {
   }
 
   async setEditorText(selector, textDescription) {
-    await page.click(selector);
+    await page.click(selector,{clickCount:3});
     await page.keyboard.type(textDescription);
     //  await page.type(selector, textDescription);
   }
@@ -330,7 +332,7 @@ class CommonClient {
   }
 
   async searchByValue(nameSelector, buttonSelector, value) {
-    await this.pause(nameSelector);
+    await page.waitForSelector(nameSelector);
     await this.waitAndSetValue(nameSelector, value, 2000);
     await this.waitForExistAndClick(buttonSelector);
   }
@@ -779,6 +781,17 @@ class CommonClient {
       }
     }
     }
+
+  /**
+   * get param from URL
+   * @param param, param to get
+   * @return {boolean}
+   */
+  async getParamFromURL(param) {
+    let current_url = page.url();
+    expect(current_url).to.contain(param);
+    global.param[param] = current_url.split(param + '=')[1].split("&")[0];
+  }
 }
 
 module.exports = CommonClient;
