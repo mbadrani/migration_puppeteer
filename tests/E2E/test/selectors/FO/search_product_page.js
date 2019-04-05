@@ -4,7 +4,7 @@ module.exports = {
     search_button: '.material-icons.search',
     product_result_name: '.h3.product-title > a',
     product_result_discount: '#js-product-list span.discount-percentage',
-    attribute_name: '#add-to-cart-or-refresh div .product-variants-item span',
+    attribute_name: '#add-to-cart-or-refresh div .product-variants-item span.control-label',
     feature_name: '#product-details section dl dt.name ',
     feature_value: '#product-details section dl dd',
     attribute_select_values: '#group_%ID option',

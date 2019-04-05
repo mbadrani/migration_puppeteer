@@ -68,7 +68,6 @@ module.exports = {
   },
   checkAllAttributeTypeInFO: async function (client, productPage, productName) {
     for (let i = 0; i <= global.pagination; i++) {
-      await client.pause(4000);
       await client.isVisible(productPage.productLink.replace('%PRODUCTNAME', productName + date_time));
       await client.middleClickWhenVisible(productPage.productLink.replace('%PRODUCTNAME', productName + date_time));
       if (i !== global.pagination) {

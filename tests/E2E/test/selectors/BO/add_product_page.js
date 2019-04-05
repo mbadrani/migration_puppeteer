@@ -237,7 +237,7 @@ module.exports = {
     background_picture: '#product-images-dropzone div.dz-image.bg',
     product_pack_items: '#form_step1_inputPackItems-data ',
     add_products_to_pack: '#js_form_step1_inputPackItems div',
-    attribute_group_name: '#attributes-list a[text()[contains(.,"%NAME")]]',
+    attribute_group_names: '#attributes-list a',
     attribute_value_checkbox: '#attribute-group-%ID div div:nth-child(%S) label',
     price_tax_included_input: '#form_step1_price_ttc_shortcut ',
     delete_feature_button: '#features-content a.delete:nth-child(%ID)',

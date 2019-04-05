@@ -125,25 +125,34 @@ scenario('Create "Attributes" in the Back Office', () => {
         .then(() => client.switchWindow(1))
     });
     test('should set the shop language to "English"', () => client.changeLanguage());
-    test('should click on "SEE ALL PRODUCTS" link', () => {
-      return promise
-        .then(() => client.scrollWaitForExistAndClick(productPage.see_all_products))
 
-    });
-    test('should check all attribute type in the "Front Office"', () => commonAttribute.checkAllAttributeTypeInFO(client, productPage, productData.name));
+    test('should search for the product', () => client.searchByValue(SearchProductPage.search_input, SearchProductPage.search_button, productData.name + date_time));
+    test('should go to the product page', () => client.waitForExistAndClick(SearchProductPage.product_result_name));
 
-    test('should go to the product page', () => client.switchWindow(2));
-    test('should check all attributes name of the product', () => client.checkTextValue(SearchProductPage.attribute_name, Object.keys(attributeData).map((k) => attributeData[k].name + date_time), 'deepequal'));
+    test('should check all attributes name of the product', async () => {
+      await page.waitForSelector(SearchProductPage.attribute_name,{visible:'true'});
+      let attribute_names = await page.evaluate((selector) => Array.from(document.querySelectorAll(selector), element => element.textContent ),SearchProductPage.attribute_name);
+      expect(attribute_names).to.deep.equal(Object.keys(attributeData).map((k) => attributeData[k].name + date_time));
+   });
     Object.keys(attributeData).forEach(function (key) {
       if (attributeData[key].type === 'select') {
-        test('should check the attribute select values', () => client.checkTextValue(SearchProductPage.attribute_select_values.replace('%ID', global.tab[attributeData[key].name + "_id"]), Object.keys(attributeData[key].values).map((k) => attributeData[key].values[k].value), 'deepequal'));
+       test('should check the attribute select values', async () => {
+          let select_values = await page.evaluate((selector) => Array.from(document.querySelectorAll(selector), element => element.textContent ),SearchProductPage.attribute_select_values.replace('%ID', global.tab[attributeData[key].name + "_id"]));
+          expect(select_values).to.deep.equal(Object.keys(attributeData[key].values).map((k) => attributeData[key].values[k].value));
+        });
       } else if (attributeData[key].type === 'radio') {
-        test('should check the attribute radio values', () => client.checkTextValue(SearchProductPage.attribute_radio_values, Object.keys(attributeData[key].values).map((k) => attributeData[key].values[k].value), 'deepequal'));
+       test('should check the attribute radio values', async () => {
+          let radio_values = await page.evaluate((selector) => Array.from(document.querySelectorAll(selector), element => element.textContent ),SearchProductPage.attribute_radio_values);
+          expect(radio_values).to.deep.equal(Object.keys(attributeData[key].values).map((k) => attributeData[key].values[k].value));
+      });
       } else if (attributeData[key].type === 'color') {
-        test('should check the attribute color values', () => client.checkTextValue(SearchProductPage.attribute_color_and_texture_values, Object.keys(attributeData[key].values).map((k) => attributeData[key].values[k].value), 'deepequal'));
+       test('should check the attribute radio values', async () => {
+          let radio_values = await page.evaluate((selector) => Array.from(document.querySelectorAll(selector), element => element.textContent ),SearchProductPage.attribute_color_and_texture_values);
+          expect(radio_values).to.deep.equal(Object.keys(attributeData[key].values).map((k) => attributeData[key].values[k].value));
+       });
       }
     });
-    test('should go back to the Back Office', () => client.switchWindow(0));
+    test('should go back to the Back Office', () => client.accessToBO());
   }, 'product/product');
   commonAttribute.deleteAttribute(attributeData[0]);
   commonAttribute.deleteAttribute(attributeData[1]);

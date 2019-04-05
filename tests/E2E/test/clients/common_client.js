@@ -264,7 +264,7 @@ class CommonClient {
     await page.keyboard.type(textDescription);
     //  await page.type(selector, textDescription);
   }
-  
+
   async checkIsNotVisible(selector) {
     await page.waitFor(2000);
     await this.isVisible(selector);
@@ -839,6 +839,31 @@ class CommonClient {
    */
   deleteObjectElement(object, pos) {
     delete object[pos];
+  }
+
+  /**
+   * find and click on element by text
+   * @param selector, selector of the list to search in
+   * @param textToFind, text to click on
+   * @param param, equal / contain
+   */
+  async findAndClickByText(selector, textToFind, param = 'equal'){
+    let number_elements = await page.evaluate((selector) => {return document.querySelectorAll(selector).length;},selector);
+    let found = false;
+    for(let i =0 ; i<number_elements ; i++){
+      let text_content = await page.evaluate((selector,i) => {return document.querySelectorAll(selector)[i].textContent;},selector,i);
+      if(param === 'equal' && text_content === textToFind){
+        await page.evaluate((selector,i) => {return document.querySelectorAll(selector)[i].click();},selector,i);
+        found = true;
+        break ;
+      }
+      else if(param === 'contain' && text_content.includes(textToFind)){
+        await page.evaluate((selector,i) => {return document.querySelectorAll(selector)[i].click();},selector,i);
+        found = true;
+        break ;
+      }
+    }
+    return expect(found).to.be.true;
   }
 }
 

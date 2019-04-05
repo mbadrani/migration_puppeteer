@@ -107,18 +107,18 @@ module.exports = {
               } else {
                 Object.keys(productData.attribute).forEach(function (key) {
                   if (productData.attribute[key].name === attributeData[key - 1].name) {
-                    promise = client.scrollWaitForExistAndClick(AddProductPage.attribute_group_name.replace('%NAME', productData.attribute[key].name + date_time), 150, 3000);
+                    promise = client.findAndClickByText(AddProductPage.attribute_group_names,productData.attribute[key].name + date_time, 'contain');
                     Object.keys(attributeData[key - 1].values).forEach(function (index) {
                       promise
-                        .then(() => client.scrollWaitForVisibleAndClick(AddProductPage.attribute_value_checkbox.replace('%ID', global.tab[productData.attribute[key].name + '_id']).replace('%S', index)));
+                        .then(async () => await page.evaluate((selector) => document.querySelector(selector).click(), AddProductPage.attribute_value_checkbox.replace('%ID', global.tab[productData.attribute[key].name + '_id']).replace('%S', index)));
                     });
                   }
                 });
-                return promise.then(() => client.pause(5000));
+                return promise;
               }
             }
           });
-          test('should click on "Generate" button', () => client.scrollWaitForExistAndClick(AddProductPage.variations_generate));
+          test('should click on "Generate" button', async () => await page.evaluate((selector) => document.querySelector(selector).click(),AddProductPage.variations_generate));
           test('should verify the appearance of the green validation', () => client.checkTextValue(AddProductPage.validation_msg, 'Settings updated.'));
 
           /**
