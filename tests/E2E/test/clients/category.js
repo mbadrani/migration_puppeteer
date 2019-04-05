@@ -7,7 +7,7 @@ class Category extends CommonClient {
   async checkImage(selector) {
     await page.waitForSelector(selector);
     const exist = await this.isExisting(selector);
-    expect(exist,).to.be.true;
+    expect(exist).to.be.true;
   }
 
   async clickOnAction(actionSelector, groupActionSelector = '', action = 'edit', alert = false) {
