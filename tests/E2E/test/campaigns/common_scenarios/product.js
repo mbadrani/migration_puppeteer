@@ -385,9 +385,9 @@ module.exports = {
     scenario('Navigate between catalog pages and set the paginate limit equal to "' + itemPerPage + '"', client => {
       let selectorButton = nextOrPrevious === 'Next' ? ProductList.pagination_next : ProductList.pagination_previous;
       test('should go to "Catalog" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
-      test('should set the "item per page" to "' + itemPerPage + '"', () => client.waitAndSelectByValue(ProductList.item_per_page, itemPerPage));
+      test('should set the "item per page" to "' + itemPerPage + '"', () => client.waitAndSelectByValue(ProductList.item_per_page, String(itemPerPage)));
       test('should check that the current page is equal to "' + pageNumber + '"', () => client.checkAttributeValue(ProductList.page_active_number, 'value', pageNumber, 'contain', 3000));
-      test('should check that the number of products is less or equal to "' + itemPerPage + '"', () => {
+      test('should check that the number of products is less or equal to "' + String(itemPerPage) + '"', () => {
         return promise
           .then(() => client.getProductPageNumber('#product_catalog_list'))
           .then(() => expect(global.productsNumber).to.be.at.most(itemPerPage))

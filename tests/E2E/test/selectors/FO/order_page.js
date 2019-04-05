@@ -4,7 +4,7 @@ module.exports = {
     proceed_to_checkout_modal_button: '#blockcart-modal div.cart-content-btn a',
     blockcart_modal: '#blockcart-modal',
     continue_shopping_button: '#blockcart-modal div.cart-content-btn button',
-    proceed_to_checkout_button: '#main div[class*=checkout] a',
+    proceed_to_checkout_button: '#main div.checkout a',
     promo_code_link: '#main a .promo-code',
     promo_code_input: '#promo-code input.promo-input',
     promo_code_add_button: '#promo-code button[type="submit span[text()="Add"]',
