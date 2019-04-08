@@ -10,9 +10,9 @@ module.exports = {
     attribute_select_values: '#group_%ID option',
     attribute_radio_values: '#add-to-cart-or-refresh div.product-variants li span.radio-label',
     attribute_color_and_texture_values: '#add-to-cart-or-refresh div.product-variants li span.sr-only',
-    quick_view_first_product: '#js-product-list a [class*=quick-view]',
+    quick_view_first_product: '#js-product-list a.quick-view',
     empty_result_section: ' section.page-not-found',
     first_product_name_link: 'h2.product-title a:nth-child(1)',
-    search_product_name: '#js-product-list h2[class*=title] > a [href*="%PRODUCTNAME] '
+    search_product_name: '#js-product-list h2.product-title > a[href*="%PRODUCTNAME"] '
   }
 };
