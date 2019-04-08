@@ -153,7 +153,7 @@ module.exports = {
           scenario('Add Feature', client => {
             test('should click on "Add feature" button', () => {
               return promise
-                .then(() => client.scrollWaitForExistAndClick(AddProductPage.add_feature_to_product_button));
+                .then(() => page.evaluate((selector) => {return document.querySelector(selector).click();},AddProductPage.add_feature_to_product_button));
             });
             test('should select the created feature', () => client.selectFeature(AddProductPage, productData['feature'][f].name + date_time, productData['feature'][f].value, f));
           }, 'product/product');

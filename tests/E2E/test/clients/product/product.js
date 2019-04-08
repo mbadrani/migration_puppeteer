@@ -116,7 +116,7 @@ class Product extends CommonClient {
   }
 
   async selectFeature(addProductPage, name, value, number) {
-    await this.waitForExistAndClick(addProductPage.feature_select.replace('%NUMBER', number*2 + 1));
+    await this.scrollWaitForExistAndClick(addProductPage.feature_select.replace('%NUMBER', number*2 + 1));
     await this.waitAndSetValue(addProductPage.select_feature_created, name);
     await this.waitForVisibleAndClick(addProductPage.result_feature_select.replace('%ID', number));
     await page.waitForSelector(addProductPage.feature_value_select.replace('%ID', number).replace('%V', 'not(disabled)') + ' option:nth-child(2)');
