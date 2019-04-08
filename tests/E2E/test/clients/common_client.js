@@ -704,7 +704,7 @@ class CommonClient {
    * * "normalize('NFKD').replace(/[\u0300-\u036F]/g, '')" is used to replace special characters example € to o
    */
   async getTableField(element_list, i, sorted = false, priceWithCurrency = false) {
-    const name = await page.evaluate(element => element.textContent, element_list.replace("%ID", i + 1));
+    const name = await page.evaluate((selector) => { return document.querySelector(selector).textContent; }, element_list.replace("%ID", i + 1));
     if(sorted){
       if (priceWithCurrency === true) {
         elementsSortedTable[i] = name.normalize('NFKD').replace(/[^\x00-\x7F]/g, '').toLowerCase();

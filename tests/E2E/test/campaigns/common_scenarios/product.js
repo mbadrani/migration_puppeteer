@@ -272,13 +272,16 @@ module.exports = {
         }
         if (sortBy === 'id_product') {
           await client.scrollWaitForExistAndClick(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "desc"));
-
+          await page.waitForSelector(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "asc"));
         } else if (sortBy === 'price_included') {
           await client.waitForExistAndClick(ProductList.price_tax_included_sort_button);
+          await page.waitForSelector(ProductList.price_tax_included_sort_button);
         } else if(sortBy === 'price_excluded'){
           await client.waitForExistAndClick(ProductList.price_tax_excluded_sort_button);
+          await page.waitForSelector(ProductList.price_tax_excluded_sort_button);
         } else {
           await client.waitForExistAndClick(ProductList.sort_button.replace("%B", sortBy));
+          await page.waitForSelector(ProductList.sort_button.replace("%B", sortBy));
         }
       });
       test('should check that the products are well sorted by ASC', async () => {
@@ -290,12 +293,16 @@ module.exports = {
       test('should click on "Sort by DESC" icon', async () => {
         if (sortBy === 'id_product') {
           await client.waitForExistAndClick(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "asc"));
+          await page.waitForSelector(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "desc"));
         } else if (sortBy === 'price_included') {
           await client.waitForExistAndClick(ProductList.price_tax_included_sort_button);
+          await page.waitForSelector(ProductList.price_tax_included_sort_button);
         } else if(sortBy === 'price_excluded'){
           await client.waitForExistAndClick(ProductList.price_tax_excluded_sort_button);
+          await page.waitForSelector(ProductList.price_tax_excluded_sort_button);
         } else {
           await client.waitForExistAndClick(ProductList.sort_button.replace("%B", sortBy));
+          await page.waitForSelector(ProductList.sort_button.replace("%B", sortBy));
         }
       });
       test('should check that the products are well sorted by DESC', async () => {
@@ -338,22 +345,22 @@ module.exports = {
       });
       test('should check that the products are well sorted by ASC', async () => {
         await client.waitForExistAndClick(ProductList.sort_button.replace("%B", 'active'));
-        await page.waitForNavigation();
+        await page.waitForSelector(ProductList.sort_button.replace("%B", 'active'));
         for (let j = 0; j < (parseInt(global.inactiveProductsNumber)); j++) {
-          await client.isExisting(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'disabled'));
+          await page.waitForSelector(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'disabled'));
         }
         for (let j = parseInt(global.inactiveProductsNumber); j < (parseInt(global.inactiveProductsNumber) + parseInt(global.activeProductsNumber)); j++) {
-          await client.isExisting(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'enabled'));
+          await page.waitForSelector(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'enabled'));
         }
       });
       test('should check that the products are well sorted by DESC', async () => {
         await client.waitForExistAndClick(ProductList.sort_button.replace("%B", 'active'));
-        await page.waitForNavigation();
+        await page.waitForSelector(ProductList.sort_button.replace("%B", 'active'));
         for (let j = 0; j < (parseInt(global.activeProductsNumber)); j++) {
-          await client.isExisting(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'enabled'));
+          await page.waitForSelector(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'enabled'));
         }
         for (let j = parseInt(global.activeProductsNumber); j < (parseInt(global.inactiveProductsNumber) + parseInt(global.activeProductsNumber)); j++) {
-          await client.isExisting(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'disabled'));
+          await page.waitForSelector(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'disabled'));
         }
       });
     }, 'product/product');

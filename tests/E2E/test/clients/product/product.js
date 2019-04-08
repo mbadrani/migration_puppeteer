@@ -152,11 +152,12 @@ class Product extends CommonClient {
   }
 
   async getProductPageNumber(selector, pause = 0) {
+    await page.waitForSelector(selector,{visible:'true'});
     const count = await page.evaluate((selector) => {
-        const element = document.querySelectorAll(selector+ " tbody tr");
+        const element = document.querySelectorAll(selector+ " tbody tr[data-uniturl]");
         return element.length;
       }, selector);
-    if (count !== 1) {
+    if (count >= 0) {
       global.productsNumber = count;
     }
   }
@@ -237,7 +238,7 @@ class Product extends CommonClient {
               break;
           case 'category':
               for (let k = 0; k < (elementsTable.length); k++) {
-                  expect(elementsTable[k]).to.be.equal("art");
+                  expect(elementsTable[k]).to.be.contains("art");
               }
               break;
           case 'price':

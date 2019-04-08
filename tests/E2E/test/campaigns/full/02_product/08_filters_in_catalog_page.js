@@ -14,7 +14,7 @@ scenario('Check the sort of products in the Back Office', client => {
         await client.startTracing('FilterInCatalogPage');
     });
   test('should log in successfully in BO', () => client.signInBO(AccessPageBO));
-  test('should go to "Catalog" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
+  test('should go to "Catalog" page', async () => await client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
   scenario('Close symfony toolbar then change items per page number', client => {
     test('should close symfony toolbar', () => {
       return promise
@@ -23,10 +23,9 @@ scenario('Check the sort of products in the Back Office', client => {
     test('should change the paginator select to "100"', () => {
       return promise
         .then(() => client.isVisible(ProductList.pagination_products, 3000))
-        .then(() => {
+        .then(async () => {
           if (global.isVisible) {
-            client.waitAndSelectByValue(ProductList.products_paginator_select, '100');
-            page.waitForNavigation();
+            await client.waitAndSelectByValue(ProductList.products_paginator_select, '100');
           }
         })
         .then(() => client.getProductPageNumber('#product_catalog_list'));
@@ -51,11 +50,13 @@ scenario('Check the sort of products in the Back Office', client => {
   scenario('Search products by different attributes', () => {
     scenario('Search products  by "ID"', client => {
       test('should search products by id', async () => {
-        client.isVisible(ProductList.catalogue_filter_by_id_min_input);
-        client.search(ProductList.catalogue_filter_by_id_min_input, '5');
-        client.isVisible(ProductList.catalogue_filter_by_id_max_input);
-        client.search(ProductList.catalogue_filter_by_id_max_input, '10');
-        client.getProductPageNumber('#product_catalog_list');
+        await client.isVisible(ProductList.catalogue_filter_by_id_min_input);
+        await client.search(ProductList.catalogue_filter_by_id_min_input, '5');
+        await page.waitForSelector(ProductList.catalogue_filter_by_id_min_input);
+        await client.isVisible(ProductList.catalogue_filter_by_id_max_input);
+        await client.search(ProductList.catalogue_filter_by_id_max_input, '10');
+        await page.waitForSelector(ProductList.catalogue_filter_by_id_max_input);
+        await client.getProductPageNumber('#product_catalog_list');
       });
       commonProduct.productList(AddProductPage, ProductList.products_column.replace('%COL', 2), 'id', client, 5, 10);
     }, 'product/product');
