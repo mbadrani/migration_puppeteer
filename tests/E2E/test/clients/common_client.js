@@ -226,16 +226,18 @@ class CommonClient {
   }
 
   alertAccept(action = 'accept') {
-    switch (action) {
-      case "accept":
-        page.on("dialog", (dialog) => {
-          dialog.accept();
-        });
-        break;
-      default :
-        page.on("dialog", (dialog) => {
-          dialog.dismiss();
-        });
+    if(!global.alertAccept){
+      switch (action) {
+        case "accept":
+          page.on("dialog", (dialog) => {
+            dialog.accept();
+          });
+          break;
+        default :
+          page.on("dialog", (dialog) => {
+            dialog.dismiss();
+          });
+      }
     }
     global.alertAccept = true ;
   }
@@ -605,6 +607,7 @@ class CommonClient {
   async goToLink(selector) {
     const selector_link = await page.$eval(selector, ({href}) => href);
     await page.goto(selector_link, {waitUntil: 'networkidle0'});
+
   }
 
   /**
@@ -864,6 +867,26 @@ class CommonClient {
       }
     }
     return expect(found).to.be.true;
+  }
+
+  /**
+   * select by visible text
+   * @param selector, selector to find
+   * @param text, text of the element to select
+   */
+  async selectByVisibleText(selector,text){
+    let number_options = await page.evaluate((selector) => { return document.querySelectorAll(selector).length; }, selector + ' option');
+    let found = false;
+    for(let i=0; i< number_options ; i++){
+      let text_content = await page.evaluate((selector,i) => { return document.querySelectorAll(selector)[i].textContent; }, selector + ' option',i);
+      if(text_content===text){
+        let el_value = await page.evaluate((selector,i) => { return document.querySelectorAll(selector)[i].value; }, selector + ' option',i);
+        this.waitAndSelectByValue(selector,el_value);
+        found = true;
+        break;
+      }
+    }
+    expect(found).to.be.true;
   }
 }
 
