@@ -27,6 +27,7 @@ class CommonClient {
   async open() {
     global.browser = await puppeteer.launch(options);
     global.page = await this.getPage(0);
+    global.alertAccept = false ;
     //Set the user agent and the accept language for headless mode => Chrome Headless will closely emulate Chrome
     if (global.headless) {
       const headlessUserAgent = await page.evaluate(() => navigator.userAgent);
@@ -116,6 +117,7 @@ class CommonClient {
     } else {
       global.isVisible = exists;
     }
+    return global.isVisible;
   }
 
   async closeBoarding(selector) {
@@ -164,6 +166,7 @@ class CommonClient {
       //If exist, element should be visible too
       await this.isVisible(selector);
       expect(global.isVisible).to.be.true;
+      return global.isVisible;
     }
   }
 
@@ -222,18 +225,28 @@ class CommonClient {
     }
   }
 
-  async alertAccept(action = 'accept') {
-    switch (action) {
-      case "accept":
-        await page.on("dialog", (dialog) => {
-          dialog.accept();
-        });
-        break;
-      default :
-        await page.on("dialog", (dialog) => {
-          dialog.dismiss();
-        });
+  alertAccept(action = 'accept') {
+    if(!global.alertAccept){
+      switch (action) {
+        case "accept":
+          page.on("dialog", (dialog) => {
+            dialog.accept();
+          });
+          break;
+        default :
+          page.on("dialog", (dialog) => {
+            dialog.dismiss();
+          });
+      }
     }
+    global.alertAccept = true ;
+  }
+
+  /**
+   * close dialog listner
+   */
+  alertListenerClose(){
+    page.removeListener("dialog",(dialog) => {dialog.accept();});
   }
 
   async scrollTo(selector) {
@@ -249,11 +262,11 @@ class CommonClient {
   }
 
   async setEditorText(selector, textDescription) {
-    await page.click(selector);
+    await page.click(selector,{clickCount:3});
     await page.keyboard.type(textDescription);
     //  await page.type(selector, textDescription);
   }
-  
+
   async checkIsNotVisible(selector) {
     await page.waitFor(2000);
     await this.isVisible(selector);
@@ -264,6 +277,7 @@ class CommonClient {
     await page.waitFor(wait);
     const exists = await page.$(selector) === null;
     expect(exists).to.be.true;
+    return exists;
   }
 
   async waitForExist(selector, option = {}) {
@@ -330,7 +344,7 @@ class CommonClient {
   }
 
   async searchByValue(nameSelector, buttonSelector, value) {
-    await this.pause(nameSelector);
+    await page.waitForSelector(nameSelector);
     await this.waitAndSetValue(nameSelector, value, 2000);
     await this.waitForExistAndClick(buttonSelector);
   }
@@ -593,6 +607,7 @@ class CommonClient {
   async goToLink(selector) {
     const selector_link = await page.$eval(selector, ({href}) => href);
     await page.goto(selector_link, {waitUntil: 'networkidle0'});
+
   }
 
   /**
@@ -692,7 +707,7 @@ class CommonClient {
    * * "normalize('NFKD').replace(/[\u0300-\u036F]/g, '')" is used to replace special characters example € to o
    */
   async getTableField(element_list, i, sorted = false, priceWithCurrency = false) {
-    const name = await page.evaluate(element => element.textContent, element_list.replace("%ID", i + 1));
+    const name = await page.evaluate((selector) => { return document.querySelector(selector).textContent; }, element_list.replace("%ID", i + 1));
     if(sorted){
       if (priceWithCurrency === true) {
         elementsSortedTable[i] = name.normalize('NFKD').replace(/[^\x00-\x7F]/g, '').toLowerCase();
@@ -779,6 +794,100 @@ class CommonClient {
       }
     }
     }
+
+  /**
+   * get param from URL
+   * @param param, param to get
+   * @return {boolean}
+   */
+  async getParamFromURL(param) {
+    let current_url = page.url();
+    expect(current_url).to.contain(param);
+    global.param[param] = current_url.split(param + '=')[1].split("&")[0];
+  }
+
+  /**
+   * Access to BO function
+   */
+  async accessToBO() {
+    await page.goto(global.URL + '/admin-dev');
+  }
+
+  /**
+   * Edit Object Data
+   * @param object, object to edit
+   * @param type, type of object
+   */
+  editObjectData(object, type = '') {
+    for (let key in object) {
+      if (object.hasOwnProperty(key) && key !== 'type') {
+        if (typeof object[key] === 'string') {
+          parseInt(object[key]) ? object[key] = (parseInt(object[key]) + 10).toString() : object[key] += 'update';
+        } else if (typeof object[key] === 'number') {
+          object[key] += 10;
+        } else if (typeof object[key] === 'object') {
+          this.editObjectData(object[key]);
+        }
+      }
+      if (type !== '') {
+        object['type'] = type;
+      }
+    }
+  }
+
+  /**
+   * delete object element
+   * @param object, object to delete from
+   * @param pos, position to delete
+   */
+  deleteObjectElement(object, pos) {
+    delete object[pos];
+  }
+
+  /**
+   * find and click on element by text
+   * @param selector, selector of the list to search in
+   * @param textToFind, text to click on
+   * @param param, equal / contain
+   */
+  async findAndClickByText(selector, textToFind, param = 'equal'){
+    let number_elements = await page.evaluate((selector) => {return document.querySelectorAll(selector).length;},selector);
+    let found = false;
+    for(let i =0 ; i<number_elements ; i++){
+      let text_content = await page.evaluate((selector,i) => {return document.querySelectorAll(selector)[i].textContent;},selector,i);
+      if(param === 'equal' && text_content === textToFind){
+        await page.evaluate((selector,i) => {return document.querySelectorAll(selector)[i].click();},selector,i);
+        found = true;
+        break ;
+      }
+      else if(param === 'contain' && text_content.includes(textToFind)){
+        await page.evaluate((selector,i) => {return document.querySelectorAll(selector)[i].click();},selector,i);
+        found = true;
+        break ;
+      }
+    }
+    return expect(found).to.be.true;
+  }
+
+  /**
+   * select by visible text
+   * @param selector, selector to find
+   * @param text, text of the element to select
+   */
+  async selectByVisibleText(selector,text){
+    let number_options = await page.evaluate((selector) => { return document.querySelectorAll(selector).length; }, selector + ' option');
+    let found = false;
+    for(let i=0; i< number_options ; i++){
+      let text_content = await page.evaluate((selector,i) => { return document.querySelectorAll(selector)[i].textContent; }, selector + ' option',i);
+      if(text_content===text){
+        let el_value = await page.evaluate((selector,i) => { return document.querySelectorAll(selector)[i].value; }, selector + ' option',i);
+        this.waitAndSelectByValue(selector,el_value);
+        found = true;
+        break;
+      }
+    }
+    expect(found).to.be.true;
+  }
 }
 
 module.exports = CommonClient;

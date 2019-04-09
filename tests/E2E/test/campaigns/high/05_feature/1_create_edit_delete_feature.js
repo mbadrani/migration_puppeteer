@@ -55,7 +55,7 @@ scenario('Create, edit and delete "Feature"', () => {
   /* Update the created feature */
   scenario('Go back to the Back Office', client => {
     test('should switch to the Back Office', () => client.switchWindow(0));
-    test('should go back to the Back Office', () => client.accessToBO(AccessPageBO));
+    test('should go back to the Back Office', () => client.accessToBO());
   }, 'attribute_and_feature');
   commonFeature.updateFeature(featureData);
   /* Check the updated feature */
@@ -66,7 +66,7 @@ scenario('Create, edit and delete "Feature"', () => {
   /* Delete feature value */
   scenario('Go back to the Back Office', client => {
     test('should switch to the back office', () => client.switchWindow(0));
-    test('should go back to the Back Office', () => client.accessToBO(AccessPageBO));
+    test('should go back to the Back Office', () => client.accessToBO());
   }, 'attribute_and_feature');
   commonFeature.deleteValue(featureData);
   /* Check the deleted feature */

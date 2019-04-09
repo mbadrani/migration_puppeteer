@@ -28,7 +28,7 @@ scenario('Navigate between the catalog pages in the back office', () => {
     test('should create products if there\'s less than 20 product in the list', () => commonProduct.checkPaginationThenCreateProduct(client, productData));
 
   }, 'product/product');
-  commonProduct.checkPaginationBO('Next', '1', '20', false, true);
-  commonProduct.checkPaginationBO('Next', '1', '50');
-  commonProduct.checkPaginationBO('Next', '1', '100', true);
+  commonProduct.checkPaginationBO('Next', '1', 20, false, true);
+  commonProduct.checkPaginationBO('Next', '1', 50);
+  commonProduct.checkPaginationBO('Next', '1', 100, true);
 }, 'common_client', true);

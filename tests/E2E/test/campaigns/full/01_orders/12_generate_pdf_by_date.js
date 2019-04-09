@@ -98,7 +98,7 @@ scenario('Generate a PDF by date', () => {
               }
             });
         });
-        test('should go to "Order settings" page', () => client.waitForExistAndClick(Menu.Sell.Orders.orders_submenu));
+        test('should go to "Order settings" page', async () => await client.goToLink(Menu.Sell.Orders.orders_submenu));
       }
     }, 'order');
     scenario('Generate then check a PDF by date', client => {

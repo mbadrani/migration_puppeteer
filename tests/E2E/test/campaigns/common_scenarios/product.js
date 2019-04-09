@@ -107,18 +107,18 @@ module.exports = {
               } else {
                 Object.keys(productData.attribute).forEach(function (key) {
                   if (productData.attribute[key].name === attributeData[key - 1].name) {
-                    promise = client.scrollWaitForExistAndClick(AddProductPage.attribute_group_name.replace('%NAME', productData.attribute[key].name + date_time), 150, 3000);
+                    promise = client.findAndClickByText(AddProductPage.attribute_group_names,productData.attribute[key].name + date_time, 'contain');
                     Object.keys(attributeData[key - 1].values).forEach(function (index) {
                       promise
-                        .then(() => client.scrollWaitForVisibleAndClick(AddProductPage.attribute_value_checkbox.replace('%ID', global.tab[productData.attribute[key].name + '_id']).replace('%S', index)));
+                        .then(async () => await page.evaluate((selector) => document.querySelector(selector).click(), AddProductPage.attribute_value_checkbox.replace('%ID', global.tab[productData.attribute[key].name + '_id']).replace('%S', index)));
                     });
                   }
                 });
-                return promise.then(() => client.pause(5000));
+                return promise;
               }
             }
           });
-          test('should click on "Generate" button', () => client.scrollWaitForExistAndClick(AddProductPage.variations_generate));
+          test('should click on "Generate" button', async () => await page.evaluate((selector) => document.querySelector(selector).click(),AddProductPage.variations_generate));
           test('should verify the appearance of the green validation', () => client.checkTextValue(AddProductPage.validation_msg, 'Settings updated.'));
 
           /**
@@ -153,7 +153,7 @@ module.exports = {
           scenario('Add Feature', client => {
             test('should click on "Add feature" button', () => {
               return promise
-                .then(() => client.scrollWaitForExistAndClick(AddProductPage.add_feature_to_product_button));
+                .then(() => page.evaluate((selector) => {return document.querySelector(selector).click();},AddProductPage.add_feature_to_product_button));
             });
             test('should select the created feature', () => client.selectFeature(AddProductPage, productData['feature'][f].name + date_time, productData['feature'][f].value, f));
           }, 'product/product');
@@ -272,13 +272,16 @@ module.exports = {
         }
         if (sortBy === 'id_product') {
           await client.scrollWaitForExistAndClick(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "desc"));
-
+          await page.waitForSelector(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "asc"));
         } else if (sortBy === 'price_included') {
           await client.waitForExistAndClick(ProductList.price_tax_included_sort_button);
+          await page.waitForSelector(ProductList.price_tax_included_sort_button);
         } else if(sortBy === 'price_excluded'){
           await client.waitForExistAndClick(ProductList.price_tax_excluded_sort_button);
+          await page.waitForSelector(ProductList.price_tax_excluded_sort_button);
         } else {
           await client.waitForExistAndClick(ProductList.sort_button.replace("%B", sortBy));
+          await page.waitForSelector(ProductList.sort_button.replace("%B", sortBy));
         }
       });
       test('should check that the products are well sorted by ASC', async () => {
@@ -290,12 +293,16 @@ module.exports = {
       test('should click on "Sort by DESC" icon', async () => {
         if (sortBy === 'id_product') {
           await client.waitForExistAndClick(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "asc"));
+          await page.waitForSelector(ProductList.sort_by_icon.replace("%B", sortBy).replace("%W", "desc"));
         } else if (sortBy === 'price_included') {
           await client.waitForExistAndClick(ProductList.price_tax_included_sort_button);
+          await page.waitForSelector(ProductList.price_tax_included_sort_button);
         } else if(sortBy === 'price_excluded'){
           await client.waitForExistAndClick(ProductList.price_tax_excluded_sort_button);
+          await page.waitForSelector(ProductList.price_tax_excluded_sort_button);
         } else {
           await client.waitForExistAndClick(ProductList.sort_button.replace("%B", sortBy));
+          await page.waitForSelector(ProductList.sort_button.replace("%B", sortBy));
         }
       });
       test('should check that the products are well sorted by DESC', async () => {
@@ -338,22 +345,22 @@ module.exports = {
       });
       test('should check that the products are well sorted by ASC', async () => {
         await client.waitForExistAndClick(ProductList.sort_button.replace("%B", 'active'));
-        await page.waitForNavigation();
+        await page.waitForSelector(ProductList.sort_button.replace("%B", 'active'));
         for (let j = 0; j < (parseInt(global.inactiveProductsNumber)); j++) {
-          await client.isExisting(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'disabled'));
+          await page.waitForSelector(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'disabled'));
         }
         for (let j = parseInt(global.inactiveProductsNumber); j < (parseInt(global.inactiveProductsNumber) + parseInt(global.activeProductsNumber)); j++) {
-          await client.isExisting(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'enabled'));
+          await page.waitForSelector(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'enabled'));
         }
       });
       test('should check that the products are well sorted by DESC', async () => {
         await client.waitForExistAndClick(ProductList.sort_button.replace("%B", 'active'));
-        await page.waitForNavigation();
+        await page.waitForSelector(ProductList.sort_button.replace("%B", 'active'));
         for (let j = 0; j < (parseInt(global.activeProductsNumber)); j++) {
-          await client.isExisting(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'enabled'));
+          await page.waitForSelector(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'enabled'));
         }
         for (let j = parseInt(global.activeProductsNumber); j < (parseInt(global.inactiveProductsNumber) + parseInt(global.activeProductsNumber)); j++) {
-          await client.isExisting(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'disabled'));
+          await page.waitForSelector(ProductList.product_status_icon.replace('%TR', j + 1).replace('%STATUS', 'disabled'));
         }
       });
     }, 'product/product');
@@ -385,9 +392,9 @@ module.exports = {
     scenario('Navigate between catalog pages and set the paginate limit equal to "' + itemPerPage + '"', client => {
       let selectorButton = nextOrPrevious === 'Next' ? ProductList.pagination_next : ProductList.pagination_previous;
       test('should go to "Catalog" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
-      test('should set the "item per page" to "' + itemPerPage + '"', () => client.waitAndSelectByValue(ProductList.item_per_page, itemPerPage));
+      test('should set the "item per page" to "' + itemPerPage + '"', () => client.waitAndSelectByValue(ProductList.item_per_page, String(itemPerPage)));
       test('should check that the current page is equal to "' + pageNumber + '"', () => client.checkAttributeValue(ProductList.page_active_number, 'value', pageNumber, 'contain', 3000));
-      test('should check that the number of products is less or equal to "' + itemPerPage + '"', () => {
+      test('should check that the number of products is less or equal to "' + String(itemPerPage) + '"', () => {
         return promise
           .then(() => client.getProductPageNumber('#product_catalog_list'))
           .then(() => expect(global.productsNumber).to.be.at.most(itemPerPage))

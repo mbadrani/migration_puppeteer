@@ -40,7 +40,7 @@ module.exports = {
       Object.keys(categoryData.meta_keywords).forEach(function (key) {
         test('should set the "Meta keywords" input', () => {
           return promise
-            .then(() => client.waitAndSetValue(CategorySubMenu.keyswords, categoryData.meta_keywords[key]))
+            .then(() => client.waitAndSetValue(CategorySubMenu.keyswords.replace('%POS',key), categoryData.meta_keywords[key]))
             .then(() => client.keys('Enter'));
         });
       });
@@ -69,8 +69,11 @@ module.exports = {
   editCategory(categoryData, editedCategoryData) {
     scenario('Update the created "Category"', client => {
       test('should go to "Category" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.category_submenu));
-      test('should search for category ', () => client.searchByValue(CategorySubMenu.search_input, CategorySubMenu.search_button, categoryData.name + date_time));
-      test('should click on "Edit" action', () => client.clickOnAction(CategorySubMenu.update_button));
+      test('should search for category ', async () => {
+        await client.searchByValue(CategorySubMenu.search_input, CategorySubMenu.search_button, categoryData.name + date_time);
+        await page.waitForSelector(CategorySubMenu.update_button);
+      });
+      test('should click on "Edit" action', async () => await client.clickOnAction(CategorySubMenu.update_button));
       test('should set the "Name" input', () => client.waitAndSetValue(CategorySubMenu.name_input, editedCategoryData.name + date_time));
       test('should set the "Description" textarea', () => client.setEditorText(CategorySubMenu.description_textarea, editedCategoryData.description + date_time));
       test('should set the "Meta title" input', () => client.waitAndSetValue(CategorySubMenu.title, editedCategoryData.meta_title));
@@ -81,7 +84,7 @@ module.exports = {
       Object.keys(editedCategoryData.meta_keywords).forEach(function (key) {
         test('should set the "Meta keywords" input', () => {
           return promise
-            .then(() => client.waitAndSetValue(CategorySubMenu.keyswords, editedCategoryData.meta_keywords[key]))
+            .then(() => client.waitAndSetValue(CategorySubMenu.keyswords.replace('%POS',key), editedCategoryData.meta_keywords[key]))
             .then(() => client.keys('Enter'));
         });
       });
@@ -111,17 +114,17 @@ module.exports = {
     scenario('Check category in BO', client => {
       test('should go to "Category" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.category_submenu));
       test('should search for category ', () => client.searchByValue(CategorySubMenu.search_input, CategorySubMenu.search_button, categoryData.name + date_time));
-      test('should click on "Edit" action', () => {
-        return promise
-          .then(() => client.clickOnAction(CategorySubMenu.update_button))
-          .then(() => client.getParamFromURL('id_category', 2000));
+      test('should click on "Edit" action', async () => {
+        await client.clickOnAction(CategorySubMenu.update_button);
+        await page.waitForSelector(CategorySubMenu.name_input);
+        await client.getParamFromURL('id_category');
       });
       test('should check the category name', () => client.checkAttributeValue(CategorySubMenu.name_input, 'value', categoryData.name + date_time));
       test('should check that the image is well displayed', () => client.checkImage(CategorySubMenu.image_link));
       test('should check that the image thumb is well displayed', () => client.checkImage(CategorySubMenu.thumb_link));
       test('should check the category title', () => client.checkAttributeValue(CategorySubMenu.title, 'value', categoryData.meta_title));
-      test('should check the category meta description', () => client.checkAttributeValue(CategorySubMenu.meta_description, 'value', categoryData.meta_description));
-      test('should check the category friendly url', () => client.checkAttributeValue(CategorySubMenu.simplify_URL_input, 'value', categoryData.friendly_url + date_time));
+      test('should check the category meta description', () => client.checkInputValue(CategorySubMenu.meta_description, categoryData.meta_description));
+      test('should check the category friendly url', () => client.checkInputValue(CategorySubMenu.simplify_URL_input, categoryData.friendly_url + date_time));
       test('should click on "Save" button', () => client.waitForExistAndClick(CategorySubMenu.save_button));
       test('should click on "Reset" button', () => client.waitForExistAndClick(CategorySubMenu.reset_button));
     }, 'category');
@@ -159,7 +162,7 @@ module.exports = {
       test('should go to "Category" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.category_submenu));
       test('should search for category ', () => client.searchByValue(CategorySubMenu.search_input, CategorySubMenu.search_button, categoryData.name + date_time));
       test('should select the category to delete', () => client.waitForExistAndClick(CategorySubMenu.select_category, 2000));
-      test('should click on "Delete selected" action', () => client.clickOnAction(CategorySubMenu.delete_action_group_button, CategorySubMenu.action_group_button, 'delete', true));
+      test('should click on "Delete selected" action', async () => await client.clickOnAction(CategorySubMenu.delete_action_group_button, CategorySubMenu.action_group_button, 'delete',true));
       test('should click on "Delete" button', () => client.waitForExistAndClick(CategorySubMenu.second_delete_button));
       test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.success_panel, '×\nThe selection has been successfully deleted.'));
       test('should search for category ', () => client.searchByValue(CategorySubMenu.search_input, CategorySubMenu.search_button, categoryData.name + date_time));
@@ -181,14 +184,22 @@ module.exports = {
         test('should check the existence of the created category inside the parent', () => client.checkCategoryInsideParent(CategoryPageFO.category_top_menu.replace('%ID', global.tab['parent_category_id']).replace('%POS', '1'), CategoryPageFO.category_top_menu.replace('%ID', param['id_category']).replace('%POS', '1')));
         test('should check the breadcrumb of the created category', () => client.checkBreadcrumbInFo(CategoryPageFO.breadcrumb_path, "Accessories", categoryData.name));
       } else {
-        test('should check the existence of the created category', () => {
-          for (let i = 1; i < (parseInt(tab["number_category"]) + 1); i++) {
+        test('should check the existence of the created category', async () => {
+          await page.waitForSelector(AccessPageFO.categories_list);
+          let number_categories = await page.evaluate((selector) => {return document.querySelectorAll(selector).length;},AccessPageFO.categories_list );
+          for (let i = 0; i < number_categories; i++) {
             promise = client.getCategoriesName(AccessPageFO.categories_list, i);
           }
           return promise.then(() => client.checkCategory(AccessPageFO.categories_list, categoryData.name + date_time));
         });
-        test('should click on "' + categoryData.name + date_time + '" category name', () => client.waitForExistAndClick(CategoryPageFO.category_name.replace('%NAME', categoryData.name + date_time)));
-        test('should check the existence of the created category in the top menu', () => client.isExisting(CategoryPageFO.category_top_menu.replace('%ID', param['id_category']).replace('%POS', '1')));
+        if(categoryData.name.includes('update')){
+          test('should click on "' + categoryData.name + date_time + '" category name', () => client.waitForExistAndClick(CategoryPageFO.category_name.replace('%LINK', 'Updated_Friendly_url' + date_time)));
+          test('should check the existence of the created category in the top menu', () => client.isExisting(CategoryPageFO.category_top_menu.replace('%ID', param['id_category']).replace('%NAME', 'Updated_Friendly_url' + date_time)));
+        }
+        else {
+          test('should click on "' + categoryData.name + date_time + '" category name', () => client.waitForExistAndClick(CategoryPageFO.category_name.replace('%LINK', categoryData.name.toLowerCase() + date_time)));
+          test('should check the existence of the created category in the top menu', () => client.isExisting(CategoryPageFO.category_top_menu.replace('%ID', param['id_category']).replace('%NAME', categoryData.name.toLowerCase() + date_time)));
+        }
         test('should check the category title', () => client.checkTextValue(CategoryPageFO.category_title, (categoryData.name + date_time).toUpperCase()));
         test('should check the category description', () => client.checkTextValue(CategoryPageFO.category_description, categoryData.description + date_time));
         test('should check the category picture', () => client.checkImage(CategoryPageFO.category_picture));

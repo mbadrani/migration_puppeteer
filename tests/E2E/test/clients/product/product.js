@@ -115,21 +115,19 @@ class Product extends CommonClient {
     await this.waitForExistAndClick(addProductPage.save_quantitie_button);
   }
 
-  selectFeature(addProductPage, name, value, number) {
-    return this.client
-      .scrollWaitForExistAndClick(addProductPage.feature_select.replace('%NUMBER', number + 1))
-      .waitAndSetValue(addProductPage.select_feature_created, name)
-      .waitForVisibleAndClick(addProductPage.result_feature_select.replace('%ID', number))
-      .pause(4000)
-      .selectByVisibleText(addProductPage.feature_value_select.replace('%ID', number).replace('%V', 'not(@disabled)'), value);
+  async selectFeature(addProductPage, name, value, number) {
+    await this.scrollWaitForExistAndClick(addProductPage.feature_select.replace('%NUMBER', number*2 + 1));
+    await this.waitAndSetValue(addProductPage.select_feature_created, name);
+    await this.waitForVisibleAndClick(addProductPage.result_feature_select.replace('%ID', number));
+    await page.waitForSelector(addProductPage.feature_value_select.replace('%ID', number).replace('%V', 'not(disabled)') + ' option:nth-child(2)');
+    await this.selectByVisibleText(addProductPage.feature_value_select.replace('%ID', number).replace('%V', 'not(disabled)'), value);
   }
 
   selectFeatureCustomizedValue(addProductPage, name, customizedValue, number) {
-    return this.client
-      .scrollWaitForExistAndClick(addProductPage.feature_select.replace('%NUMBER', number + 1))
-      .waitAndSetValue(addProductPage.select_feature_created, name)
-      .waitForVisibleAndClick(addProductPage.result_feature_select.replace('%ID', number))
-      .waitAndSetValue(addProductPage.customized_value_input.replace('%ID', number), customizedValue)
+    this.scrollWaitForExistAndClick(addProductPage.feature_select.replace('%NUMBER', number + 1));
+    this.waitAndSetValue(addProductPage.select_feature_created, name);
+    this.waitForVisibleAndClick(addProductPage.result_feature_select.replace('%ID', number));
+    this.waitAndSetValue(addProductPage.customized_value_input.replace('%ID', number), customizedValue);
   }
 
   async clickNextOrPrevious(selector) {
@@ -152,11 +150,12 @@ class Product extends CommonClient {
   }
 
   async getProductPageNumber(selector, pause = 0) {
+    await page.waitForSelector(selector,{visible:'true'});
     const count = await page.evaluate((selector) => {
-        const element = document.querySelectorAll(selector+ " tbody tr");
+        const element = document.querySelectorAll(selector+ " tbody tr[data-uniturl]");
         return element.length;
       }, selector);
-    if (count !== 1) {
+    if (count >= 0) {
       global.productsNumber = count;
     }
   }
@@ -237,7 +236,7 @@ class Product extends CommonClient {
               break;
           case 'category':
               for (let k = 0; k < (elementsTable.length); k++) {
-                  expect(elementsTable[k]).to.be.equal("art");
+                  expect(elementsTable[k]).to.be.contains("art");
               }
               break;
           case 'price':

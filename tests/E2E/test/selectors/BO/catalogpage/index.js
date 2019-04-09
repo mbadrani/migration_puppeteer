@@ -11,7 +11,7 @@ module.exports = Object.assign(
       name_search_input: '#product_catalog_list input[name="filter_column_name"]',
       search_button: '#product_catalog_list button[name="products_filter_submit"]',
       dropdown_toggle: '#product_catalog_list button.dropdown-toggle',
-      delete_button: '#product_catalog_list a [onclick*="delete"]',
+      delete_button: '#product_catalog_list a[onclick*="delete"]',
       delete_confirmation: '#catalog_deletion_modal [type="button"][value="confirm"]',
       close_delete_modal: '#catalog_deletion_modal button:nth-child(1)):nth-child(2)',
       reset_button: '#product_catalog_list button[name*=products_filter_reset]',

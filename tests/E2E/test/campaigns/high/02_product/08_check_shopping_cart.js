@@ -57,10 +57,10 @@ scenario('Check that the shopping cart dosen\'t allow checkout of zero quantity 
           .then(() => client.waitForExistAndClick(AccessPageFO.logo_home_page));
       });
       test('should click on "Shopping cart" button', () => client.waitForExistAndClick(AccessPageFO.shopping_cart_button));
-      test('should check that the proceed to checkout button is disabled when we disable the product', () => {
+      test('should check that the proceed to checkout button is disabled when we disable the product', async () => {
         return promise
-          .then(() => client.isExisting(CheckoutOrderPage.alert))
-          .then(() => client.checkAttributeValue(CheckoutOrderPage.proceed_to_checkout_button, 'class', 'disabled', 'contain'));
+          .then(async () => await page.waitForSelector(CheckoutOrderPage.alert,{visible:true}))
+          .then(async () => await client.checkAttributeValue(CheckoutOrderPage.proceed_to_checkout_button, 'class', 'disabled', 'contain'));
       });
     }, 'product/product');
   }, 'product/product');
@@ -91,11 +91,11 @@ scenario('Check that the shopping cart dosen\'t allow checkout of zero quantity 
           .then(() => client.switchWindow(1))
           .then(() => client.waitForExistAndClick(AccessPageFO.logo_home_page));
       });
-      test('should click on "Shopping cart" button', () => client.waitForExistAndClick(AccessPageFO.shopping_cart_button));
+      test('should click on "Shopping cart" button', async () => client.waitForExistAndClick(AccessPageFO.shopping_cart_button));
       test('should check that the proceed to checkout button is disabled when the product quantity is equal to "-1"', () => {
         return promise
-          .then(() => client.isExisting(CheckoutOrderPage.alert))
-          .then(() => client.checkAttributeValue(CheckoutOrderPage.proceed_to_checkout_button, 'class', 'disabled', 'contain'));
+          .then(async () => await page.waitForSelector(CheckoutOrderPage.alert,{visible:true}))
+          .then(async () => await client.checkAttributeValue(CheckoutOrderPage.proceed_to_checkout_button, 'class', 'disabled', 'contain'));
       });
     }, 'product/product');
   }, 'product/product');

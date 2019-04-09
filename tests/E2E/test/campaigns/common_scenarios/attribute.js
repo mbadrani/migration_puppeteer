@@ -57,12 +57,17 @@ module.exports = {
       test('should search for the product', () => client.searchByValue(SearchProductPage.search_input, SearchProductPage.search_button, productName + date_time));
       test('should go to the product page', () => client.waitForExistAndClick(SearchProductPage.product_result_name));
       test('should check the product attribute name', () => client.checkTextValue(SearchProductPage.attribute_name, data.name + date_time));
-      test('should check the attribute values', () => client.checkTextValue(SearchProductPage.attribute_radio_values, Object.keys(data.values).map((k) => data.values[k].value), 'deepequal'));
+      test('should check the attribute values', async () => {
+        let number_attributes = await page.evaluate((selector) => {return document.querySelectorAll(selector).length;},SearchProductPage.attribute_radio_values);
+        for(let i=0;i<number_attributes;i++){
+          let text_attribute = await page.evaluate((selector,i) => {return document.querySelectorAll(selector)[i].textContent;},SearchProductPage.attribute_radio_values,i);
+          expect(Object.keys(data.values).map((k) => data.values[k].value)).to.include.members([text_attribute]);
+        }
+      });
     }, 'attribute_and_feature');
   },
   checkAllAttributeTypeInFO: async function (client, productPage, productName) {
     for (let i = 0; i <= global.pagination; i++) {
-      await client.pause(4000);
       await client.isVisible(productPage.productLink.replace('%PRODUCTNAME', productName + date_time));
       await client.middleClickWhenVisible(productPage.productLink.replace('%PRODUCTNAME', productName + date_time));
       if (i !== global.pagination) {
