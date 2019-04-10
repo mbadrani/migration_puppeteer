@@ -1,7 +1,7 @@
 module.exports = Object.assign(
   {
     CatalogPage: {
-      success_panel: '#content > div.bootstrap > div[class*=success]',
+      success_panel: '#content > div.bootstrap > div.success',
       danger_panel: '#content div.bootstrap div.danger',
       select_all_product_button: '#bulk_action_select_all',
       action_group_button: '#product_bulk_menu ',

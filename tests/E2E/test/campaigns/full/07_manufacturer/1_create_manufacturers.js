@@ -49,9 +49,12 @@ scenario('Create "Brand"', () => {
     });
     test('should click on "Sitemap" link on the footer', () => client.scrollWaitForExistAndClick(AccessPageFO.sitemap));
     test('should click on "Brands" link', () => client.waitForExistAndClick(SiteMapPageFO.brands_link));
-    test('should check that the "Image" of the created brand is displayed', () => client.isExisting(SiteMapPageFO.brands_image.replace('%BRAND', 'PrestaShop' + date_time)));
-    test('should check that the "Short description" of the created brand is displayed', () => client.checkTextValue(SiteMapPageFO.last_brand_description_text.replace('%NAME', 'PrestaShop' + date_time), 'short description'));
-    test('should click on "PrestaShop' + date_time + '" link', () => client.waitForExistAndClick(SiteMapPageFO.name_brand_link.replace('%NAME', 'PrestaShop' + date_time)));
+    test('should check that the "Image" of the created brand is displayed', () => page.waitForSelector(SiteMapPageFO.brands_image.replace('%BRAND', 'PrestaShop' + date_time)));
+    test('should check that the "Short description" of the created brand is displayed', async () => {
+      let text_content = await page.evaluate((selector) => {return document.querySelector(selector).parentElement.nextSibling.textContent;},SiteMapPageFO.name_brand_link.replace('%NAME', 'prestashop' + date_time));
+      expect(text_content).to.be.contains('short description');
+    });
+    test('should click on "PrestaShop' + date_time + '" link', () => page.$eval(SiteMapPageFO.name_brand_link.replace('%NAME', 'prestashop' + date_time) , elem => elem.click()));
     test('should check the "Short description" text of the created brand', () => client.checkTextValue(SiteMapPageFO.manufacturer_short_description_text, 'short description'));
     test('should check the "Description" text of the created brand', () => client.checkTextValue(SiteMapPageFO.manufacturer_description_text, 'description'));
   }, 'common_client');
@@ -60,28 +63,32 @@ scenario('Create "Brand"', () => {
     test('should go back to the Back Office', () => client.switchWindow(0));
     test('should go to "Catalog > Products" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
     test('should search for product by name', () => client.searchProductByName(productData.name + date_time));
-    test('should click on "Edit" button', () => client.waitForExistAndClick(ProductList.edit_button));
-    test('should click on "Add a brand" button', () => client.scrollWaitForExistAndClick(AddProductPage.product_add_brand_btn, 50));
+    test('should click on "Edit" button', async () => await client.waitForExistAndClick(ProductList.edit_button, 0,{waitUntil:'domcontentloaded'}));
+    test('should click on "Add a brand" button', async () => await client.waitForExistAndClick(AddProductPage.product_add_brand_btn, 1000));
     test('should select the created brand', () => {
       return promise
         .then(() => client.waitForExistAndClick(AddProductPage.product_brand_select))
-        .then(() => client.waitForExistAndClick(AddProductPage.brand_option.replace('%BRAND', 'PrestaShop' + date_time)));
+        .then(() => page.keyboard.type('PrestaShop' + date_time, {delay: 10}))
+        .then(() => client.waitForExistAndClick(AddProductPage.brand_option));
     });
-    test('should click on "Save" button', () => client.waitForExistAndClick(AddProductPage.save_product_button, 7000));
+    test('should click on "Save" button', () => client.waitForExistAndClick(AddProductPage.save_product_button));
   }, 'product/check_product');
-
   scenario('Check brand in Front Office', client => {
     test('should go to the Front Office', () => client.switchWindow(1));
     test('should click on "Sitemap" link on the footer', () => client.scrollWaitForExistAndClick(AccessPageFO.sitemap));
     test('should click on "Brands" link to display all brands', () => client.waitForExistAndClick(SiteMapPageFO.brands_link));
-    test('should click on "1 product" link related to the created brand', () => client.waitForExistAndClick(SiteMapPageFO.brand_product_link.replace('%NAME', 'PrestaShop' + date_time)));
+    test('should click on "1 product" link related to the created brand', async () => {
+      await page.evaluate((selector) =>
+      {return document.querySelector(selector).parentElement.parentElement.nextElementSibling.querySelector('a').click();}
+      ,SiteMapPageFO.name_brand_link.replace('%NAME', 'prestashop' + date_time)
+      );
+      await page.waitForNavigation();
+      });
     test('should check the existence of the created product', () => client.waitForVisible(SiteMapPageFO.list_product_link.replace('%TEXT', date_time)));
     test('should go to the Back Office', () => client.switchWindow(0));
   }, 'common_client');
   commonProducts.deleteProduct(AddProductPage, productData);
-
   scenario('Logout from the Back Office', client => {
     test('should logout successfully from Back Office', () => client.signOutBO());
   }, 'common_client');
-
 }, 'common_client', true);
