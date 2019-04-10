@@ -21,15 +21,16 @@ scenario('Bulk action in catalog page', () => {
   welcomeScenarios.findAndCloseWelcomeModal();
   scenario('Disable the product list', client => {
     test('should go to "Catalog" page', () => client.goToSubtabMenuPage(Menu.Sell.Catalog.catalog_menu, Menu.Sell.Catalog.products_submenu));
-    test('should click on "Select all" radio button', () => client.selectAllProducts(CatalogPage.select_all_product_button));
-    test('should choose the "Deactivate selection" action', () => client.selectAction(CatalogPage, 2));
-    test('should Verify that the modal "deactivation in progress" is well displayed', () => {
+    test('should click on "Select all" radio button', async () => await client.selectAllProducts(CatalogPage.select_all_product_button));
+    test('should choose the "Deactivate selection" action', async () => await client.selectAction(CatalogPage, 2));
+    test('should Verify that the modal "deactivation in progress" is well displayed', async () => {
       return promise
-        .then(() => client.isVisibleWithinViewport(CatalogPage.deactivate_modal))
-        .then(() => client.waitForVisible(CatalogPage.green_validation, 90000));
+        .then(async () => await page.waitForSelector(CatalogPage.deactivate_modal + '.modal.show'))
+        .then(async () => await page.waitForSelector(CatalogPage.deactivate_modal + '.modal:not(.show)'))
+        .then(async () => await page.waitForSelector(CatalogPage.green_validation,{visible:'true'}));
     });
-    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'close\nProduct(s) successfully deactivated.'));
-    test('should get the products page number', () => client.getProductPageNumber('product_catalog_list'));
+    test('should verify the appearance of the green validation', () => client.checkTextContent(CatalogPage.green_validation, 'Product(s) successfully deactivated.'));
+    test('should get the products page number', () => client.getProductPageNumber('#product_catalog_list'));
     test('should verify that all products statuses are disabled successfully', () => {
       for (let j = 0; j < global.productsNumber; j++) {
         promise = client.getProductStatus(CatalogPage.product_status_icon.replace('%S', j + 1), j);
@@ -48,7 +49,7 @@ scenario('Bulk action in catalog page', () => {
         .then(() => client.changeLanguage());
     });
     test('should search a disabled product', () => client.searchByValue(SearchProductPage.search_input, SearchProductPage.search_button, global.tab['productName']));
-    test('should check the not existence of the disabled product', () => client.isExisting(SearchProductPage.empty_result_section));
+    test('should check the not existence of the disabled product', () => page.waitForSelector(SearchProductPage.empty_result_section));
     test('should go back to the Back Office', () => client.switchWindow(0));
   }, 'catalogbulkaction');
   scenario('Enable the product list', client => {
@@ -56,11 +57,12 @@ scenario('Bulk action in catalog page', () => {
     test('should choose the "Activate selection" action', () => client.selectAction(CatalogPage, 1));
     test('should Verify that the modal "activation in progress" is well displayed', () => {
       return promise
-        .then(() => client.isVisibleWithinViewport(CatalogPage.activate_modal))
-        .then(() => client.waitForVisible(CatalogPage.green_validation, 90000));
+        .then(async () => await page.waitForSelector(CatalogPage.activate_modal + '.modal.show'))
+        .then(async () => await page.waitForSelector(CatalogPage.activate_modal + '.modal:not(.show)'))
+        .then(async () => await page.waitForSelector(CatalogPage.green_validation,{visible:'true'}));
     });
-    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'close\nProduct(s) successfully activated.'));
-    test('should get the products page number', () => client.getProductPageNumber('product_catalog_list'));
+    test('should verify the appearance of the green validation', () => client.checkTextContent(CatalogPage.green_validation, 'Product(s) successfully activated.'));
+    test('should get the products page number', () => client.getProductPageNumber('#product_catalog_list'));
     test('should verify that all products statuses are enabled successfully', () => {
       for (let j = 0; j < global.productsNumber; j++) {
         promise = client.getProductStatus(CatalogPage.product_status_icon.replace('%S', j + 1), j);
@@ -78,7 +80,7 @@ scenario('Bulk action in catalog page', () => {
     test('should go back to the Back Office', () => client.switchWindow(0));
   }, 'catalogbulkaction');
   scenario('Duplicate the product list', client => {
-    test('should click on "Select all" radio button', () => {
+    test('should click on "Select all" radio button', async () => {
       return promise
         .then(() => client.isVisible(ProductList.pagination_products))
         .then(() => {
@@ -87,15 +89,16 @@ scenario('Bulk action in catalog page', () => {
           }
         })
         .then(() => client.getProductsNumber(ProductList.pagination_products))
-        .then(() => client.selectAllProducts(CatalogPage.select_all_product_button));
+        .then(async () => await client.selectAllProducts(CatalogPage.select_all_product_button));
     });
-    test('should choose the "Duplicate selection" action', () => client.selectAction(CatalogPage, 3));
-    test('should Verify that the modal "Duplication in progress" is well displayed', () => {
+    test('should choose the "Duplicate selection" action', () => client.selectAction(CatalogPage, 4));
+    test('should Verify that the modal "Duplication in progress" is well displayed', async () => {
       return promise
-        .then(() => client.isVisibleWithinViewport(CatalogPage.duplicate_modal, 1000))
-        .then(() => client.waitForVisible(CatalogPage.green_validation, 90000));
+        .then(async () => await page.waitForSelector(CatalogPage.duplicate_modal + '.modal.show'))
+        .then(async () => await page.waitForSelector(CatalogPage.duplicate_modal + '.modal:not(.show)'))
+        .then(async () => await page.waitForSelector(CatalogPage.green_validation,{visible:'true'}));
     });
-    test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'close\nProduct(s) successfully duplicated.'));
+    test('should verify the appearance of the green validation', () => client.checkTextContent(CatalogPage.green_validation, 'Product(s) successfully duplicated.'));
     test('should check that the products were duplicated', () => {
       let number = typeof global.productsNumber !== 'undefined' ? parseInt(global.productsNumber) : 0;
       return promise
@@ -117,40 +120,58 @@ scenario('Bulk action in catalog page', () => {
   scenario('Delete duplicated products list with bulk action', () => {
     scenario('Abort the delete product action from the modal', client => {
       test('should set the search input to "copy" to search for the duplicated products', () => client.waitAndSetValue(CatalogPage.name_search_input, "copy"));
-      test('should click on the "ENTER" key', () => client.keys('Enter'));
-      test('should click on "Select all" radio button', () => client.selectAllProducts(CatalogPage.select_all_product_button));
-      test('should click on the "Bulk actions" button', () => client.waitForExistAndClick(CatalogPage.action_group_button));
-      test('should click on the "Delete selection" button', () => client.waitForExistAndClick(CatalogPage.action_button.replace("%ID", 4)));
-      test('should click on the "Close" button', () => client.waitForVisibleAndClick(CatalogPage.close_delete_modal));
+      test('should click on the "ENTER" key', async () => {
+        await client.keys('Enter');
+        await page.waitForNavigation();
+      });
+      test('should click on "Select all" radio button', async () => await client.selectAllProducts(CatalogPage.select_all_product_button));
+      test('should click on the "Bulk actions" button', async () => await client.waitForExistAndClick(CatalogPage.action_group_button));
+      test('should click on the "Delete selection" button', async () => await client.waitForExistAndClick(CatalogPage.action_button.replace("%ID", 6)));
+      test('should click on the "Close" button', () => client.waitForExistAndClick(CatalogPage.close_delete_modal,1000));
       scenario('Check that duplicate products are not deleted', client => {
-        test('should set the search input to "copy" to search for the duplicated products', () => client.waitAndSetValue(CatalogPage.name_search_input, "copy", 2000));
-        test('should click on the "ENTER" key', () => client.keys('Enter'));
-        test('should check the existence of the list of products', () => client.isNotExisting(CatalogPage.search_result_message, 2000));
-        test('should click on "Reset" button', () => client.waitForVisibleAndClick(CatalogPage.reset_button, 2000));
+        test('should set the search input to "copy" to search for the duplicated products', () => client.fillInputText(CatalogPage.name_search_input, "copy"));
+        test('should click on the "ENTER" key', async () => {
+          await client.keys('Enter');
+          await page.waitForNavigation();
+        });
+        test('should check the existence of the list of products', async () =>  {
+          let text = await client.getText(CatalogPage.search_result_message);
+          expect(text).to.not.contains('Product(s) successfully deleted.');
+        });
+        test('should click on "Reset" button', async () => {
+          await client.waitForVisibleAndClick(CatalogPage.reset_button);
+          await page.waitForNavigation();
+        });
       }, 'catalogbulkaction');
     }, 'catalogbulkaction');
 
     scenario('Check when accepting to delete duplicated product modal', client => {
-      test('should set the search input to "copy" to search for the duplicated products', () => client.waitAndSetValue(CatalogPage.name_search_input, "copy"));
-      test('should click on the "ENTER" key', () => client.keys('Enter'));
-      test('should click on "Select all" radio button', () => client.selectAllProducts(CatalogPage.select_all_product_button));
+      test('should set the search input to "copy" to search for the duplicated products', () => client.fillInputText(CatalogPage.name_search_input, "copy"));
+      test('should click on the "ENTER" key', async () => {
+        await client.keys('Enter');
+        await page.waitForNavigation();
+      });
+      test('should click on "Select all" radio button', async () => await client.selectAllProducts(CatalogPage.select_all_product_button));
       test('should click on the "Bulk actions" button', () => client.waitForExistAndClick(CatalogPage.action_group_button));
-      test('should click on the "Delete selection" button', () => client.waitForExistAndClick(CatalogPage.action_button.replace("%ID", 4)));
+      test('should click on the "Delete selection" button', () => client.waitForExistAndClick(CatalogPage.action_button.replace("%ID", 6)));
       test('should click on the "delete now" button', () => client.waitForVisibleAndClick(CatalogPage.delete_confirmation));
-      test('should Verify that the modal "Deletion in progress" is well displayed', () => {
+      test('should Verify that the modal "Deletion in progress" is well displayed', async () => {
         return promise
-          .then(() => client.isVisibleWithinViewport(CatalogPage.delete_modal, 1000))
-          .then(() => client.waitForVisible(CatalogPage.green_validation, 90000));
+          .then(async () => await page.waitForSelector(CatalogPage.delete_modal + '.modal.show'))
+          .then(async () => await page.waitForSelector(CatalogPage.delete_modal + '.modal:not(.show)'))
+          .then(async () => await page.waitForSelector(CatalogPage.green_validation,{visible:'true'}));
       });
-      test('should check that the duplicate products are deleted successfully', () => {
-        return promise
-          .then(() => client.waitForVisible(CatalogPage.green_validation, 90000))
-          .then(() => client.checkTextValue(CatalogPage.green_validation, 'close\nProduct(s) successfully deleted.'));
+      test('should check that the duplicate products are deleted successfully', () => client.checkTextContent(CatalogPage.green_validation, 'Product(s) successfully deleted.'));
+      test('should click on "Reset" button', async () => {
+        await client.waitForVisibleAndClick(CatalogPage.reset_button);
+        await page.waitForNavigation();
       });
-      test('should click on "Reset" button', () => client.waitForVisibleAndClick(CatalogPage.reset_button));
       scenario('Check that the duplicate product has been deleted', client => {
-        test('should set the search input to "copy" to search for the duplicated products', () => client.waitAndSetValue(CatalogPage.name_search_input, "copy"));
-        test('should click on the "ENTER" key', () => client.keys('Enter'));
+        test('should set the search input to "copy" to search for the duplicated products', async () => await client.waitAndSetValue(CatalogPage.name_search_input, "copy"));
+        test('should click on the "ENTER" key', async () => {
+          await client.keys('Enter');
+          await page.waitForNavigation();
+        });
         test('should get a message indicates that no result found', () => client.checkTextValue(CatalogPage.search_result_message, 'There is no result for this search', "contain", 2000));
         test('should click on "Reset" button', () => client.waitForVisibleAndClick(CatalogPage.reset_button));
       }, 'catalogbulkaction');
@@ -159,7 +180,7 @@ scenario('Bulk action in catalog page', () => {
     scenario('Check existence product in Front Office', client => {
       test('should go to the "Front Office"', () => client.switchWindow(1));
       test('should search the deleted product', () => client.searchByValue(SearchProductPage.search_input, SearchProductPage.search_button, 'copy'));
-      test('should check the not existence of the disabled product', () => client.isExisting(SearchProductPage.empty_result_section));
+      test('should check the not existence of the disabled product', () => page.waitForSelector(SearchProductPage.empty_result_section));
       test('should go back to the Back Office', () => client.switchWindow(0));
     }, 'catalogbulkaction');
   }, 'catalogbulkaction');

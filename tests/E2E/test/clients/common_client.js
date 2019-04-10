@@ -888,6 +888,15 @@ class CommonClient {
     }
     expect(found).to.be.true;
   }
+
+  /**
+   * get text from an element
+   * @param selector, selector to get text from
+   */
+  async getText(selector){
+    let text = await page.evaluate((selector) => {return document.querySelector(selector).innerText;},selector);
+    return text;
+  }
 }
 
 module.exports = CommonClient;

@@ -177,7 +177,7 @@ class Product extends CommonClient {
   }
 
   getProductStatus(selector, i) {
-    return this.client
+    return this
       .getText(selector).then(function (status) {
         global.productStatus[i] = status;
       });

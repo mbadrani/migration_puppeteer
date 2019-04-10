@@ -55,7 +55,7 @@ module.exports = {
       });
       test('should click on "Activate" button', () => client.waitForExistAndClick(Brands.active_button));
       test('should click on "Save" button', () => client.waitForExistAndClick(Brands.save_button));
-      test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.success_panel, '×\nSuccessful creation.'));
+      test('should verify the appearance of the green validation', () => client.checkTextContent(CatalogPage.green_validation, 'Successful creation.'));
     }, 'common_client');
   },
   createBrandAddress: function (brandAddressData) {

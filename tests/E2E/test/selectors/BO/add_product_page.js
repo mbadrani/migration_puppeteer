@@ -254,7 +254,7 @@ module.exports = {
     tax_rule: '#select2-step2_id_tax_rules_group_rendered-container',
     category_checkbox: '#form_step1_categories label[text()[contains(.,"%CATEGORY")]] input:nth-child(1)):nth-child(1)',
     category_label: '#form_step1_categories label[text()[contains(.,"%CATEGORY")]]',
-    brand_option: '#select2-form_step1_id_manufacturer-results li[contains(text(),"%BRAND")]',
+    brand_option: '#select2-form_step1_id_manufacturer-results li',
     tax_option: '#select2-step2_id_tax_rules_group_rendered-results li[contains(text(),"%V")]',
     product_type_value_option: '#form_step1_type_product option[value="%TYPE"]',
     quick_navigation_column: '#right-sidebar table thead th[contains(text(),"%TEXT")]',
