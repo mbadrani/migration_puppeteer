@@ -53,8 +53,8 @@ module.exports = {
             .then(() => client.keys('Enter'));
         });
       });
-      test('should click on "Activate" button', () => client.waitForExistAndClick(Brands.active_button));
-      test('should click on "Save" button', () => client.waitForExistAndClick(Brands.save_button));
+      test('should click on "Activate" button', async () => await client.waitForExistAndClick(Brands.active_button));
+      test('should click on "Save" button', async () => await page.$eval(Brands.save_button, elem => elem.click()));
       test('should verify the appearance of the green validation', () => client.checkTextContent(CatalogPage.green_validation, 'Successful creation.'));
     }, 'common_client');
   },
@@ -71,9 +71,9 @@ module.exports = {
       test('should choose the country', () => client.waitAndSelectByVisibleText(BrandAddress.country, brandAddressData.country));
       test('should set the "Home phone" input', () => client.waitAndSetValue(BrandAddress.phone_input, brandAddressData.homePhone));
       test('should set the "Mobile phone" input', () => client.waitAndSetValue(BrandAddress.mobile_phone_input, brandAddressData.mobilePhone));
-      test('should set the "Other" input', () => client.waitAndSetValue(BrandAddress.other_input, brandAddressData.other));
-      test('should click on "Save" button', () => client.waitForExistAndClick(BrandAddress.save_button));
-      test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.success_panel, '×\nSuccessful creation.'));
+      test('should set the "Other" input', async () => await client.waitAndSetValue(BrandAddress.other_input, brandAddressData.other));
+      test('should click on "Save" button', async () => await page.$eval(BrandAddress.save_button, elem => elem.click()));
+      test('should verify the appearance of the green validation', () => client.checkTextValue(CatalogPage.green_validation, 'Successful creation.'));
     }, 'common_client');
   },
 };

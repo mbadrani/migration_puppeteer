@@ -11,9 +11,9 @@ module.exports = {
     save_button: '.card-footer button',
     short_description_input: '#manufacturer_short_description_1',
     description_input: '#manufacturer_description_1',
-    filter_name_input: '#table-manufacturer input#manufacturer_name',
-    brand_column: '#table-manufacturer tr:nth-child(%TR) td:nth-child(%COL)',
-    brand_search_button: '#submitFilterButtonmanufacturer ',
-    brand_reset_button: '#submitFilterButtonmanufacturer ',
+    filter_name_input: 'input#manufacturer_name',
+    brand_column: '#manufacturer_grid tbody tr:nth-child(%TR) td:nth-child(%COL)',
+    brand_search_button: 'button[name="manufacturer[actions][search]"] ',
+    brand_reset_button: 'button[name="manufacturer[actions][reset]"]',
   }
 };
