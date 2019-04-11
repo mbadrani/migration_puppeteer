@@ -1,9 +1,9 @@
 module.exports = {
   Stock: {
     edit_quantity_input: '#app tr:nth-of-type(1) div[name="qty"] input',
-    product_quantity_input: '#app div.edit-qty:nth-child(%O) input',
+    product_quantity_input: '#app tr:nth-child(%O) div.edit-qty input',
     product_quantity: '#app tr:nth-of-type(%O) > td:nth-of-type(7)',
-    product_quantity_modified: '#app tr:nth-child(%O) span.qty-update:nth-child(1)',
+    product_quantity_modified: '#app tr:nth-child(%O) span.qty-update',
     available_quantity_modified: '#app tr:nth-child(%O) span.qty-update:nth-child(2)',
     save_product_quantity_button: '#app button.check-button:nth-child(%I)',
     group_apply_button: '#app button.update-qty',
@@ -12,7 +12,7 @@ module.exports = {
     success_panel: '#growls ',
     search_input: '#search form div.search-input.search input',
     search_button: '#search button[class*=search-button]',
-    sort_product_icon: '#app table div[contains(data-sort-direction,"asc")]',
+    sort_product_icon: '#app table div[data-sort-direction*="asc"]',
     check_sign: '#app button.check-button ',
     physical_column: '#app div > table.table tr:nth-of-type(%ID) > td:nth-of-type(5)',
     green_validation: '#search div:nth-child(2) div button',
