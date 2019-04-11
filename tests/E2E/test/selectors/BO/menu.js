@@ -24,7 +24,7 @@ module.exports = {
         discounts_submenu: '#subtab-AdminParentCartRules a',
         catalog_price_rules_tab: '#subtab-AdminSpecificPriceRule a',
         stocks_submenu: '#subtab-AdminStockManagement a',
-        stock_tab: '#head_tabs ul li:nth-child(1) a [role="tab"]',
+        stock_tab: '#head_tabs ul li:nth-child(1) a:not([href*="movement"])',
         movement_tab: '#head_tabs ul a[href*="movement"]'
       },
       Customers: {
