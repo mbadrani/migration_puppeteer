@@ -20,9 +20,7 @@ global.db_server = argv.DB_SERVER || 'localhost';
 global.db_user = argv.DB_USER || 'root';
 global.db_passwd = argv.DB_PASSWD || 'root';
 global.db_empty_password = !!argv.DB_EMPTY_PASSWD; //Cast as boolean
-global.selenium_protocol = argv.SELENIUM_PROTOCOL;
-global.selenium_host = argv.SELENIUM_HOST;
-global.selenium_port = argv.SELENIUM_PORT;
+
 global.module_tech_name = argv.MODULE || 'ps_legalcompliance';
 global.test_addons = !argv.TEST_ADDONS; //Cast as boolean
 global.install_shop = !!argv.INSTALL;
@@ -33,7 +31,7 @@ global.rcLink = argv.RCLINK || ''; // Link for download The RC
 global.rcTarget = argv.RCTARGET; // Last stable version location directory
 global.filename = argv.FILENAME || ''; // RC file name
 
-global.headless = argv.HEADLESS || false;
+global.headless = argv.HEADLESS || true;
 
 global.adminEmail = argv.ADMIN_EMAIL || 'demo@prestashop.com';
 global.adminPassword = argv.ADMIN_PASSWORD || 'prestashop_demo';
