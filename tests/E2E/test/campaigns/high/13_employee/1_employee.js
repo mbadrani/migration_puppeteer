@@ -13,8 +13,8 @@ welcomeScenarios.findAndCloseWelcomeModal();
 scenario('Create employee', client => {
   test('should stop the "On Boarding"', () => {
     return promise
-      .then(() => client.isVisible(OnBoarding.stop_button))
-      .then(() => client.closeBoarding(OnBoarding.stop_button));
+        .then(() => client.isVisible(OnBoarding.stop_button))
+        .then(() => client.closeBoarding(OnBoarding.stop_button));
   });
   test('should go to "Team" menu', () => client.goToSubtabMenuPage(Menu.Configure.AdvancedParameters.advanced_parameters_menu, Menu.Configure.AdvancedParameters.team_submenu));
   test('should click on "Add new employee" button', () => client.waitForExistAndClick(Employee.new_employee_button));
@@ -29,11 +29,11 @@ scenario('Create employee', client => {
 scenario('Check the employee creation', client => {
   test('should search the created employee', () => client.waitAndSetValue(Employee.email_search_input, 'demo' + date_time + '@prestashop.com'));
   test('should click on "Search" button', () => client.waitForExistAndClick(Employee.search_button_team));
-  test('should check the result', () => client.checkTextValue(Employee.search_result, "1"));
-  test('should check that the "First name" of employee is equal to "Demo"', () => client.checkTextValue(Employee.team_employee_name, 'Demo'));
-  test('should check that the "Last name" of employee is equal to "Prestashop"', () => client.checkTextValue(Employee.team_employee_last_name, 'Prestashop'));
-  test('should check that the "Email" of employee is equal to "demo' + date_time + '@prestashop.com"', () => client.checkTextValue(Employee.team_employee_email, 'demo' + date_time + '@prestashop.com'));
-  test('should check that the "Permission profile" of employee is equal to "Salesman"', () => client.checkTextValue(Employee.team_employee_profile, 'Salesman'));
+  test('should check the result', () => client.checkTextValue(Employee.search_result, "Employees (1)"));
+  test('should check that the "First name" of employee is equal to "Demo"', () => client.checkTextValue(Employee.team_employee_name, 'Demo', 'equal'));
+  test('should check that the "Last name" of employee is equal to "Prestashop"', () => client.checkTextValue(Employee.team_employee_last_name, 'Prestashop', 'equal'));
+  test('should check that the "Email" of employee is equal to "demo' + date_time + '@prestashop.com"', () => client.checkTextValue(Employee.team_employee_email, 'demo' + date_time + '@prestashop.com', 'equal'));
+  test('should check that the "Permission profile" of employee is equal to "Salesman"', () => client.checkTextValue(Employee.team_employee_profile, 'Salesman', 'equal'));
   test('should click on "Reset" button', () => client.waitForExistAndClick(Employee.reset_search_button));
   test('should click on "employee info" icon', () => client.waitForExistAndClick(AccessPageBO.info_employee));
   test('should click on "Sign out" icon', () => client.waitForVisibleAndClick(AccessPageBO.sign_out));
@@ -53,10 +53,13 @@ scenario('Delete an employee', client => {
   test('should go to "Team" menu', () => client.goToSubtabMenuPage(Menu.Configure.AdvancedParameters.advanced_parameters_menu, Menu.Configure.AdvancedParameters.team_submenu));
   test('should search the created employee', () => client.waitAndSetValue(Employee.email_search_input, 'demo' + date_time + '@prestashop.com'));
   test('should click on "Search" button', () => client.waitForExistAndClick(Employee.search_button_team));
-  test('should check the result', () => client.checkTextValue(Employee.search_result, "1"));
+  test('should check the result', () => client.checkTextValue(Employee.search_result, "Employees (1)"));
   test('should click dropdown-toggle button', () => client.waitForExistAndClick(Employee.dropdown_toggle));
-  test('should click on "Delete" link', () => client.waitForVisibleAndClick(Employee.delete_link));
-  test('should click on "OK" button in the pop-up', () => client.alertAccept());
-  test('should check the result', () => client.checkTextValue(Employee.search_result, "0"));
+  test('should click on "Delete" link', async () => {
+    await client.alertAccept();
+    await client.waitForVisibleAndClick(Employee.delete_link);
+  });
+  //the pop up should be accepted before click on delete button;test('should click on "OK" button in the pop-up', () => client.alertAccept());
+  test('should check the result', () => client.checkTextValue(Employee.search_result, "Employees (0)"));
   test('should click on "Reset" button', () => client.waitForExistAndClick(Employee.reset_search_button));
 }, 'common_client', true);
