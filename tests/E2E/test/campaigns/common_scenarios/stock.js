@@ -3,27 +3,19 @@ module.exports = {
   changeStockProductQuantity: function (client, Stock, orderProduct, itemNumber, saveBtn, option = "add", productRef = "") {
     test('should change the product quantity', () => {
       promise
-        .then(() => client.getTextInVar(Stock.product_quantity.replace('%O', orderProduct), "productQuantity"))
-        .then(() => client.moveToObject(Stock.product_quantity_input.replace('%O', orderProduct)));
+        .then(() => client.getTextInVar(Stock.product_quantity.replace('%O', orderProduct), "productQuantity"));
       if (option === "add") {
-        for (let i = 1; i <= itemNumber + 1; i++) {
-          promise
-            .then(() => client.waitForExistAndClick(Stock.add_quantity_button.replace('%ITEM', orderProduct)))
-            .then(() => client.pause(1000));
-        }
+        promise
+            .then(() => client.fillInputNumber(Stock.product_quantity_input.replace('%O', orderProduct),String(itemNumber)));
       } else {
-        for (let i = 1; i <= itemNumber + 1; i++) {
-          promise
-            .then(() => client.waitForExistAndClick(Stock.remove_quantity_button.replace('%ITEM', orderProduct)))
-            .then(() => client.pause(1000));
-        }
+        promise
+            .then(() => client.fillInputNumber(Stock.product_quantity_input.replace('%O', orderProduct),String(itemNumber*-1)));
       }
       promise
-        .then(() => client.isVisible(Stock.product_quantity_modified.replace('%O', orderProduct)))
-        .then(() => client.isVisible(Stock.available_quantity_modified.replace('%O', orderProduct)));
+        .then(() => page.waitForSelector(Stock.product_quantity_modified.replace('%O', orderProduct),{visible:'true'}))
+        .then(() => page.waitForSelector(Stock.available_quantity_modified.replace('%O', orderProduct),{visible:'true'}));
 
       return promise
-        .then(() => client.pause(3000))
         .then(() => client.getTextInVar(Stock.product_quantity.replace('%O', orderProduct), "productQuantity"))
         .then(() => client.checkTextValue(Stock.product_quantity_modified.replace('%O', orderProduct), global.tab["productQuantity"].substring(18), "contain"));
     });
@@ -34,15 +26,11 @@ module.exports = {
         }
         await client.waitForExistAndClick(Stock.save_product_quantity_button.replace('%I', 1));
       });
-      /**
-       * This scenario is based on the bug described in this ticket
-       * https://github.com/PrestaShop/PrestaShop/issues/12387
-       **/
       test('should check the success panel', () => {
         return promise
           .then(() => client.waitForVisible(Stock.success_hidden_panel))
           .then(() => {
-            client.checkTextValue(Stock.success_hidden_panel, 'Stock successfully updated', 'contain');
+            client.checkTextContent(Stock.success_hidden_panel, 'Stock successfully updated');
           });
       });
     }
@@ -82,27 +70,27 @@ module.exports = {
         if (global.isVisible) {
           await client.waitForExistAndClick(Movement.searched_product_close_icon);
         }
-        await client.waitAndSetValue(Movement.search_input, productName, 2000);
+        await client.waitAndSetValue(Movement.search_input, productName);
         await client.waitForExistAndClick(Movement.search_button);
-        await client.waitForExistAndClick(Movement.advanced_filters_button, 2000);
+        await client.waitForExistAndClick(Movement.advanced_filters_button);
         await client.isVisible(Movement.movement_type_select);
         if (global.isVisible) {
           await client.waitForExistAndClick(Movement.movement_type_select);
         }
-        await client.waitAndSelectByVisibleText(Movement.movement_type_select, type, 1000);
-        await client.waitForExistAndClick(Movement.advanced_filters_button, 2000);
+        await client.waitAndSelectByVisibleText(Movement.movement_type_select, type);
+        await client.waitForExistAndClick(Movement.advanced_filters_button);
       });
       test('should sort the movement by date', async () => {
-        await client.isVisible(Movement.sort_data_time_icon_desc, 2000);
+        await client.isVisible(Movement.sort_data_time_icon_desc);
         if (!global.isVisible) {
-          await client.waitForExistAndClick(Movement.sort_data_time_icon_asc, 2000);
-          await client.waitForExistAndClick(Movement.sort_data_time_icon_desc, 2000);
-          await client.pause(4000);
+          await client.waitForExistAndClick(Movement.sort_data_time_icon_asc);
+          await client.waitForExistAndClick(Movement.sort_data_time_icon_desc);
+          await page.waitForNavigation();
         }
         else {
-          await client.waitForExistAndClick(Movement.sort_data_time_icon_desc, 2000);
-          await client.waitForExistAndClick(Movement.sort_data_time_icon_asc, 2000);
-          await client.pause(4000);
+          await client.waitForExistAndClick(Movement.sort_data_time_icon_desc);
+          await client.waitForExistAndClick(Movement.sort_data_time_icon_asc);
+          await page.waitForNavigation();
         }
       });
      }
